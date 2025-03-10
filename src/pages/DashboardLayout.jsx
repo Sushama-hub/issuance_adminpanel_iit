@@ -102,7 +102,13 @@ export default function Dashboard() {
         padding: "20px",
       }}
     >
-      <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 2 }}>
+      <Typography
+        variant="h5"
+        fontWeight="bold"
+        color="primary"
+        gutterBottom
+        mb={2}
+      >
         📊 Dashboard Overview
       </Typography>
 
@@ -138,12 +144,12 @@ export default function Dashboard() {
       </Grid>
 
       {/* Bar Chart Section */}
-      <Card sx={{ marginTop: "20px", padding: 3 }}>
+      {/* <Card sx={{ marginTop: "20px", padding: 3 }}>
         <Typography variant="h6" fontWeight="bold">
           📊 Month-wise Issuance Chart
         </Typography>
-        {/* <MonthWiseBarChart data1={allIssuanceData} /> */}
-      </Card>
+        <MonthWiseBarChart data1={allIssuanceData} />
+      </Card> */}
 
       {/* User Form Button */}
       <Card

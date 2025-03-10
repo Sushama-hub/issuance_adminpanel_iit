@@ -102,7 +102,7 @@ export default function Dashboard() {
         padding: "20px",
       }}
     >
-      <Typography variant="h5" fontWeight="bold" gutterBottom>
+      <Typography variant="h5" fontWeight="bold" gutterBottom sx={{ mb: 2 }}>
         📊 Dashboard Overview
       </Typography>
 
@@ -125,7 +125,8 @@ export default function Dashboard() {
           title="Inventory Details"
           value={data.inventory}
           icon={<Storage fontSize="large" />}
-          color="#FB8C00"
+          // color="#FB8C00"
+          color="#257180"
           link="/inventory_records"
         />
         <StatCard
@@ -229,6 +230,7 @@ function StatCardContent({ title, value, icon, color }) {
       sx={{
         height: "100%",
         background: `linear-gradient(135deg, ${color}, rgb(66, 71, 77))`,
+        // background: `linear-gradient(135deg, ${color}, rgb(45, 50, 56))`,
         color: "white",
         borderRadius: "12px",
         boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.3)",

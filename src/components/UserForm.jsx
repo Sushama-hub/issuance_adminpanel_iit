@@ -12,8 +12,18 @@ import {
   Card,
   CardContent,
   CircularProgress,
+  Grid,
+  Box,
 } from "@mui/material";
 import axios from "axios";
+
+const BATCH_YEARS = ["2022", "2023", "2024", "2025"];
+const CATEGORIES = [
+  { label: "B.Tech", value: "btech" },
+  { label: "M.Tech", value: "mtech" },
+  { label: "PhD", value: "phd" },
+  { label: "Project Staff", value: "project-staff" },
+];
 
 export default function IssuanceForm() {
   const [formData, setFormData] = useState({
@@ -25,6 +35,8 @@ export default function IssuanceForm() {
     branch: "",
     mobile: "",
     components: "",
+    specification: "",
+    quantity: "",
     status: "Issued",
     remark: "",
   });
@@ -37,8 +49,6 @@ export default function IssuanceForm() {
     const { name, value } = e.target;
 
     if (name === "email") {
-      console.log("email validation");
-      // Regex to allow only emails ending with '@iitbhilai.ac.in'
       const emailPattern = /^[a-zA-Z0-9._%+-]+@iitbhilai\.ac\.in$/;
       if (!emailPattern.test(value)) {
         setEmailError(
@@ -60,14 +70,12 @@ export default function IssuanceForm() {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       });
-      console.log(response?.data);
 
-      if (response?.data?.success === true) {
+      if (response?.data?.success) {
         setTimeout(() => {
           setSubmitted(true);
           setLoading(false);
           setFormData({
-            ...formData,
             email: "",
             batch: "",
             category: "",
@@ -86,7 +94,7 @@ export default function IssuanceForm() {
     } catch (error) {
       console.error("Error submitting form:", error);
       alert("Something went wrong. Please try again.");
-      setLoading(false); // Stop loading on error
+      setLoading(false);
     }
   };
 
@@ -98,22 +106,14 @@ export default function IssuanceForm() {
             sx={{
               p: 4,
               textAlign: "center",
-              // backgroundColor: "#E6F4EA",
               backgroundColor: "#DFF2BF",
               borderRadius: 2,
               borderLeft: "6px solid green",
               borderRight: "6px solid green",
-              // borderLeft: "6px solid #1E40AF",
-              // borderRight: "6px solid #1E40AF",
             }}
           >
             <CardContent>
-              <Typography
-                variant="h5"
-                fontWeight="bold"
-                color="success"
-                // sx={{ color: "#043c5a" }}
-              >
+              <Typography variant="h5" fontWeight="bold" color="success">
                 🎉 Submission Successful!
               </Typography>
               <Typography variant="body1" sx={{ mt: 2 }}>
@@ -121,7 +121,7 @@ export default function IssuanceForm() {
               </Typography>
               <Button
                 variant="contained"
-                onClick={() => setSubmitted(false)} // Reset form view
+                onClick={() => setSubmitted(false)}
                 sx={{ mt: 3, backgroundColor: "#043c5a" }}
               >
                 Submit Another
@@ -130,151 +130,124 @@ export default function IssuanceForm() {
           </Card>
         </Container>
       ) : (
-        <Container maxWidth="sm" sx={{ mt: 5 }}>
+        <Container maxWidth="md" sx={{ my: 5 }}>
           <Paper
             elevation={3}
-            sx={{ p: 4, borderTop: "8px solid #1E40AF", borderRadius: 2 }}
+            sx={{
+              // p: 4,
+              // borderTop: "8px solid #1E40AF",
+              borderRadius: 2,
+            }}
           >
-            <Typography variant="h5" fontWeight="bold" mb={2}>
+            <Typography
+              variant="h5"
+              fontWeight="bold"
+              mb={2}
+              sx={{
+                backgroundColor: "#604CC3",
+                color: "white",
+                p: 3,
+                borderRadius: "10px 10px 0px 0px",
+                textAlign: "center",
+              }}
+            >
               Electrical Engineering Department Issuance Record Form
             </Typography>
-            <form
-              onSubmit={handleSubmit}
-              style={{ display: "flex", flexDirection: "column", gap: "15px" }}
-            >
-              <TextField
-                fullWidth
-                label="Email"
-                name="email"
-                type="email"
-                value={formData.email}
-                onChange={handleChange}
-                required
-                error={!!emailError} // Show error state if email is invalid
-                helperText={emailError} // Display error message
-              />
-              <FormControl fullWidth required>
-                <InputLabel>Batch (Year of Joining)</InputLabel>
-                <Select
-                  label="Batch (Year of Joining)"
-                  name="batch"
-                  value={formData.batch}
-                  onChange={handleChange}
-                >
-                  <MenuItem value="">Choose</MenuItem>
-                  <MenuItem value="2023">2022</MenuItem>
-                  <MenuItem value="2023">2023</MenuItem>
-                  <MenuItem value="2023">2024</MenuItem>
-                  <MenuItem value="2022">2025</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl fullWidth required>
-                <InputLabel>Category</InputLabel>
-                <Select
-                  label="Category"
-                  name="category"
-                  value={formData.category}
-                  onChange={handleChange}
-                >
-                  <MenuItem value="">Choose</MenuItem>
-                  <MenuItem value="btech">B.Tech</MenuItem>
-                  <MenuItem value="mtech">M. Tech</MenuItem>
-                  <MenuItem value="phd">PHD</MenuItem>
-                  <MenuItem value="project-staff">project Staff</MenuItem>
-                </Select>
-              </FormControl>
-              <TextField
-                fullWidth
-                label="ID Number"
-                name="idNumber"
-                value={formData.idNumber}
-                onChange={handleChange}
-                required
-              />
-              <TextField
-                fullWidth
-                label="Name"
-                name="name"
-                value={formData.name}
-                onChange={handleChange}
-                required
-              />
-              <TextField
-                fullWidth
-                label="Branch"
-                name="branch"
-                value={formData.branch}
-                onChange={handleChange}
-                required
-              />
-              <TextField
-                fullWidth
-                label="Mobile Number"
-                name="mobile"
-                type="tel"
-                value={formData.mobile}
-                onChange={handleChange}
-                required
-              />
-              <TextField
-                fullWidth
-                label="Components"
-                name="components"
-                value={formData.components}
-                onChange={handleChange}
-                required
-              />
-              <TextField
-                fullWidth
-                label="specification"
-                name="specification"
-                value={formData.specification}
-                onChange={handleChange}
-                required
-              />
-              <TextField
-                fullWidth
-                label="quantity"
-                name="quantity"
-                value={formData.quantity}
-                onChange={handleChange}
-                required
-              />
-              <TextField
-                fullWidth
-                label="Status"
-                name="status"
-                value={formData.status}
-                sx={{ display: "none" }}
-              />
-              <TextField
-                fullWidth
-                label="Remark"
-                name="remark"
-                value={formData.remark}
-                onChange={handleChange}
-              />
+            <form onSubmit={handleSubmit} style={{ padding: "20px" }}>
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Email"
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    error={!!emailError}
+                    helperText={emailError}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Batch (Year of Joining)</InputLabel>
+                    <Select
+                      label="Batch (Year of Joining)"
+                      name="batch"
+                      value={formData.batch}
+                      onChange={handleChange}
+                    >
+                      {BATCH_YEARS.map((year) => (
+                        <MenuItem key={year} value={year}>
+                          {year}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Category</InputLabel>
+                    <Select
+                      label="Category"
+                      name="category"
+                      value={formData.category}
+                      onChange={handleChange}
+                    >
+                      {CATEGORIES.map(({ label, value }) => (
+                        <MenuItem key={value} value={value}>
+                          {label}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                {[
+                  { label: "ID Number", name: "idNumber" },
+                  { label: "Name", name: "name" },
+                  { label: "Branch", name: "branch" },
+                  { label: "Mobile Number", name: "mobile", type: "tel" },
+                  { label: "Components", name: "components" },
+                  { label: "Specification", name: "specification" },
+                  { label: "Quantity", name: "quantity" },
+                  { label: "Remark", name: "remark" },
+                ].map(({ label, name, type }, index) => (
+                  <Grid item xs={12} sm={6} key={index}>
+                    <TextField
+                      fullWidth
+                      label={label}
+                      name={name}
+                      type={type || "text"}
+                      value={formData[name]}
+                      onChange={handleChange}
+                      required={name !== "remark"}
+                    />
+                  </Grid>
+                ))}
 
-              <Button
-                fullWidth
-                type="submit"
-                variant="contained"
-                // color="primary"
-                disabled={loading}
-                sx={{
-                  boxShadow: "0px 4px 15px rgba(31, 13, 94, 0.4)",
-                  backgroundColor: loading ? "#B0BEC5" : "#043c5a",
-                  "&:hover": {
-                    backgroundColor: loading ? "#B0BEC5" : "#03283d",
-                  },
-                }}
-              >
-                {loading ? (
-                  <CircularProgress size={24} sx={{ color: "white" }} />
-                ) : (
-                  "Submit"
-                )}
-              </Button>
+                <Grid
+                  item
+                  xs={12}
+                  sx={{ display: "flex", justifyContent: "center", mt: 2 }}
+                >
+                  <Button
+                    fullWidth
+                    type="submit"
+                    variant="contained"
+                    disabled={loading}
+                    sx={{
+                      backgroundColor: loading ? "#B0BEC5" : "#604CC3",
+                      width: { xs: "100%", md: "20%" },
+                    }}
+                  >
+                    {loading ? (
+                      <CircularProgress size={24} sx={{ color: "white" }} />
+                    ) : (
+                      "Submit"
+                    )}
+                  </Button>
+                </Grid>
+              </Grid>
             </form>
           </Paper>
         </Container>

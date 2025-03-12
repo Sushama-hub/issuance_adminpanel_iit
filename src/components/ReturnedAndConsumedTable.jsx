@@ -78,7 +78,13 @@ const columns = [
     editable: false,
     width: 120,
   },
-  { field: "updatedAt", headerName: "UpdatedAt At", flex: 1, editable: false },
+  {
+    field: "updatedAt",
+    headerName: "UpdatedAt At",
+    flex: 0,
+    editable: false,
+    width: 120,
+  },
 ];
 
 // Custom Component for Editable Status Cell

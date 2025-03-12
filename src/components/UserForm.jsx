@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   TextField,
   Select,
@@ -14,6 +14,7 @@ import {
   CircularProgress,
   Grid,
   Box,
+  Autocomplete,
 } from "@mui/material";
 import axios from "axios";
 
@@ -43,7 +44,61 @@ export default function IssuanceForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [componentsList, setComponentsList] = useState([]); // Component names + specifications
+  const [specificationsList, setSpecificationsList] = useState([]); // Specifications for selected component
+  const [availableQuantity, setAvailableQuantity] = useState(0); // Quantity of selected specification
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+
+  useEffect(() => {
+    const fetchComponents = async () => {
+      try {
+        const response = await axios.get(`${baseURL}/inventory/components`);
+        if (response?.data?.success) {
+          setComponentsList(response.data.components);
+        }
+      } catch (error) {
+        console.error("Error fetching components:", error);
+      }
+    };
+    fetchComponents();
+  }, [baseURL]);
+
+  // Handle component selection
+  const handleComponentChange = (event, newValue) => {
+    setFormData({
+      ...formData,
+      components: newValue,
+      specification: "",
+      quantity: "",
+    });
+    setAvailableQuantity(0);
+
+    if (!newValue) {
+      setSpecificationsList([]);
+      return;
+    }
+
+    const selectedComponent = componentsList.find(
+      (comp) => comp.componentName === newValue
+    );
+
+    if (selectedComponent) {
+      setSpecificationsList(selectedComponent.specifications);
+    } else {
+      setSpecificationsList([]);
+    }
+  };
+
+  // Handle specification selection and update available quantity
+  const handleSpecificationChange = (event) => {
+    const selectedSpec = event.target.value;
+    setFormData({ ...formData, specification: selectedSpec, quantity: "" });
+
+    const specData = specificationsList.find(
+      (spec) => spec.specification === selectedSpec
+    );
+    setAvailableQuantity(specData ? specData.quantity : 0);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -65,6 +120,7 @@ export default function IssuanceForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+
     try {
       const response = await axios.post(`${baseURL}/user/submit`, formData, {
         headers: { "Content-Type": "application/json" },
@@ -72,6 +128,30 @@ export default function IssuanceForm() {
       });
 
       if (response?.data?.success) {
+        console.log("✅ Form submitted successfully, updating inventory...");
+        // Inventory quantity update request
+        try {
+          await axios.put(
+            `${baseURL}/inventory/update-quantity`,
+            {
+              componentName:
+                typeof formData.components === "object"
+                  ? formData.components.value
+                  : formData.components,
+              specification: formData.specification,
+              quantity: -Number(formData.quantity), // Reduce the quantity
+            },
+            {
+              headers: { "Content-Type": "application/json" },
+              withCredentials: true,
+            }
+          );
+          // console.log("🔹 Inventory Update Response:", inventoryResponse.data);
+        } catch (inventoryError) {
+          console.error("❌ Error updating inventory:", inventoryError);
+          alert("Error updating inventory! Please check logs.");
+        }
+
         setTimeout(() => {
           setSubmitted(true);
           setLoading(false);
@@ -89,6 +169,7 @@ export default function IssuanceForm() {
             status: "Issued",
             remark: "",
           });
+          setAvailableQuantity(0);
         }, 1500);
       }
     } catch (error) {
@@ -97,6 +178,131 @@ export default function IssuanceForm() {
       setLoading(false);
     }
   };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+  //   try {
+  //     const response = await axios.post(`${baseURL}/user/submit`, formData, {
+  //       headers: { "Content-Type": "application/json" },
+  //       withCredentials: true,
+  //     });
+
+  //     if (response?.data?.success) {
+  //       setTimeout(() => {
+  //         setSubmitted(true);
+  //         setLoading(false);
+  //         setFormData({
+  //           email: "",
+  //           batch: "",
+  //           category: "",
+  //           idNumber: "",
+  //           name: "",
+  //           branch: "",
+  //           mobile: "",
+  //           components: "",
+  //           specification: "",
+  //           quantity: "",
+  //           status: "Issued",
+  //           remark: "",
+  //         });
+  //         setAvailableQuantity(0);
+  //       }, 1500);
+  //     }
+  //   } catch (error) {
+  //     console.error("Error submitting form:", error);
+  //     alert("Something went wrong. Please try again.");
+  //     setLoading(false);
+  //   }
+  // };
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+  //   setLoading(true);
+
+  //   if (!formData.components) {
+  //     alert("Please select a component.");
+  //     setLoading(false);
+  //     return;
+  //   }
+
+  //   try {
+  //     // Submit form data to backend
+  //     const response = await axios.post(`${baseURL}/user/submit`, formData, {
+  //       headers: { "Content-Type": "application/json" },
+  //       withCredentials: true,
+  //     });
+
+  //     if (response?.data?.success) {
+  //       console.log(
+  //         "✅ Form submitted successfully, now updating inventory..."
+  //       );
+
+  //       // Inventory quantity update request
+  //       try {
+  //         const inventoryResponse = await axios.put(
+  //           `${baseURL}/inventory/update-quantity`,
+  //           {
+  //             componentName:
+  //               typeof formData.components === "object"
+  //                 ? formData.components.value
+  //                 : formData.components,
+  //             specification: formData.specification,
+  //             quantity: -Number(formData.quantity), // Reduce the quantity
+  //           },
+  //           {
+  //             headers: { "Content-Type": "application/json" },
+  //             withCredentials: true,
+  //           }
+  //         );
+
+  //         console.log("🔹 Inventory Update Response:", inventoryResponse.data);
+
+  //         if (inventoryResponse?.data?.success) {
+  //           setTimeout(() => {
+  //             setSubmitted(true);
+  //             setLoading(false);
+  //             setFormData({
+  //               email: "",
+  //               batch: "",
+  //               category: "",
+  //               idNumber: "",
+  //               name: "",
+  //               branch: "",
+  //               mobile: "",
+  //               components: "",
+  //               specification: "",
+  //               quantity: "",
+  //               status: "Issued",
+  //               remark: "",
+  //             });
+  //             setAvailableQuantity(0);
+  //           }, 1500);
+  //         } else {
+  //           console.error(
+  //             "❌ Inventory update failed:",
+  //             inventoryResponse.data
+  //           );
+  //           alert(
+  //             inventoryResponse.data.message ||
+  //               "Error updating inventory quantity!"
+  //           );
+  //         }
+  //       } catch (inventoryError) {
+  //         console.error("❌ Error updating inventory:", inventoryError);
+  //         alert("Error updating inventory! Please check logs.");
+  //       }
+  //     } else {
+  //       console.error("❌ Error submitting form:", response.data);
+  //       alert(response.data.message || "Error submitting form!");
+  //     }
+  //   } catch (error) {
+  //     console.error("❌ API Error:", error);
+  //     alert("Something went wrong. Please try again.");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   return (
     <>
@@ -207,9 +413,9 @@ export default function IssuanceForm() {
                   { label: "Name", name: "name" },
                   { label: "Branch", name: "branch" },
                   { label: "Mobile Number", name: "mobile", type: "tel" },
-                  { label: "Components", name: "components" },
-                  { label: "Specification", name: "specification" },
-                  { label: "Quantity", name: "quantity" },
+                  // { label: "Components", name: "components" },
+                  // { label: "Specification", name: "specification" },
+                  // { label: "Quantity", name: "quantity" },
                   { label: "Remark", name: "remark" },
                 ].map(({ label, name, type }, index) => (
                   <Grid item xs={12} sm={6} key={index}>
@@ -224,6 +430,59 @@ export default function IssuanceForm() {
                     />
                   </Grid>
                 ))}
+                {/* Components Dropdown */}
+                <Grid item xs={12} sm={6}>
+                  <Autocomplete
+                    freeSolo
+                    options={componentsList.map((comp) => comp.componentName)}
+                    value={formData.components}
+                    onInputChange={handleComponentChange}
+                    renderInput={(params) => (
+                      <TextField
+                        {...params}
+                        label="Components"
+                        variant="outlined"
+                      />
+                    )}
+                  />
+                </Grid>
+                {/* Specification Dropdown */}
+                <Grid item xs={12} sm={6}>
+                  <FormControl fullWidth required>
+                    <InputLabel>Specification</InputLabel>
+                    <Select
+                      name="specification"
+                      value={formData.specification}
+                      onChange={handleSpecificationChange}
+                      disabled={specificationsList.length === 0}
+                    >
+                      {specificationsList.map((spec, index) => (
+                        <MenuItem key={index} value={spec.specification}>
+                          {spec.specification}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                {/* Quantity show */}
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Quantity"
+                    name="quantity"
+                    type="number"
+                    value={formData.quantity}
+                    onChange={(e) =>
+                      setFormData({ ...formData, quantity: e.target.value })
+                    }
+                    required
+                  />
+                  {formData.specification && (
+                    <Typography color="error" variant="body2" sx={{ mt: 1 }}>
+                      Available Quantity: {availableQuantity}
+                    </Typography>
+                  )}
+                </Grid>
 
                 <Grid
                   item

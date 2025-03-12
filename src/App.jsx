@@ -7,7 +7,6 @@ import InventoryFormTable from "./components/InventoryFormTable";
 import Login from "./components/Login";
 import UserForm from "./components/UserForm";
 import MiniDrawer from "./layouts/Drawer";
-import { Box } from "@mui/material";
 function App() {
   return (
     <>

@@ -83,7 +83,13 @@ const columns = [
     editable: false,
     width: 120,
   },
-  { field: "createdAt", headerName: "Created At", flex: 1, editable: false },
+  {
+    field: "createdAt",
+    headerName: "Created At",
+    flex: 0,
+    editable: false,
+    width: 120,
+  },
 ];
 
 const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;

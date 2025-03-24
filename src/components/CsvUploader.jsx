@@ -2,12 +2,14 @@ import React, { useState } from "react";
 import Papa from "papaparse";
 import axios from "axios"; // for API call
 import {
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
   Divider,
   Paper,
+  Snackbar,
   Table,
   TableBody,
   TableCell,
@@ -21,6 +23,11 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 const CsvUploader = () => {
   const [csvData, setCsvData] = useState([]);
   const [isFileSelected, setIsFileSelected] = useState(false);
+  const [snackbarData, setSnackbarData] = useState({
+    open: false,
+    message: "",
+    severity: "success", // can be "success", "error", "warning", "info"
+  });
 
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
@@ -57,14 +64,26 @@ const CsvUploader = () => {
           withCredentials: true,
         }
       );
-      console.log("Upload successful", response.data);
-      alert("Data uploaded successfully!");
-      setCsvData([]);
-      setIsFileSelected(false);
+      console.log("Upload successful", response.data.success);
+      if (response?.data?.success === true) {
+        setSnackbarData({
+          open: true,
+          message: "✅ File Upload submitted successfully!",
+          severity: "success",
+        });
+        // alert("Data uploaded successfully!");
+        setCsvData([]);
+        setIsFileSelected(false);
+      }
       console.log("csvData", csvData);
     } catch (error) {
       console.error("Error uploading data:", error);
-      alert("Failed to upload data.");
+      // alert("Failed to upload data.");
+      setSnackbarData({
+        open: true,
+        message: "❌ Error File Uploading. Please try again!",
+        severity: "error",
+      });
     }
   };
 
@@ -149,6 +168,22 @@ const CsvUploader = () => {
           </Card>
         </>
       )} */}
+
+      {/* Snackbar for Success & Error Messages */}
+      <Snackbar
+        open={snackbarData.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarData({ ...snackbarData, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setSnackbarData({ ...snackbarData, open: false })}
+          severity={snackbarData.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarData.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

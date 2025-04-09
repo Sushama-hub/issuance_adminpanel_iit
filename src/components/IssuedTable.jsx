@@ -53,21 +53,21 @@ const columns = [
     headerName: "Components",
     flex: 0,
     editable: false,
-    width: 100,
+    width: 170,
   },
   {
     field: "specification",
     headerName: "specification",
     flex: 0,
     editable: false,
-    width: 100,
+    width: 160,
   },
   {
     field: "quantity",
     headerName: "quantity",
     flex: 0,
     editable: false,
-    width: 75,
+    width: 120,
   },
   {
     field: "status",
@@ -75,13 +75,6 @@ const columns = [
     flex: 0,
     editable: true,
     renderCell: (params) => <EditableStatusCell params={params} />,
-  },
-  {
-    field: "remark",
-    headerName: "Remark",
-    flex: 0,
-    editable: false,
-    width: 120,
   },
   {
     field: "createdAt",
@@ -145,40 +138,90 @@ export default function QuickFilteringGrid() {
   const fetchTableData = async () => {
     try {
       const response = await axios.get(`${baseURL}/user/get-user`);
+      const rawData = response?.data?.data?.filter(
+        (item) => item.status === "Issued"
+      );
 
-      const filteredData = response?.data?.data
-        ?.filter((item) => item.status === "Issued")
-        ?.map((item, index) => {
-          const date = new Date(item.createdAt);
-          const date2 = new Date(item.updatedAt);
-          const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.toLocaleTimeString()}`;
-          const formattedDate2 = `${date2.getDate()}/${date2.getMonth() + 1}/${date2.getFullYear()}, ${date2.toLocaleTimeString()}`;
+      // Group data by user name
+      const groupedData = rawData.reduce((acc, user, index) => {
+        const existingUser = acc.find((item) => item._id === user._id);
 
-          return {
-            id: index + 1, // Ensure unique id
-            _id: item._id,
-            email: item.email,
-            batch: item.batch,
-            category: item.category,
-            idNumber: item.idNumber,
-            name: item.name,
-            branch: item.branch,
-            mobile: item.mobile,
-            components: item.components, // ✅ Fix property name
-            specification: item.specification,
-            quantity: item.quantity,
-            status: item.status,
-            remark: item.remark,
-            createdAt: formattedDate,
-            updatedAt: formattedDate2,
-          };
-        });
+        const componentNames = user.components
+          .map((comp) => comp.componentName)
+          .join(", ");
+        const specifications = user.components
+          .map((comp) => comp.specification)
+          .join(", ");
+        const quantities = user.components
+          .map((comp) => comp.quantity)
+          .join(", ");
 
-      setRows(filteredData);
+        if (existingUser) {
+          existingUser.components += `, ${componentNames}`;
+          existingUser.specification += `, ${specifications}`;
+          existingUser.quantity += `, ${quantities}`;
+        } else {
+          acc.push({
+            id: index + 1,
+            _id: user._id,
+            email: user.email,
+            batch: user.batch,
+            category: user.category,
+            idNumber: user.idNumber,
+            name: user.name,
+            branch: user.branch,
+            mobile: user.mobile,
+            components: componentNames, // Only component names
+            specification: specifications, // Separate field for specification
+            quantity: quantities, // Separate field for quantity
+            status: user.status,
+            createdAt: new Date(user.createdAt).toLocaleString(),
+          });
+        }
+
+        return acc;
+      }, []);
+
+      setRows(groupedData);
     } catch (error) {
       console.log("Error fetching data", error);
     }
   };
+
+  // const fetchTableData = async () => {
+  //   try {
+  //     const response = await axios.get(`${baseURL}/user/get-user`);
+  //     const filteredData = response?.data?.data
+  //       ?.filter((item) => item.status === "Issued")
+  //       ?.map((item, index) => {
+  //         const date = new Date(item.createdAt).toLocaleString();
+
+  //         return {
+  //           id: index + 1,
+  //           _id: item._id,
+  //           email: item.email,
+  //           batch: item.batch,
+  //           category: item.category,
+  //           idNumber: item.idNumber,
+  //           name: item.name,
+  //           branch: item.branch,
+  //           mobile: item.mobile,
+  //           components: item.components
+  //             .map(
+  //               (comp) =>
+  //                 `${comp.componentName} (${comp.specification}) ${comp.quantity}`
+  //             )
+  //             .join(", "), // Components ko ek string mein convert kiya
+  //           status: item.status,
+  //           createdAt: date,
+  //         };
+  //       });
+
+  //     setRows(filteredData);
+  //   } catch (error) {
+  //     console.log("Error fetching data", error);
+  //   }
+  // };
 
   useEffect(() => {
     fetchTableData();

@@ -13,9 +13,11 @@ import {
   CardContent,
   CircularProgress,
   Grid,
+  IconButton,
   Box,
   Autocomplete,
 } from "@mui/material";
+import { AddCircle, RemoveCircle } from "@mui/icons-material";
 import axios from "axios";
 
 const BATCH_YEARS = ["2022", "2023", "2024", "2025"];
@@ -35,18 +37,18 @@ export default function IssuanceForm() {
     name: "",
     branch: "",
     mobile: "",
-    components: "",
-    specification: "",
-    quantity: "",
+    components: [{ componentName: "", specification: "", quantity: "" }],
+    // components: "",
+    // specification: "",
+    // quantity: "",
     status: "Issued",
-    remark: "",
   });
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
-  const [componentsList, setComponentsList] = useState([]); // Component names + specifications
-  const [specificationsList, setSpecificationsList] = useState([]); // Specifications for selected component
-  const [availableQuantity, setAvailableQuantity] = useState(0); // Quantity of selected specification
+  const [componentsList, setComponentsList] = useState([]);
+  const [availableQuantities, setAvailableQuantities] = useState([]);
+  const [quantityErrors, setQuantityErrors] = useState({});
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   useEffect(() => {
@@ -64,42 +66,62 @@ export default function IssuanceForm() {
   }, [baseURL]);
 
   // Handle component selection
-  const handleComponentChange = (event, newValue) => {
-    setFormData({
-      ...formData,
-      components: newValue,
+  const handleComponentChange = (index, event, newValue) => {
+    let updatedComponents = [...formData.components];
+    updatedComponents[index] = {
+      ...updatedComponents[index],
+      componentName: newValue,
       specification: "",
       quantity: "",
-    });
-    setAvailableQuantity(0);
-
-    if (!newValue) {
-      setSpecificationsList([]);
-      return;
-    }
+    };
+    setFormData({ ...formData, components: updatedComponents });
 
     const selectedComponent = componentsList.find(
       (comp) => comp.componentName === newValue
     );
 
     if (selectedComponent) {
-      setSpecificationsList(selectedComponent.specifications);
-    } else {
-      setSpecificationsList([]);
+      let updatedQuantities = [...availableQuantities];
+      updatedQuantities[index] = selectedComponent.specifications;
+      setAvailableQuantities(updatedQuantities);
     }
   };
 
-  // Handle specification selection and update available quantity
-  const handleSpecificationChange = (event) => {
-    const selectedSpec = event.target.value;
-    setFormData({ ...formData, specification: selectedSpec, quantity: "" });
-
-    const specData = specificationsList.find(
-      (spec) => spec.specification === selectedSpec
-    );
-    setAvailableQuantity(specData ? specData.quantity : 0);
+  // Handle specification selection
+  const handleSpecificationChange = (index, event) => {
+    let updatedComponents = [...formData.components];
+    updatedComponents[index] = {
+      ...updatedComponents[index],
+      specification: event.target.value,
+      quantity: "",
+    };
+    setFormData({ ...formData, components: updatedComponents });
   };
 
+  // Handle adding more component fields
+  const handleAddComponent = () => {
+    setFormData({
+      ...formData,
+      components: [
+        ...formData.components,
+        { componentName: "", specification: "", quantity: "" },
+      ],
+    });
+    setAvailableQuantities([...availableQuantities, []]);
+  };
+
+  // Handle removing a component entry
+  const handleRemoveComponent = (index) => {
+    let updatedComponents = [...formData.components];
+    updatedComponents.splice(index, 1);
+    setFormData({ ...formData, components: updatedComponents });
+
+    let updatedQuantities = [...availableQuantities];
+    updatedQuantities.splice(index, 1);
+    setAvailableQuantities(updatedQuantities);
+  };
+
+  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -117,9 +139,46 @@ export default function IssuanceForm() {
     setFormData({ ...formData, [name]: value });
   };
 
+  const handleQuantityChange = (index, e) => {
+    let updatedComponents = [...formData.components];
+    let value = Number(e.target.value);
+
+    // Get available quantity for selected specification
+    let availableQty =
+      availableQuantities[index]?.find(
+        (spec) => spec.specification === updatedComponents[index].specification
+      )?.quantity || 0;
+
+    // Check if entered quantity exceeds available stock
+    if (value > availableQty) {
+      setQuantityErrors((prevErrors) => ({
+        ...prevErrors,
+        [index]: `Only ${availableQty} available!`,
+      }));
+    } else {
+      setQuantityErrors((prevErrors) => {
+        let newErrors = { ...prevErrors };
+        delete newErrors[index]; // Remove error if quantity is valid
+        return newErrors;
+      });
+    }
+
+    updatedComponents[index].quantity = e.target.value;
+    setFormData({ ...formData, components: updatedComponents });
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    // Check if any quantity error exists
+    if (Object.keys(quantityErrors).length > 0) {
+      alert("Please fix the quantity errors before submitting.");
+      return;
+    }
+
     setLoading(true);
+
+    console.log("📤 Submitting form data:", formData); // Debugging Log
 
     try {
       const response = await axios.post(`${baseURL}/user/submit`, formData, {
@@ -128,27 +187,39 @@ export default function IssuanceForm() {
       });
 
       if (response?.data?.success) {
-        console.log("✅ Form submitted successfully, updating inventory...");
-        // Inventory quantity update request
+        console.log("✅ Form submitted successfully!");
+
+        if (
+          !Array.isArray(formData.components) ||
+          formData.components.length === 0
+        ) {
+          console.error("❌ No components found in formData!");
+          alert("Please select at least one component.");
+          setLoading(false);
+          return;
+        }
+
+        // Creating inventory update data
+        const inventoryUpdateData = formData.components.map((comp) => ({
+          componentName: comp.componentName,
+          specification: comp.specification,
+          quantity: -Number(comp.quantity),
+        }));
+
+        console.log("🔄 Updating inventory with:", inventoryUpdateData);
+
         try {
           await axios.put(
             `${baseURL}/inventory/update-quantity`,
-            {
-              componentName:
-                typeof formData.components === "object"
-                  ? formData.components.value
-                  : formData.components,
-              specification: formData.specification,
-              quantity: -Number(formData.quantity), // Reduce the quantity
-            },
+            inventoryUpdateData,
             {
               headers: { "Content-Type": "application/json" },
               withCredentials: true,
             }
           );
-          // console.log("🔹 Inventory Update Response:", inventoryResponse.data);
+          console.log("✅ Inventory updated successfully!");
         } catch (inventoryError) {
-          console.error("❌ Error updating inventory:", inventoryError);
+          console.error("❌ Inventory update error:", inventoryError);
           alert("Error updating inventory! Please check logs.");
         }
 
@@ -163,146 +234,20 @@ export default function IssuanceForm() {
             name: "",
             branch: "",
             mobile: "",
-            components: "",
-            specification: "",
-            quantity: "",
+            components: [
+              { componentName: "", specification: "", quantity: "" },
+            ],
             status: "Issued",
-            remark: "",
           });
-          setAvailableQuantity(0);
+          setAvailableQuantities(0);
         }, 1500);
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("❌ Error submitting form:", error);
       alert("Something went wrong. Please try again.");
       setLoading(false);
     }
   };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   try {
-  //     const response = await axios.post(`${baseURL}/user/submit`, formData, {
-  //       headers: { "Content-Type": "application/json" },
-  //       withCredentials: true,
-  //     });
-
-  //     if (response?.data?.success) {
-  //       setTimeout(() => {
-  //         setSubmitted(true);
-  //         setLoading(false);
-  //         setFormData({
-  //           email: "",
-  //           batch: "",
-  //           category: "",
-  //           idNumber: "",
-  //           name: "",
-  //           branch: "",
-  //           mobile: "",
-  //           components: "",
-  //           specification: "",
-  //           quantity: "",
-  //           status: "Issued",
-  //           remark: "",
-  //         });
-  //         setAvailableQuantity(0);
-  //       }, 1500);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error submitting form:", error);
-  //     alert("Something went wrong. Please try again.");
-  //     setLoading(false);
-  //   }
-  // };
-
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-
-  //   if (!formData.components) {
-  //     alert("Please select a component.");
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   try {
-  //     // Submit form data to backend
-  //     const response = await axios.post(`${baseURL}/user/submit`, formData, {
-  //       headers: { "Content-Type": "application/json" },
-  //       withCredentials: true,
-  //     });
-
-  //     if (response?.data?.success) {
-  //       console.log(
-  //         "✅ Form submitted successfully, now updating inventory..."
-  //       );
-
-  //       // Inventory quantity update request
-  //       try {
-  //         const inventoryResponse = await axios.put(
-  //           `${baseURL}/inventory/update-quantity`,
-  //           {
-  //             componentName:
-  //               typeof formData.components === "object"
-  //                 ? formData.components.value
-  //                 : formData.components,
-  //             specification: formData.specification,
-  //             quantity: -Number(formData.quantity), // Reduce the quantity
-  //           },
-  //           {
-  //             headers: { "Content-Type": "application/json" },
-  //             withCredentials: true,
-  //           }
-  //         );
-
-  //         console.log("🔹 Inventory Update Response:", inventoryResponse.data);
-
-  //         if (inventoryResponse?.data?.success) {
-  //           setTimeout(() => {
-  //             setSubmitted(true);
-  //             setLoading(false);
-  //             setFormData({
-  //               email: "",
-  //               batch: "",
-  //               category: "",
-  //               idNumber: "",
-  //               name: "",
-  //               branch: "",
-  //               mobile: "",
-  //               components: "",
-  //               specification: "",
-  //               quantity: "",
-  //               status: "Issued",
-  //               remark: "",
-  //             });
-  //             setAvailableQuantity(0);
-  //           }, 1500);
-  //         } else {
-  //           console.error(
-  //             "❌ Inventory update failed:",
-  //             inventoryResponse.data
-  //           );
-  //           alert(
-  //             inventoryResponse.data.message ||
-  //               "Error updating inventory quantity!"
-  //           );
-  //         }
-  //       } catch (inventoryError) {
-  //         console.error("❌ Error updating inventory:", inventoryError);
-  //         alert("Error updating inventory! Please check logs.");
-  //       }
-  //     } else {
-  //       console.error("❌ Error submitting form:", response.data);
-  //       alert(response.data.message || "Error submitting form!");
-  //     }
-  //   } catch (error) {
-  //     console.error("❌ API Error:", error);
-  //     alert("Something went wrong. Please try again.");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   return (
     <>
@@ -413,10 +358,6 @@ export default function IssuanceForm() {
                   { label: "Name", name: "name" },
                   { label: "Branch", name: "branch" },
                   { label: "Mobile Number", name: "mobile", type: "tel" },
-                  // { label: "Components", name: "components" },
-                  // { label: "Specification", name: "specification" },
-                  // { label: "Quantity", name: "quantity" },
-                  { label: "Remark", name: "remark" },
                 ].map(({ label, name, type }, index) => (
                   <Grid item xs={12} sm={6} key={index}>
                     <TextField
@@ -430,59 +371,107 @@ export default function IssuanceForm() {
                     />
                   </Grid>
                 ))}
-                {/* Components Dropdown */}
-                <Grid item xs={12} sm={6}>
-                  <Autocomplete
-                    freeSolo
-                    options={componentsList.map((comp) => comp.componentName)}
-                    value={formData.components}
-                    onInputChange={handleComponentChange}
-                    renderInput={(params) => (
-                      <TextField
-                        {...params}
-                        label="Components"
-                        variant="outlined"
+
+                {/* Components Selection */}
+                {formData.components.map((comp, index) => (
+                  <Grid
+                    container
+                    spacing={2}
+                    key={index}
+                    alignItems="center"
+                    margin="1px"
+                  >
+                    <Grid item xs={4}>
+                      <Autocomplete
+                        freeSolo
+                        options={componentsList.map(
+                          (comp) => comp.componentName
+                        )}
+                        value={comp.componentName}
+                        onInputChange={(event, newValue) =>
+                          handleComponentChange(index, event, newValue)
+                        }
+                        renderInput={(params) => (
+                          <TextField
+                            {...params}
+                            label="Component Name"
+                            required
+                          />
+                        )}
                       />
-                    )}
-                  />
-                </Grid>
-                {/* Specification Dropdown */}
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth required>
-                    <InputLabel>Specification</InputLabel>
-                    <Select
-                      name="specification"
-                      value={formData.specification}
-                      onChange={handleSpecificationChange}
-                      disabled={specificationsList.length === 0}
+                    </Grid>
+
+                    <Grid item xs={3}>
+                      <FormControl fullWidth required>
+                        <InputLabel>Specification</InputLabel>
+                        <Select
+                          name="specification"
+                          value={comp.specification}
+                          onChange={(e) => handleSpecificationChange(index, e)}
+                        >
+                          {(availableQuantities[index] || []).map(
+                            (spec, specIndex) => (
+                              <MenuItem
+                                key={specIndex}
+                                value={spec.specification}
+                              >
+                                {spec.specification}
+                              </MenuItem>
+                            )
+                          )}
+                        </Select>
+                      </FormControl>
+                    </Grid>
+
+                    <Grid item xs={3}>
+                      <TextField
+                        fullWidth
+                        label="Quantity"
+                        name="quantity"
+                        type="number"
+                        value={comp.quantity}
+                        onChange={(e) => handleQuantityChange(index, e)}
+                        required
+                        error={!!quantityErrors[index]} // Show error if exists
+                        helperText={quantityErrors[index] || ""} // Show error message
+                      />
+                      {comp.specification && availableQuantities[index] && (
+                        <Typography
+                          color="error"
+                          variant="body2"
+                          sx={{ mt: 1 }}
+                        >
+                          Available Quantity:{" "}
+                          {availableQuantities[index].find(
+                            (spec) => spec.specification === comp.specification
+                          )?.quantity || "N/A"}
+                        </Typography>
+                      )}
+                    </Grid>
+
+                    <Grid
+                      item
+                      xs={2}
+                      sx={{ display: "flex", justifyContent: "center" }}
                     >
-                      {specificationsList.map((spec, index) => (
-                        <MenuItem key={index} value={spec.specification}>
-                          {spec.specification}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                {/* Quantity show */}
-                <Grid item xs={12} sm={6}>
-                  <TextField
-                    fullWidth
-                    label="Quantity"
-                    name="quantity"
-                    type="number"
-                    value={formData.quantity}
-                    onChange={(e) =>
-                      setFormData({ ...formData, quantity: e.target.value })
-                    }
-                    required
-                  />
-                  {formData.specification && (
-                    <Typography color="error" variant="body2" sx={{ mt: 1 }}>
-                      Available Quantity: {availableQuantity}
-                    </Typography>
-                  )}
-                </Grid>
+                      {index === 0 ? (
+                        <IconButton
+                          color="primary"
+                          onClick={handleAddComponent}
+                        >
+                          <AddCircle fontSize="large" />
+                        </IconButton>
+                      ) : (
+                        <IconButton
+                          color="error"
+                          onClick={() => handleRemoveComponent(index)}
+                        >
+                          <RemoveCircle fontSize="large" />
+                        </IconButton>
+                      )}
+                    </Grid>
+                  </Grid>
+                ))}
 
                 <Grid
                   item

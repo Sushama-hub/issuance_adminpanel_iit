@@ -49,34 +49,27 @@ const columns = [
     headerName: "Components",
     flex: 0,
     editable: false,
-    width: 100,
+    width: 170,
   },
   {
     field: "specification",
     headerName: "specification",
     flex: 0,
     editable: false,
-    width: 100,
+    width: 160,
   },
   {
     field: "quantity",
     headerName: "quantity",
     flex: 0,
     editable: false,
-    width: 75,
+    width: 120,
   },
   {
     field: "status",
     headerName: "Status",
     flex: 0,
     editable: false,
-  },
-  {
-    field: "remark",
-    headerName: "Remark",
-    flex: 0,
-    editable: false,
-    width: 120,
   },
   {
     field: "updatedAt",
@@ -98,42 +91,124 @@ export default function QuickFilteringGrid() {
     try {
       const response = await axios.get(`${baseURL}/user/get-user`);
 
-      const filteredData = response?.data?.data
-        ?.filter(
-          (item) => item.status === "Returned" || item.status === "Consumed"
-        )
-        ?.map((item, index) => {
-          const date = new Date(item.createdAt);
-          const date2 = new Date(item.updatedAt);
-          const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.toLocaleTimeString()}`;
-          const formattedDate2 = `${date2.getDate()}/${date2.getMonth() + 1}/${date2.getFullYear()}, ${date2.toLocaleTimeString()}`;
+      const rawData = response?.data?.data?.filter(
+        (item) => item.status === "Returned" || item.status === "Consumed"
+      );
 
-          return {
-            id: index + 1,
-            _id: item._id,
-            email: item.email,
-            batch: item.batch,
-            category: item.category,
-            idNumber: item.idNumber,
-            name: item.name,
-            branch: item.branch,
-            mobile: item.mobile,
-            components: item.components,
-            specification: item.specification,
-            quantity: item.quantity,
-            status: item.status,
-            remark: item.remark,
-            // createdAt: new Date(item.createdAt).toLocaleString(),
-            createdAt: formattedDate,
-            updatedAt: formattedDate2,
-          };
-        });
+      const groupedData = rawData.reduce((acc, user) => {
+        const existingUser = acc.find((item) => item._id === user._id);
 
-      setRows(filteredData);
+        const componentNames = user.components
+          .map((comp) => comp.componentName)
+          .join(", ");
+        const specifications = user.components
+          .map((comp) => comp.specification)
+          .join(", ");
+        const quantities = user.components
+          .map((comp) => comp.quantity)
+          .join(", ");
+
+        const createdDate = new Date(user.createdAt);
+        const updatedDate = new Date(user.updatedAt);
+
+        const formattedCreatedAt = `${createdDate.getDate()}/${
+          createdDate.getMonth() + 1
+        }/${createdDate.getFullYear()}, ${createdDate.toLocaleTimeString()}`;
+
+        const formattedUpdatedAt = `${updatedDate.getDate()}/${
+          updatedDate.getMonth() + 1
+        }/${updatedDate.getFullYear()}, ${updatedDate.toLocaleTimeString()}`;
+
+        if (existingUser) {
+          existingUser.components += `, ${componentNames}`;
+          existingUser.specification += `, ${specifications}`;
+          existingUser.quantity += `, ${quantities}`;
+        } else {
+          acc.push({
+            _id: user._id,
+            email: user.email,
+            batch: user.batch,
+            category: user.category,
+            idNumber: user.idNumber,
+            name: user.name,
+            branch: user.branch,
+            mobile: user.mobile,
+            components: componentNames, // Only component names
+            specification: specifications, // Separate field for specification
+            quantity: quantities, // Separate field for quantity
+            status: user.status,
+            createdAt: formattedCreatedAt, // Formatted createdAt
+            updatedAt: formattedUpdatedAt, // Formatted updatedAt
+            updatedAtTimestamp: updatedDate.getTime(), // Timestamp for sorting
+          });
+        }
+
+        return acc;
+      }, []);
+
+      // Sort data by latest updatedAt timestamp
+      const sortedData = groupedData
+        .sort((a, b) => b.updatedAtTimestamp - a.updatedAtTimestamp)
+        .map((item, index) => ({ ...item, id: index + 1 }));
+
+      setRows(sortedData);
     } catch (error) {
       console.log("Error fetching data", error);
     }
   };
+
+  // const fetchTableData = async () => {
+  //   try {
+  //     const response = await axios.get(`${baseURL}/user/get-user`);
+
+  //     const rawData = response?.data?.data?.filter(
+  //       (item) => item.status === "Returned" || item.status === "Consumed"
+  //     );
+
+  //     const groupedData = rawData.reduce((acc, user, index) => {
+  //       const existingUser = acc.find((item) => item._id === user._id);
+
+  //       const componentNames = user.components
+  //         .map((comp) => comp.componentName)
+  //         .join(", ");
+  //       const specifications = user.components
+  //         .map((comp) => comp.specification)
+  //         .join(", ");
+  //       const quantities = user.components
+  //         .map((comp) => comp.quantity)
+  //         .join(", ");
+
+  //       if (existingUser) {
+  //         existingUser.components += `, ${componentNames}`;
+  //         existingUser.specification += `, ${specifications}`;
+  //         existingUser.quantity += `, ${quantities}`;
+  //       } else {
+  //         acc.push({
+  //           id: index + 1,
+  //           _id: user._id,
+  //           email: user.email,
+  //           batch: user.batch,
+  //           category: user.category,
+  //           idNumber: user.idNumber,
+  //           name: user.name,
+  //           branch: user.branch,
+  //           mobile: user.mobile,
+  //           components: componentNames, // Only component names
+  //           specification: specifications, // Separate field for specification
+  //           quantity: quantities, // Separate field for quantity
+  //           status: user.status,
+  //           createdAt: new Date(user.createdAt).toLocaleString(),
+  //         });
+  //       }
+
+  //       return acc;
+  //     }, []);
+
+  //     setRows(groupedData);
+  //   } catch (error) {
+  //     console.log("Error fetching data", error);
+  //   }
+  // };
 
   useEffect(() => {
     fetchTableData();

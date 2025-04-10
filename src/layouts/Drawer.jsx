@@ -89,10 +89,10 @@ const Drawer = styled(MuiDrawer, {
         "& .MuiDrawer-paper": {
           ...openedMixin(theme),
           backgroundColor: "#f4f4f4",
-          backgroundImage: 'url("/src/assets/images/sidebar-bg-light.jpg")',
+          // backgroundImage: 'url("/src/assets/images/sidebar-bg-light.jpg")',
           // backgroundSize: "cover",
-          backgroundRepeat: "no-repeat",
-          backgroundPosition: "center",
+          // backgroundRepeat: "no-repeat",
+          // backgroundPosition: "center",
           // Overlay Layer
           "&::before": {
             content: '""',
@@ -101,7 +101,8 @@ const Drawer = styled(MuiDrawer, {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "rgba(182, 195, 220, 0.7)", // Semi-transparent black overlay
+            backgroundColor: "#075985", // Semi-transparent black overlay
+            // backgroundColor: "rgba(182, 195, 220, 0.7)", // Semi-transparent black overlay
             backdropFilter: "blur(5px)", // Optional: Adds a frosted glass effect
             WebkitBackdropFilter: "blur(5px)", // Safari support
             zIndex: 1, // Ensures it stays above the background image
@@ -258,7 +259,7 @@ export default function MiniDrawer() {
       </AppBar>
 
       <Drawer variant="permanent" open={open}>
-        <DrawerHeader sx={{ mt: "4px", alignItems: "center" }}></DrawerHeader>
+        <DrawerHeader sx={{ mt: "10px", alignItems: "center" }}></DrawerHeader>
 
         <List>
           {sidebarConfig?.items?.map((item, index) => {
@@ -274,10 +275,12 @@ export default function MiniDrawer() {
                     px: 2.5,
                     py: 1,
                     justifyContent: open ? "initial" : "center",
-                    backgroundColor: isActive ? "#0284c7" : "transparent", // Active item color
+                    backgroundColor: isActive ? "#043c5a" : "transparent", // Active item color
                     borderRadius: "8px",
+                    margin: "5px 5px",
                     "&:hover": {
-                      backgroundColor: isActive ? "#043c5a" : "#f1f5f9", // Hover effect 0284c7 043c5a
+                      backgroundColor: isActive ? "#0284c7" : "#0284c7", // Hover effect 0284c7 043c5a
+                      margin: "5px 5px",
                     },
                   }}
                 >
@@ -286,9 +289,9 @@ export default function MiniDrawer() {
                       minWidth: 0,
                       justifyContent: "center",
                       mr: open ? 3 : "auto",
-                      color: isActive ? "#fff" : open ? "#083344" : "#fff",
+                      color: isActive ? "#fff" : open ? "#fff" : "#fff",
                       "&:hover": {
-                        color: isActive ? "#fff" : "#043c5a",
+                        color: isActive ? "#083344" : "#043c5a",
                       },
                     }}
                   >
@@ -298,7 +301,7 @@ export default function MiniDrawer() {
                     primary={item?.label}
                     sx={{
                       opacity: open ? 1 : 0,
-                      color: isActive ? "#fff" : "#083344",
+                      color: isActive ? "#fff" : "#fff",
                     }}
                   />
                 </ListItemButton>

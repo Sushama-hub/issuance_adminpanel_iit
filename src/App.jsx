@@ -7,6 +7,7 @@ import InventoryFormTable from "./components/InventoryFormTable";
 import Login from "./components/Login";
 import UserForm from "./components/UserForm";
 import MiniDrawer from "./layouts/Drawer";
+
 function App() {
   return (
     <>

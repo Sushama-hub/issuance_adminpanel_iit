@@ -47,6 +47,7 @@ const LoginPage = () => {
       );
 
       if (data?.success) {
+        localStorage.setItem("token", data.token);
         setOpenSnackbar(true);
         setTimeout(() => navigate("/dashboard"), 1500);
       }

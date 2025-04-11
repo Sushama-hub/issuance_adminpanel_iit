@@ -17,8 +17,12 @@ import {
   Box,
   Autocomplete,
 } from "@mui/material";
+import GoogleIcon from "@mui/icons-material/Google";
 import { AddCircle, RemoveCircle } from "@mui/icons-material";
 import axios from "axios";
+import GoogleLoginButton from "./GoogleLoginButton";
+import { auth, signInWithGoogle } from "../firebase";
+import { onAuthStateChanged, signOut } from "firebase/auth";
 
 const BATCH_YEARS = ["2022", "2023", "2024", "2025"];
 const CATEGORIES = [
@@ -29,6 +33,9 @@ const CATEGORIES = [
 ];
 
 export default function IssuanceForm() {
+  const [userEmail, setUserEmail] = useState("");
+  const [userName, setUserName] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
     batch: "",
@@ -49,8 +56,63 @@ export default function IssuanceForm() {
   const [componentsList, setComponentsList] = useState([]);
   const [availableQuantities, setAvailableQuantities] = useState([]);
   const [quantityErrors, setQuantityErrors] = useState({});
+  const [user, setUser] = useState(null);
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
+  // Track login state
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user) {
+        setUserEmail(user.email);
+        setUserName(user.displayName);
+        setFormData((prev) => ({
+          ...prev,
+          email: user.email,
+          name: user.displayName,
+        }));
+        setIsLoggedIn(true);
+      } else {
+        setUserEmail("");
+        setUserName("");
+        setFormData({
+          email: "",
+          batch: "",
+          category: "",
+          idNumber: "",
+          name: "",
+          branch: "",
+          mobile: "",
+          components: [{ componentName: "", specification: "", quantity: "" }],
+          status: "Issued",
+        });
+        setIsLoggedIn(false);
+      }
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  const handleLogin = async () => {
+    try {
+      await signInWithGoogle();
+    } catch (err) {
+      console.error("Login failed:", err);
+    }
+  };
+
+  const handleLogout = async () => {
+    // await signOut(auth);
+    try {
+      await signOut(auth);
+      setUser(null);
+      setUserEmail("");
+      setUserName("");
+      setIsLoggedIn(null); // or false if you're using boolean
+    } catch (error) {
+      console.error("Logout Error:", error);
+    }
+  };
+  // ..............
   useEffect(() => {
     const fetchComponents = async () => {
       try {
@@ -178,7 +240,7 @@ export default function IssuanceForm() {
 
     setLoading(true);
 
-    console.log("📤 Submitting form data:", formData); // Debugging Log
+    console.log(" Submitting form data:", formData); // Debugging Log
 
     try {
       const response = await axios.post(`${baseURL}/user/submit`, formData, {
@@ -187,13 +249,13 @@ export default function IssuanceForm() {
       });
 
       if (response?.data?.success) {
-        console.log("✅ Form submitted successfully!");
+        console.log("Form submitted successfully!");
 
         if (
           !Array.isArray(formData.components) ||
           formData.components.length === 0
         ) {
-          console.error("❌ No components found in formData!");
+          console.error(" No components found in formData!");
           alert("Please select at least one component.");
           setLoading(false);
           return;
@@ -206,7 +268,7 @@ export default function IssuanceForm() {
           quantity: -Number(comp.quantity),
         }));
 
-        console.log("🔄 Updating inventory with:", inventoryUpdateData);
+        console.log(" Updating inventory with:", inventoryUpdateData);
 
         try {
           await axios.put(
@@ -217,9 +279,9 @@ export default function IssuanceForm() {
               withCredentials: true,
             }
           );
-          console.log("✅ Inventory updated successfully!");
+          console.log("Inventory updated successfully!");
         } catch (inventoryError) {
-          console.error("❌ Inventory update error:", inventoryError);
+          console.error("Inventory update error:", inventoryError);
           alert("Error updating inventory! Please check logs.");
         }
 
@@ -240,14 +302,25 @@ export default function IssuanceForm() {
             status: "Issued",
           });
           setAvailableQuantities(0);
+
+          // Sign out user from Firebase
+          signOut(auth)
+            .then(() => {
+              console.log("👋 User logged out after submission.");
+            })
+            .catch((error) => {
+              console.error("Logout failed:", error);
+            });
         }, 1500);
       }
     } catch (error) {
-      console.error("❌ Error submitting form:", error);
+      console.error(" Error submitting form:", error);
       alert("Something went wrong. Please try again.");
       setLoading(false);
     }
   };
+
+  const isDisabled = !isLoggedIn;
 
   return (
     <>
@@ -265,7 +338,7 @@ export default function IssuanceForm() {
           >
             <CardContent>
               <Typography variant="h5" fontWeight="bold" color="success">
-                🎉 Submission Successful!
+                Submission Successful!
               </Typography>
               <Typography variant="body1" sx={{ mt: 2 }}>
                 Your form has been successfully submitted.
@@ -285,8 +358,6 @@ export default function IssuanceForm() {
           <Paper
             elevation={3}
             sx={{
-              // p: 4,
-              // borderTop: "8px solid #1E40AF",
               borderRadius: 2,
             }}
           >
@@ -304,6 +375,54 @@ export default function IssuanceForm() {
             >
               Electrical Engineering Department Issuance Record Form
             </Typography>
+
+            {!isLoggedIn ? (
+              <Box textAlign="center" mb={4}>
+                <GoogleLoginButton
+                  onSuccess={async (loggedUser) => {
+                    const email = loggedUser.email;
+
+                    if (email.endsWith("@iitbhilai.ac.in")) {
+                      setUser(loggedUser);
+                      setIsLoggedIn(loggedUser);
+                      setUserName(loggedUser.displayName);
+                      setUserEmail(loggedUser.email);
+                    } else {
+                      alert("Only IIT Bhilai emails allowed!");
+                      await signOut(auth); // logs out user immediately
+                    }
+                  }}
+                />
+
+                <Typography
+                  variant="h6"
+                  mb={2}
+                  align="center"
+                  sx={{ fontSize: "0.8rem" }}
+                >
+                  Please login with your IIT Bhilai email to continue
+                </Typography>
+              </Box>
+            ) : (
+              <Box textAlign="center">
+                <Typography variant="h6">
+                  Welcome, {userName || "Guest"}!
+                </Typography>
+                <p className="mb-2">
+                  Logged in as: <strong>{userEmail}</strong>
+                </p>
+                <Button
+                  variant="outlined"
+                  color="error"
+                  size="small"
+                  sx={{ mt: 2 }}
+                  onClick={handleLogout}
+                >
+                  Logout
+                </Button>
+              </Box>
+            )}
+
             <form onSubmit={handleSubmit} style={{ padding: "20px" }}>
               <Grid container spacing={2}>
                 <Grid item xs={12}>
@@ -315,18 +434,22 @@ export default function IssuanceForm() {
                     value={formData.email}
                     onChange={handleChange}
                     required
+                    disabled
                     error={!!emailError}
                     helperText={emailError}
                   />
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth required>
-                    <InputLabel>Batch (Year of Joining)</InputLabel>
+                    <InputLabel disabled={!isLoggedIn}>
+                      Batch (Year of Joining)
+                    </InputLabel>
                     <Select
                       label="Batch (Year of Joining)"
                       name="batch"
                       value={formData.batch}
                       onChange={handleChange}
+                      disabled={!isLoggedIn}
                     >
                       {BATCH_YEARS.map((year) => (
                         <MenuItem key={year} value={year}>
@@ -338,12 +461,13 @@ export default function IssuanceForm() {
                 </Grid>
                 <Grid item xs={12} sm={6}>
                   <FormControl fullWidth required>
-                    <InputLabel>Category</InputLabel>
+                    <InputLabel disabled={!isLoggedIn}>Category</InputLabel>
                     <Select
                       label="Category"
                       name="category"
                       value={formData.category}
                       onChange={handleChange}
+                      disabled={!isLoggedIn}
                     >
                       {CATEGORIES.map(({ label, value }) => (
                         <MenuItem key={value} value={value}>
@@ -368,6 +492,8 @@ export default function IssuanceForm() {
                       value={formData[name]}
                       onChange={handleChange}
                       required={name !== "remark"}
+                      // disabled={name === "name"}
+                      disabled={!isLoggedIn || name === "name"}
                     />
                   </Grid>
                 ))}
@@ -391,6 +517,7 @@ export default function IssuanceForm() {
                         onInputChange={(event, newValue) =>
                           handleComponentChange(index, event, newValue)
                         }
+                        disabled={!isLoggedIn}
                         renderInput={(params) => (
                           <TextField
                             {...params}
@@ -403,8 +530,11 @@ export default function IssuanceForm() {
 
                     <Grid item xs={3}>
                       <FormControl fullWidth required>
-                        <InputLabel>Specification</InputLabel>
+                        <InputLabel disabled={!isLoggedIn}>
+                          Specification
+                        </InputLabel>
                         <Select
+                          disabled={!isLoggedIn}
                           name="specification"
                           value={comp.specification}
                           onChange={(e) => handleSpecificationChange(index, e)}
@@ -431,15 +561,20 @@ export default function IssuanceForm() {
                         type="number"
                         value={comp.quantity}
                         onChange={(e) => handleQuantityChange(index, e)}
+                        disabled={!isLoggedIn}
                         required
                         error={!!quantityErrors[index]} // Show error if exists
                         helperText={quantityErrors[index] || ""} // Show error message
                       />
+
                       {comp.specification && availableQuantities[index] && (
                         <Typography
                           color="error"
-                          variant="body2"
-                          sx={{ mt: 1 }}
+                          variant="body3"
+                          size="0.2rem"
+                          sx={{
+                            mt: 2,
+                          }}
                         >
                           Available Quantity:{" "}
                           {availableQuantities[index].find(

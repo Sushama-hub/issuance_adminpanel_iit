@@ -169,11 +169,16 @@ export default function MiniDrawer() {
   }, [location.pathname]);
 
   const handleClick = (id) => {
+    if (id === "logout") {
+      localStorage.removeItem("token"); //  Clear the token
+      navigate("/login"); //  Redirect to login page
+      return;
+    }
     navigate(id);
     setActiveItem(id); // Set active item on click
-    if (id === "logout") {
-      navigate("/");
-    }
+    // if (id === "logout") {
+    //   navigate("/");
+    // }
   };
 
   return (
@@ -184,7 +189,6 @@ export default function MiniDrawer() {
         position="fixed"
         sx={{
           backgroundColor: "#075985",
-          boxShadow: "0.8px 0.8px 0.8px 0.8px rgba(224, 227, 232, 0.9)",
         }}
         elevation={0}
       >
@@ -192,13 +196,15 @@ export default function MiniDrawer() {
           sx={{
             display: "flex",
             justifyContent: "space-between",
+            alignItems: "center",
+            px: 2,
           }}
         >
+          {/* Left Side: Menu Icon */}
           <Box
             sx={{
               display: "flex",
-              gap: 1,
-              justifyContent: "flex-start",
+
               alignItems: "center",
             }}
           >
@@ -216,44 +222,44 @@ export default function MiniDrawer() {
             >
               <MenuIcon />
             </IconButton>
-            <img
-              src="/favicon.png"
-              alt="logo"
-              width="40px"
-              height="40px"
-              style={{ marginLeft: "10px" }}
-            />
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
-              sx={{ color: "#fff", ml: 1, fontWeight: "medium" }}
-            >
-              Electrical Engineering Department
-            </Typography>
           </Box>
+          {/* Center: Image + Title */}
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: hover ? 1 : 0,
-              cursor: "pointer",
-              transition: "all 0.3s ease-in-out",
-              padding: "5px",
+              position: "absolute",
+              left: "50%",
+              transform: "translateX(-50%)",
             }}
-            onClick={() => navigate("/")}
-            onMouseEnter={() => setHover(true)}
-            onMouseLeave={() => setHover(false)}
           >
-            <LogoutIcon
-              sx={{
-                transform: hover ? "translateX(-5px)" : "translateX(0)",
-                transition: "all 0.3s ease-in-out",
-                display: "flex",
-                alignItems: "center",
+            <img
+              src="/favicon1.png"
+              alt="logo"
+              style={{
+                borderRadius: "50%",
+                width: "45px",
+                height: "45px",
+                objectFit: "cover",
+                border: "2px solid #ffffff",
+                marginRight: "8px",
               }}
             />
-            {hover && <span>Logout</span>}
+            <Typography
+              textAlign={"center"}
+              variant="h6"
+              noWrap
+              component="div"
+              sx={{
+                color: "#fff",
+                ml: 1,
+                fontWeight: "bold",
+                textTransform: "uppercase",
+                fontSize: "1.2rem",
+              }}
+            >
+              Department of Electrical Engineering
+            </Typography>
           </Box>
         </Toolbar>
       </AppBar>

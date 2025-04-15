@@ -122,73 +122,53 @@ function App() {
             </AuthRedirect>
           }
         />
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="/register"
+          element={
+            <AuthRedirect>
+              <Register />
+            </AuthRedirect>
+          }
+        />
         <Route path="/user_form" element={<UserForm />} />
-
         {/* Role-Based Dashboards */}
+        {/* Master Dashboard with nested routes inside MiniDrawer */}
         <Route
           path="/dashboard/master"
           element={
             <ProtectedRoute allowedRoles={["master"]}>
-              <MiniDrawer>
-                <DashboardMaster />
-              </MiniDrawer>
+              <MiniDrawer />
             </ProtectedRoute>
           }
-        />
+        >
+          <Route index element={<DashboardMaster />} />
+          <Route path="issued_records" element={<IssuedTable />} />
+          <Route
+            path="returned_consumed"
+            element={<ReturnedAndConsumedTable />}
+          />
+          <Route path="inventory_form" element={<InventoryForm />} />
+          <Route path="inventory_records" element={<InventoryFormTable />} />
+        </Route>
+
+        {/* Admin Dashboard with nested routes inside MiniDrawer */}
         <Route
           path="/dashboard/admin"
           element={
             <ProtectedRoute allowedRoles={["admin", "master"]}>
-              <MiniDrawer>
-                <DashboardAdmin />
-              </MiniDrawer>
+              <MiniDrawer />
             </ProtectedRoute>
           }
-        />
-
-        {/* Protected Routes for Admin & Master */}
-        <Route
-          path="/issued_records"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "master"]}>
-              <MiniDrawer>
-                <IssuedTable />
-              </MiniDrawer>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/returned_consumed"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "master"]}>
-              <MiniDrawer>
-                <ReturnedAndConsumedTable />
-              </MiniDrawer>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/inventory_form"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "master"]}>
-              <MiniDrawer>
-                <InventoryForm />
-              </MiniDrawer>
-            </ProtectedRoute>
-          }
-        />
-        <Route
-          path="/inventory_records"
-          element={
-            <ProtectedRoute allowedRoles={["admin", "master"]}>
-              <MiniDrawer>
-                <InventoryFormTable />
-              </MiniDrawer>
-            </ProtectedRoute>
-          }
-        />
-
+        >
+          <Route index element={<DashboardAdmin />} />
+          <Route path="issued_records" element={<IssuedTable />} />
+          <Route
+            path="returned_consumed"
+            element={<ReturnedAndConsumedTable />}
+          />
+          <Route path="inventory_form" element={<InventoryForm />} />
+          <Route path="inventory_records" element={<InventoryFormTable />} />
+        </Route>
         {/* Catch All */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>

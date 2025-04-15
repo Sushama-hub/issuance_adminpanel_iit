@@ -6,7 +6,7 @@ import ReturnedAndConsumedTable from "./components/ReturnedAndConsumedTable";
 import InventoryForm from "./components/InventoryForm";
 import InventoryFormTable from "./components/InventoryFormTable";
 import Login from "./components/Login";
-// import Register from "./components/Register";
+import Register from "./components/Register";
 import UserForm from "./components/UserForm";
 import MiniDrawer from "./layouts/Drawer";
 

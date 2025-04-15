@@ -14,6 +14,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import EditIcon from "@mui/icons-material/Edit";
 import DialogBox from "./DialogBox";
 import { useNavigate } from "react-router-dom";
+import { navigateToRoleBasedPath } from "../utils/roleNavigator";
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([]);
@@ -34,32 +35,69 @@ export default function QuickFilteringGrid() {
   const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
 
   const fetchTableData = async () => {
+    const token = localStorage.getItem("token");
+    console.log("Token sent:", token);
     try {
-      const response = await axios.get(`${baseUrl}/inventory`);
+      const response = await axios.get(`${baseUrl}/inventory`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
-      // Ensure each row has a unique id
+      // Parse and set data
       const dataWithId = response?.data?.data?.map((item, index) => {
-        const date = new Date(item.createdAt);
-        const date2 = new Date(item.updatedAt);
-        const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.toLocaleTimeString()}`;
-        const formattedDate2 = `${date2.getDate()}/${date2.getMonth() + 1}/${date2.getFullYear()}, ${date2.toLocaleTimeString()}`;
-
         return {
-          id: item.id || index + 1, // Use API id or fallback to index
+          id: item.id || index + 1,
+          _id: item._id,
           ...item,
-          createdAt: formattedDate,
-          updatedAt: formattedDate2,
+          createdAt: new Date(item.createdAt).toLocaleString(),
+          updatedAt: new Date(item.updatedAt).toLocaleString(),
         };
       });
-      // console.log("dataWithId", dataWithId);
+
       setRows(dataWithId);
     } catch (error) {
-      console.log("Error fetching data", error);
+      console.log("Error fetching data", error.response?.data || error.message);
     }
   };
 
+  // const fetchTableData = async () => {
+  //   try {
+  //     const token = localStorage.getItem("token");
+  //     console.log("token", token);
+  //     const response = await axios.get(`${baseUrl}/inventory`, {
+  //       headers: {
+  //         Authorization: `Bearer ${token}`,
+  //       },
+  //     });
+
+  //     // Ensure each row has a unique id
+  //     const dataWithId = response?.data?.data?.map((item, index) => {
+  //       const date = new Date(item.createdAt);
+  //       const date2 = new Date(item.updatedAt);
+  //       const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.toLocaleTimeString()}`;
+  //       const formattedDate2 = `${date2.getDate()}/${date2.getMonth() + 1}/${date2.getFullYear()}, ${date2.toLocaleTimeString()}`;
+
+  //       return {
+  //         id: item.id || index + 1, // Use API id or fallback to index
+  //         _id: item._id,
+  //         ...item,
+  //         createdAt: formattedDate,
+  //         updatedAt: formattedDate2,
+  //       };
+  //     });
+  //     // console.log("dataWithId", dataWithId);
+  //     setRows(dataWithId);
+  //   } catch (error) {
+  //     console.log("Error fetching data", error);
+  //   }
+  // };
+
   useEffect(() => {
-    fetchTableData();
+    const token = localStorage.getItem("token");
+    if (token) {
+      fetchTableData();
+    }
   }, []);
 
   // Handle Edit (Open Dialog)
@@ -83,12 +121,18 @@ export default function QuickFilteringGrid() {
     if (!confirm) return;
 
     try {
-      const response = await axios.delete(`${baseUrl}/inventory/${id}`);
+      const token = localStorage.getItem("token");
+      console.log("Edit token", token);
+      const response = await axios.delete(`${baseUrl}/inventory/${id}`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
 
       if (response?.data?.success === true) {
         setSnackbarData({
           open: true,
-          message: `✅ ${response?.data?.message} `,
+          message: ` ${response?.data?.message} `,
           severity: "success",
         });
       }
@@ -100,7 +144,7 @@ export default function QuickFilteringGrid() {
       console.error("Error deleting item", error);
       setSnackbarData({
         open: true,
-        message: "❌ Error Updating inventory. Please try again!",
+        message: " Error Updating inventory. Please try again!",
         severity: "error",
       });
     }
@@ -164,8 +208,7 @@ export default function QuickFilteringGrid() {
           </Typography>
           <Button
             variant="outlined"
-            // sx={{ backgroundColor: "#075985" }}
-            onClick={() => navigate("/inventory_form")}
+            onClick={() => navigateToRoleBasedPath(navigate, "inventory_form")}
             size="small"
           >
             Add New Inventory

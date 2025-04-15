@@ -16,6 +16,7 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CsvUploader from "./CsvUploader";
 import moment from "moment";
+import { navigateToRoleBasedPath } from "../utils/roleNavigator";
 
 const ComponentForm = () => {
   const [formData, setFormData] = useState({
@@ -60,7 +61,7 @@ const ComponentForm = () => {
 
         setSnackbarData({
           open: true,
-          message: "✅ Inventory entry submitted successfully!",
+          message: " Inventory entry submitted successfully!",
           severity: "success",
         });
         setTimeout(() => {
@@ -78,7 +79,7 @@ const ComponentForm = () => {
 
       setSnackbarData({
         open: true,
-        message: "❌ Error submitting inventory. Please try again!",
+        message: " Error submitting inventory. Please try again!",
         severity: "error",
       });
 
@@ -239,7 +240,10 @@ const ComponentForm = () => {
                     variant="outlined"
                     fullWidth
                     sx={{ mt: 3, fontSize: "13px" }}
-                    onClick={() => navigate("/inventory_records")}
+                    // onClick={() => navigate("/inventory_records")}
+                    onClick={() =>
+                      navigateToRoleBasedPath(navigate, "inventory_records")
+                    }
                   >
                     Go to Inventory List
                   </Button>

@@ -49,13 +49,17 @@ const LoginPage = () => {
       console.log("data login", data);
       if (data?.success) {
         localStorage.setItem("token", data.token);
+        console.log("token Login Section", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-        console.log("token", data.token);
         setOpenSnackbar(true);
 
         const userRole = data.user.role;
+        // const role = data.user.role;
+        // const department = localStorage.getItem("department");
+        //
         // setTimeout(() => navigate("/dashboard/admin"), 1500);
 
+        // Redirect based on role
         setTimeout(() => {
           if (userRole === "master") {
             navigate("/dashboard/master");
@@ -65,6 +69,29 @@ const LoginPage = () => {
             navigate("/dashboard/user");
           }
         }, 1500);
+
+        // Redirect based on role and department
+        // setTimeout(() => {
+        //   if (role === "master") {
+        //     navigate("/dashboard/master");
+        //   } else if (role === "admin") {
+        //     if (department === "electrical") {
+        //       navigate("/dashboard/admin/electrical");
+        //     } else if (department === "mechanical") {
+        //       navigate("/dashboard/admin/mechanical");
+        //     } else {
+        //       navigate("/dashboard/admin");
+        //     }
+        //   } else if (role === "user") {
+        //     if (department === "civil") {
+        //       navigate("/dashboard/user/civil");
+        //     } else {
+        //       navigate("/dashboard/user");
+        //     }
+        //   } else {
+        //     navigate("/unauthorized"); // fallback
+        //   }
+        // }, 1500);
       }
     } catch (error) {
       console.error("Error:", error.response?.data || error.message);

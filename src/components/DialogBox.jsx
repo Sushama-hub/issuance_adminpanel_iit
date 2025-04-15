@@ -30,7 +30,7 @@ export default function DialogBox({
 
   const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
 
-  // ✅ Validate Single Field
+  //  Validate Single Field
   const validateField = (name, value) => {
     let error = "";
 
@@ -78,12 +78,17 @@ export default function DialogBox({
 
   // Handle Edit Form Submit
   const handleEditSubmit = async () => {
-    console.log("handleEditSubmit called");
-
     try {
+      const token = localStorage.getItem("token");
+      console.log("Edit token", token);
       const response = await axios.put(
         `${baseUrl}/inventory/${editRow._id}`,
-        editValues
+        editValues,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
       console.log("response edit--->", response?.data?.success);
@@ -91,7 +96,7 @@ export default function DialogBox({
       if (response?.data?.success === true) {
         setSnackbarData({
           open: true,
-          message: `✅ ${response?.data?.message} `,
+          message: `${response?.data?.message} `,
           severity: "success",
         });
       }
@@ -106,7 +111,7 @@ export default function DialogBox({
 
       setSnackbarData({
         open: true,
-        message: "❌ Error Updating inventory. Please try again!",
+        message: " Error Updating inventory. Please try again!",
         severity: "error",
       });
     }

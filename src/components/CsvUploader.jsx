@@ -159,12 +159,14 @@ import React, { useState } from "react";
 import Papa from "papaparse";
 import axios from "axios";
 import {
+  Alert,
   Box,
   Button,
   Card,
   CardContent,
   Divider,
   Paper,
+  Snackbar,
   Table,
   TableBody,
   TableCell,
@@ -179,6 +181,12 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 const CsvUploader = () => {
   const [csvData, setCsvData] = useState([]);
   const [isFileSelected, setIsFileSelected] = useState(false);
+  const [snackbarData, setSnackbarData] = useState({
+    open: false,
+    message: "",
+    severity: "success", // can be "success", "error", "warning", "info"
+  });
+
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   const handleFileChange = (e) => {
@@ -214,7 +222,12 @@ const CsvUploader = () => {
       setIsFileSelected(false);
     } catch (error) {
       console.error("Error uploading data:", error);
-      alert("Failed to upload data.");
+      // alert("Failed to upload data.");
+      setSnackbarData({
+        open: true,
+        message: "❌ Error File Uploading. Please try again!",
+        severity: "error",
+      });
     }
   };
 
@@ -295,6 +308,54 @@ const CsvUploader = () => {
           Upload files
         </Button>
       </Box>
+      {/* {csvData.length > 0 && (
+        <>
+          <Card>
+            <CardContent>
+              <Typography variant="h6" mb={2}>
+                Current Uploaded Data:
+              </Typography>
+              <Divider />
+              <TableContainer component={Paper}>
+                <Table>
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Component</TableCell>
+                      <TableCell>Specification</TableCell>
+                      <TableCell>Quantity</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {csvData.map((item, index) => (
+                      <TableRow key={index}>
+                        <TableCell>{item.components}</TableCell>
+                        <TableCell>{item.specification}</TableCell>
+                        <TableCell>{item.quantity}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            </CardContent>
+          </Card>
+        </>
+      )} */}
+
+      {/* Snackbar for Success & Error Messages */}
+      <Snackbar
+        open={snackbarData.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarData({ ...snackbarData, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setSnackbarData({ ...snackbarData, open: false })}
+          severity={snackbarData.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarData.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

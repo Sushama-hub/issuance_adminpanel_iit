@@ -10,6 +10,7 @@ import {
   Alert,
   InputAdornment,
   IconButton,
+  Link,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -45,11 +46,25 @@ const LoginPage = () => {
           withCredentials: true,
         }
       );
-
+      console.log("data login", data);
       if (data?.success) {
         localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+        console.log("token", data.token);
         setOpenSnackbar(true);
-        setTimeout(() => navigate("/dashboard"), 1500);
+
+        const userRole = data.user.role;
+        // setTimeout(() => navigate("/dashboard/admin"), 1500);
+
+        setTimeout(() => {
+          if (userRole === "master") {
+            navigate("/dashboard/master");
+          } else if (userRole === "admin") {
+            navigate("/dashboard/admin");
+          } else {
+            navigate("/dashboard/user");
+          }
+        }, 1500);
       }
     } catch (error) {
       console.error("Error:", error.response?.data || error.message);
@@ -197,6 +212,18 @@ const LoginPage = () => {
             >
               Login
             </Button>
+
+            {/* Register link */}
+            <Typography variant="body2" sx={{ color: "#fff", marginTop: 2 }}>
+              Don’t have an account?{" "}
+              <Link
+                href="/register"
+                underline="hover"
+                sx={{ color: "#fff", fontWeight: "bold" }}
+              >
+                Register
+              </Link>
+            </Typography>
           </Box>
         </Paper>
       </Container>

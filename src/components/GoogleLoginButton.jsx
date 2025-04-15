@@ -23,7 +23,7 @@ export default function GoogleLoginButton({ onSuccess }) {
       color="primary"
       onClick={handleGoogleLogin}
       sx={{
-        width: "30%",
+        width: { xs: "none", md: "30%" },
         padding: "5px",
         fontSize: "0.8rem",
         borderRadius: "4px",

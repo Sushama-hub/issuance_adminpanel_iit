@@ -21,7 +21,7 @@ import {
 } from "@mui/icons-material";
 // import MonthWiseBarChart from "../components/MonthWiseBarChart";
 
-export default function Dashboard() {
+export default function DashboardMaster() {
   const [data, setData] = useState({
     issued: 0,
     returnedOrConsumed: 0,

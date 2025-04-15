@@ -10,6 +10,7 @@ import {
   Alert,
   InputAdornment,
   IconButton,
+  Link,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -197,6 +198,18 @@ const LoginPage = () => {
             >
               Login
             </Button>
+
+            {/* Register link */}
+            <Typography variant="body2" sx={{ color: "#fff", marginTop: 2 }}>
+              Don’t have an account?{" "}
+              <Link
+                href="/register"
+                underline="hover"
+                sx={{ color: "#fff", fontWeight: "bold" }}
+              >
+                Register
+              </Link>
+            </Typography>
           </Box>
         </Paper>
       </Container>

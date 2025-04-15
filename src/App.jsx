@@ -1,10 +1,12 @@
 import { Routes, Route, Navigate } from "react-router-dom";
-import DashboardLayout from "./pages/DashboardLayout";
+import DashboardAdmin from "./pages/DashboardAdmin";
+import DashboardMaster from "./pages/DashboardMaster";
 import IssuedTable from "./components/IssuedTable";
 import ReturnedAndConsumedTable from "./components/ReturnedAndConsumedTable";
 import InventoryForm from "./components/InventoryForm";
 import InventoryFormTable from "./components/InventoryFormTable";
 import Login from "./components/Login";
+import Register from "./components/Register";
 import UserForm from "./components/UserForm";
 import MiniDrawer from "./layouts/Drawer";
 
@@ -45,7 +47,7 @@ function App() {
               </ProtectedRoute>
             }
           >
-            <Route path="/dashboard" element={<DashboardLayout />} />
+            <Route path="/dashboard" element={<DashboardMaster />} />
             <Route path="/issued_records" element={<IssuedTable />} />
             <Route
               path="/returned_consumed"
@@ -62,9 +64,11 @@ function App() {
           {/* <Route path="*" element={<Navigate to="/login" />} /> */}
 
           <Route path="/" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/user_form" element={<UserForm />} />
           <Route path="/" element={<MiniDrawer />}>
-            <Route path="/dashboard" element={<DashboardLayout />} />
+            <Route path="/dashboard" element={<DashboardMaster />} />
+            <Route path="/dashboard" element={<DashboardAdmin />} />
             <Route path="/issued_records" element={<IssuedTable />} />
             <Route
               path="/returned_consumed"

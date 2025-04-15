@@ -181,6 +181,11 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 const CsvUploader = () => {
   const [csvData, setCsvData] = useState([]);
   const [isFileSelected, setIsFileSelected] = useState(false);
+  const [snackbarData, setSnackbarData] = useState({
+    open: false,
+    message: "",
+    severity: "success", // can be "success", "error", "warning", "info"
+  });
 
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
@@ -215,7 +220,6 @@ const CsvUploader = () => {
       alert("Data uploaded successfully!");
       setCsvData([]);
       setIsFileSelected(false);
-      console.log("csvData", csvData);
     } catch (error) {
       console.error("Error uploading data:", error);
       // alert("Failed to upload data.");
@@ -336,6 +340,22 @@ const CsvUploader = () => {
           </Card>
         </>
       )} */}
+
+      {/* Snackbar for Success & Error Messages */}
+      <Snackbar
+        open={snackbarData.open}
+        autoHideDuration={3000}
+        onClose={() => setSnackbarData({ ...snackbarData, open: false })}
+        anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      >
+        <Alert
+          onClose={() => setSnackbarData({ ...snackbarData, open: false })}
+          severity={snackbarData.severity}
+          sx={{ width: "100%" }}
+        >
+          {snackbarData.message}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

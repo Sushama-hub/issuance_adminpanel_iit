@@ -53,6 +53,7 @@ export default function IssuanceForm() {
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
   const [emailError, setEmailError] = useState("");
+  const [mobileError, setMobileError] = useState("");
   const [componentsList, setComponentsList] = useState([]);
   const [availableQuantities, setAvailableQuantities] = useState([]);
   const [quantityErrors, setQuantityErrors] = useState({});
@@ -117,6 +118,7 @@ export default function IssuanceForm() {
     const fetchComponents = async () => {
       try {
         const response = await axios.get(`${baseURL}/inventory/components`);
+        console.log("response component list", response?.data);
         if (response?.data?.success) {
           setComponentsList(response.data.components);
         }
@@ -187,6 +189,8 @@ export default function IssuanceForm() {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
+    console.log("namve, value", name, value);
+
     if (name === "email") {
       const emailPattern = /^[a-zA-Z0-9._%+-]+@iitbhilai\.ac\.in$/;
       if (!emailPattern.test(value)) {
@@ -195,6 +199,16 @@ export default function IssuanceForm() {
         );
       } else {
         setEmailError("");
+      }
+    }
+
+    // Mobile number validation (10 digits, Indian format)
+    if (name === "mobile") {
+      const mobilePattern = /^[6-9]\d{9}$/;
+      if (!mobilePattern.test(value)) {
+        setMobileError("Enter a valid 10-digit Indian mobile number");
+      } else {
+        setMobileError("");
       }
     }
 
@@ -231,6 +245,20 @@ export default function IssuanceForm() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    const mobilePattern = /^[6-9]\d{9}$/;
+    let isValid = true;
+
+    if (!mobilePattern.test(formData.mobile)) {
+      setMobileError("Please Enter a valid 10-digit Indian mobile number");
+      isValid = false;
+    } else {
+      setMobileError("");
+    }
+
+    if (!isValid) {
+      return; // stop form submission
+    }
 
     // Check if any quantity error exists
     if (Object.keys(quantityErrors).length > 0) {
@@ -354,286 +382,367 @@ export default function IssuanceForm() {
           </Card>
         </Container>
       ) : (
-        <Container maxWidth="md" sx={{ my: 5 }}>
-          <Paper
-            elevation={3}
-            sx={{
-              borderRadius: 2,
-            }}
-          >
-            <Typography
-              variant="h5"
-              fontWeight="bold"
-              mb={2}
+        <Box
+          sx={{
+            backgroundColor: "#f0f4f8",
+            width: "100%",
+            minHeight: "100vh",
+            py: 5,
+          }}
+        >
+          <Container maxWidth="md" sx={{ my: 0 }}>
+            <Paper
+              elevation={3}
               sx={{
-                backgroundColor: "#604CC3",
-                color: "white",
-                p: 3,
-                borderRadius: "10px 10px 0px 0px",
-                textAlign: "center",
+                borderRadius: "10px",
+                border: "2px solid #261FB3",
               }}
             >
-              Electrical Engineering Department Issuance Record Form
-            </Typography>
+              <Typography
+                variant="h5"
+                fontWeight="bold"
+                mb={2}
+                sx={{
+                  // backgroundColor: "#604CC3",
+                  backgroundImage:
+                    "url('/src/assets/images/userform-banner.jpg')",
+                  backgroundSize: "cover",
+                  backgroundPosition: "center",
+                  color: "white",
+                  p: 4,
+                  borderRadius: "10px 10px 0px 0px",
+                  textAlign: "center",
+                }}
+              >
+                Electrical Engineering Department Issuance Record Form
+              </Typography>
 
-            {!isLoggedIn ? (
-              <Box textAlign="center" mb={4}>
-                <GoogleLoginButton
-                  onSuccess={async (loggedUser) => {
-                    const email = loggedUser.email;
+              {!isLoggedIn ? (
+                <Box textAlign="center" mb={4}>
+                  <GoogleLoginButton
+                    onSuccess={async (loggedUser) => {
+                      const email = loggedUser.email;
 
-                    if (email.endsWith("@iitbhilai.ac.in")) {
-                      setUser(loggedUser);
-                      setIsLoggedIn(loggedUser);
-                      setUserName(loggedUser.displayName);
-                      setUserEmail(loggedUser.email);
-                    } else {
-                      alert("Only IIT Bhilai emails allowed!");
-                      await signOut(auth); // logs out user immediately
-                    }
-                  }}
-                />
-
-                <Typography
-                  variant="h6"
-                  mb={2}
-                  align="center"
-                  sx={{ fontSize: "0.8rem" }}
-                >
-                  Please login with your IIT Bhilai email to continue
-                </Typography>
-              </Box>
-            ) : (
-              <Box textAlign="center">
-                <Typography variant="h6">
-                  Welcome, {userName || "Guest"}!
-                </Typography>
-                <p className="mb-2">
-                  Logged in as: <strong>{userEmail}</strong>
-                </p>
-                <Button
-                  variant="outlined"
-                  color="error"
-                  size="small"
-                  sx={{ mt: 2 }}
-                  onClick={handleLogout}
-                >
-                  Logout
-                </Button>
-              </Box>
-            )}
-
-            <form onSubmit={handleSubmit} style={{ padding: "20px" }}>
-              <Grid container spacing={2}>
-                <Grid item xs={12}>
-                  <TextField
-                    fullWidth
-                    label="Email"
-                    name="email"
-                    type="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    disabled
-                    error={!!emailError}
-                    helperText={emailError}
+                      if (email.endsWith("@iitbhilai.ac.in")) {
+                        setUser(loggedUser);
+                        setIsLoggedIn(loggedUser);
+                        setUserName(loggedUser.displayName);
+                        setUserEmail(loggedUser.email);
+                      } else {
+                        alert("Only IIT Bhilai emails allowed!");
+                        await signOut(auth); // logs out user immediately
+                      }
+                    }}
                   />
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth required>
-                    <InputLabel disabled={!isLoggedIn}>
-                      Batch (Year of Joining)
-                    </InputLabel>
-                    <Select
-                      label="Batch (Year of Joining)"
-                      name="batch"
-                      value={formData.batch}
-                      onChange={handleChange}
-                      disabled={!isLoggedIn}
-                    >
-                      {BATCH_YEARS.map((year) => (
-                        <MenuItem key={year} value={year}>
-                          {year}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6}>
-                  <FormControl fullWidth required>
-                    <InputLabel disabled={!isLoggedIn}>Category</InputLabel>
-                    <Select
-                      label="Category"
-                      name="category"
-                      value={formData.category}
-                      onChange={handleChange}
-                      disabled={!isLoggedIn}
-                    >
-                      {CATEGORIES.map(({ label, value }) => (
-                        <MenuItem key={value} value={value}>
-                          {label}
-                        </MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Grid>
-                {[
-                  { label: "ID Number", name: "idNumber" },
-                  { label: "Name", name: "name" },
-                  { label: "Branch", name: "branch" },
-                  { label: "Mobile Number", name: "mobile", type: "tel" },
-                ].map(({ label, name, type }, index) => (
-                  <Grid item xs={12} sm={6} key={index}>
+
+                  <Typography
+                    variant="h6"
+                    mb={2}
+                    align="center"
+                    sx={{ fontSize: "0.8rem" }}
+                  >
+                    Please login with your IIT Bhilai email to continue
+                  </Typography>
+                </Box>
+              ) : (
+                <Box textAlign="center">
+                  <Typography variant="h6" sx={{ color: "#261FB3" }}>
+                    Welcome, {userName || "Guest"}!
+                  </Typography>
+                  <p className="mb-2">
+                    Logged in as: <strong>{userEmail}</strong>
+                  </p>
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    size="small"
+                    sx={{ mt: 2 }}
+                    onClick={handleLogout}
+                  >
+                    Logout
+                  </Button>
+                </Box>
+              )}
+
+              <form onSubmit={handleSubmit} style={{ padding: "20px" }}>
+                <Grid container spacing={2}>
+                  <Grid item xs={12}>
                     <TextField
                       fullWidth
-                      label={label}
-                      name={name}
-                      type={type || "text"}
-                      value={formData[name]}
+                      label="Email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
                       onChange={handleChange}
-                      required={name !== "remark"}
-                      // disabled={name === "name"}
-                      disabled={!isLoggedIn || name === "name"}
+                      required
+                      disabled
+                      error={!!emailError}
+                      helperText={emailError}
                     />
                   </Grid>
-                ))}
-
-                {/* Components Selection */}
-                {formData.components.map((comp, index) => (
-                  <Grid
-                    container
-                    spacing={2}
-                    key={index}
-                    alignItems="center"
-                    margin="1px"
-                  >
-                    <Grid item xs={4}>
-                      <Autocomplete
-                        freeSolo
-                        options={componentsList.map(
-                          (comp) => comp.componentName
-                        )}
-                        value={comp.componentName}
-                        onInputChange={(event, newValue) =>
-                          handleComponentChange(index, event, newValue)
-                        }
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth required>
+                      <InputLabel disabled={!isLoggedIn}>
+                        Batch (Year of Joining)
+                      </InputLabel>
+                      <Select
+                        label="Batch (Year of Joining)"
+                        name="batch"
+                        value={formData.batch}
+                        onChange={handleChange}
                         disabled={!isLoggedIn}
-                        renderInput={(params) => (
-                          <TextField
-                            {...params}
-                            label="Component Name"
-                            required
-                          />
-                        )}
-                      />
-                    </Grid>
-
-                    <Grid item xs={3}>
-                      <FormControl fullWidth required>
-                        <InputLabel disabled={!isLoggedIn}>
-                          Specification
-                        </InputLabel>
-                        <Select
-                          disabled={!isLoggedIn}
-                          name="specification"
-                          value={comp.specification}
-                          onChange={(e) => handleSpecificationChange(index, e)}
-                        >
-                          {(availableQuantities[index] || []).map(
-                            (spec, specIndex) => (
-                              <MenuItem
-                                key={specIndex}
-                                value={spec.specification}
-                              >
-                                {spec.specification}
-                              </MenuItem>
-                            )
-                          )}
-                        </Select>
-                      </FormControl>
-                    </Grid>
-
-                    <Grid item xs={3}>
+                      >
+                        {BATCH_YEARS.map((year) => (
+                          <MenuItem key={year} value={year}>
+                            {year}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <FormControl fullWidth required>
+                      <InputLabel disabled={!isLoggedIn}>Category</InputLabel>
+                      <Select
+                        label="Category"
+                        name="category"
+                        value={formData.category}
+                        onChange={handleChange}
+                        disabled={!isLoggedIn}
+                      >
+                        {CATEGORIES.map(({ label, value }) => (
+                          <MenuItem key={value} value={value}>
+                            {label}
+                          </MenuItem>
+                        ))}
+                      </Select>
+                    </FormControl>
+                  </Grid>
+                  {[
+                    { label: "ID Number", name: "idNumber" },
+                    { label: "Name", name: "name" },
+                    { label: "Branch", name: "branch" },
+                    { label: "Mobile Number", name: "mobile", type: "tel" },
+                  ].map(({ label, name, type }, index) => (
+                    <Grid item xs={12} sm={6} key={index}>
                       <TextField
                         fullWidth
-                        label="Quantity"
-                        name="quantity"
-                        type="number"
-                        value={comp.quantity}
-                        onChange={(e) => handleQuantityChange(index, e)}
-                        disabled={!isLoggedIn}
-                        required
-                        error={!!quantityErrors[index]} // Show error if exists
-                        helperText={quantityErrors[index] || ""} // Show error message
+                        label={label}
+                        name={name}
+                        type={type || "text"}
+                        value={formData[name]}
+                        onChange={handleChange}
+                        required={name !== "remark"}
+                        // disabled={name === "name"}
+                        disabled={!isLoggedIn || name === "name"}
+                        error={name === "mobile" ? !!mobileError : ""}
+                        helperText={name === "mobile" ? mobileError : ""}
                       />
-
-                      {comp.specification && availableQuantities[index] && (
-                        <Typography
-                          color="error"
-                          variant="body3"
-                          size="0.2rem"
-                          sx={{
-                            mt: 2,
-                          }}
-                        >
-                          Available Quantity:{" "}
-                          {availableQuantities[index].find(
-                            (spec) => spec.specification === comp.specification
-                          )?.quantity || "N/A"}
-                        </Typography>
-                      )}
                     </Grid>
+                  ))}
 
+                  {/* Components Selection */}
+                  {formData.components.map((comp, index) => (
                     <Grid
-                      item
-                      xs={2}
-                      sx={{ display: "flex", justifyContent: "center" }}
+                      container
+                      spacing={2}
+                      key={index}
+                      alignItems="center"
+                      margin="1px"
+                      // sx={{ my: 1 }}
                     >
-                      {index === 0 ? (
-                        <IconButton
-                          color="primary"
-                          onClick={handleAddComponent}
-                        >
-                          <AddCircle fontSize="large" />
-                        </IconButton>
-                      ) : (
-                        <IconButton
-                          color="error"
-                          onClick={() => handleRemoveComponent(index)}
-                        >
-                          <RemoveCircle fontSize="large" />
-                        </IconButton>
-                      )}
-                    </Grid>
-                  </Grid>
-                ))}
+                      <Grid item xs={6} sm={6} md={3.6}>
+                        <Autocomplete
+                          freeSolo
+                          options={componentsList.map(
+                            (comp) => comp.componentName
+                          )}
+                          value={comp.componentName}
+                          onInputChange={(event, newValue) =>
+                            handleComponentChange(index, event, newValue)
+                          }
+                          disabled={!isLoggedIn}
+                          renderInput={(params) => (
+                            <TextField
+                              {...params}
+                              label="Component Name"
+                              required
+                            />
+                          )}
+                        />
+                      </Grid>
 
-                <Grid
-                  item
-                  xs={12}
-                  sx={{ display: "flex", justifyContent: "center", mt: 2 }}
-                >
-                  <Button
-                    fullWidth
-                    type="submit"
-                    variant="contained"
-                    disabled={loading}
-                    sx={{
-                      backgroundColor: loading ? "#B0BEC5" : "#604CC3",
-                      width: { xs: "100%", md: "20%" },
-                    }}
+                      <Grid item xs={6} sm={6} md={3.6}>
+                        <FormControl fullWidth required>
+                          <InputLabel disabled={!isLoggedIn}>
+                            Specification
+                          </InputLabel>
+                          <Select
+                            label="Specification"
+                            name="specification"
+                            value={comp.specification}
+                            onChange={(e) =>
+                              handleSpecificationChange(index, e)
+                            }
+                            disabled={!isLoggedIn}
+                          >
+                            {(availableQuantities[index] || []).map(
+                              (spec, specIndex) => (
+                                <MenuItem
+                                  key={specIndex}
+                                  value={spec.specification}
+                                >
+                                  {spec.specification}
+                                </MenuItem>
+                              )
+                            )}
+                          </Select>
+                        </FormControl>
+                      </Grid>
+
+                      <Grid item xs={6} sm={6} md={3.6}>
+                        <TextField
+                          fullWidth
+                          label="Quantity"
+                          name="quantity"
+                          type="number"
+                          value={comp.quantity}
+                          onChange={(e) => handleQuantityChange(index, e)}
+                          disabled={!isLoggedIn}
+                          required
+                          error={!!quantityErrors[index]} // Show error if exists
+                          helperText={quantityErrors[index] || ""} // Show error message
+                          InputProps={{
+                            inputProps: { min: 1 },
+                          }}
+                        />
+                      </Grid>
+
+                      <Box
+                        component="span"
+                        sx={{
+                          display: { xs: "flex", md: "none" },
+                        }}
+                      >
+                        {comp.specification && availableQuantities[index] && (
+                          <Typography
+                            color="primary"
+                            variant="caption"
+                            display="block"
+                            fontWeight="bold"
+                            sx={{
+                              ml: 1,
+                              textAlign: "center",
+                              width: "120px",
+                            }}
+                          >
+                            Available Quantity:{" "}
+                            {availableQuantities[index].find(
+                              (spec) =>
+                                spec.specification === comp.specification
+                            )?.quantity || "N/A"}
+                          </Typography>
+                        )}
+                      </Box>
+
+                      <Grid item xs={1}>
+                        {index === 0 ? (
+                          <IconButton
+                            // color="primary"
+                            onClick={handleAddComponent}
+                            sx={{ color: "#261FB3" }}
+                            disabled={
+                              !isLoggedIn ||
+                              !formData.components[0].componentName ||
+                              !formData.components[0].specification ||
+                              !formData.components[0].quantity
+                            }
+                          >
+                            <AddCircle fontSize="large" />
+                          </IconButton>
+                        ) : (
+                          <IconButton
+                            color="error"
+                            onClick={() => handleRemoveComponent(index)}
+                          >
+                            <RemoveCircle fontSize="large" />
+                          </IconButton>
+                        )}
+                      </Grid>
+
+                      <Grid
+                        item
+                        xs={3.6}
+                        sx={{
+                          display: {
+                            xs: "none", // for mobile
+                            sm: "flex", // for tablets screens and up
+                          },
+                        }}
+                      ></Grid>
+                      <Grid
+                        item
+                        xs={3.6}
+                        sx={{
+                          display: {
+                            xs: "none", // for mobile
+                            sm: "flex", // for tablets screens and up
+                          },
+                        }}
+                      ></Grid>
+                      <Grid
+                        item
+                        xs={3.6}
+                        sx={{
+                          display: { xs: "none", sm: "flex" },
+                        }}
+                      >
+                        {comp.specification && availableQuantities[index] && (
+                          <Typography
+                            color="primary"
+                            variant="caption"
+                            display="block"
+                            fontWeight="bold"
+                            sx={{ ml: 1, mt: -2 }}
+                          >
+                            Available Quantity:{" "}
+                            {availableQuantities[index].find(
+                              (spec) =>
+                                spec.specification === comp.specification
+                            )?.quantity || "N/A"}
+                          </Typography>
+                        )}
+                      </Grid>
+                    </Grid>
+                  ))}
+
+                  <Grid
+                    item
+                    xs={12}
+                    sx={{ display: "flex", justifyContent: "center", mt: 2 }}
                   >
-                    {loading ? (
-                      <CircularProgress size={24} sx={{ color: "white" }} />
-                    ) : (
-                      "Submit"
-                    )}
-                  </Button>
+                    <Button
+                      fullWidth
+                      type="submit"
+                      variant="contained"
+                      disabled={!isLoggedIn || loading}
+                      sx={{
+                        backgroundColor: loading ? "#B0BEC5" : "#261FB3",
+                        width: { xs: "100%", md: "20%" },
+                      }}
+                    >
+                      {loading ? (
+                        <CircularProgress size={24} sx={{ color: "white" }} />
+                      ) : (
+                        "Submit"
+                      )}
+                    </Button>
+                  </Grid>
                 </Grid>
-              </Grid>
-            </form>
-          </Paper>
-        </Container>
+              </form>
+            </Paper>
+          </Container>
+        </Box>
       )}
     </>
   );

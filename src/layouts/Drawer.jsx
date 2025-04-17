@@ -132,10 +132,18 @@ const Drawer = styled(MuiDrawer, {
 export default function MiniDrawer() {
   const navigate = useNavigate();
   const location = useLocation();
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const [hover, setHover] = useState(false);
   const [activeItem, setActiveItem] = useState(location.pathname);
   const [minHeight, setMinHeight] = useState("100vh");
+  const [user, setUser] = useState({ name: "", email: "", role: "" });
+
+  useEffect(() => {
+    const storedUser = JSON.parse(localStorage.getItem("user"));
+    if (storedUser) {
+      setUser(storedUser);
+    }
+  }, []);
 
   useEffect(() => {
     const updateHeight = () => {
@@ -204,7 +212,7 @@ export default function MiniDrawer() {
           <Box
             sx={{
               display: "flex",
-
+              height: "100px",
               alignItems: "center",
             }}
           >
@@ -213,12 +221,12 @@ export default function MiniDrawer() {
               aria-label="open drawer"
               onClick={() => setOpen(!open)}
               edge="start"
-              sx={[
-                {
-                  marginRight: 0,
-                },
-                open && { display: "block" },
-              ]}
+              // sx={[
+              //   {
+              //     marginRight: 0,
+              //   },
+              //   open && { display: "block" },
+              // ]}
             >
               <MenuIcon />
             </IconButton>
@@ -238,8 +246,8 @@ export default function MiniDrawer() {
               alt="logo"
               style={{
                 borderRadius: "50%",
-                width: "45px",
-                height: "45px",
+                width: "55px",
+                height: "55px",
                 objectFit: "cover",
                 border: "2px solid #ffffff",
                 marginRight: "8px",
@@ -253,6 +261,7 @@ export default function MiniDrawer() {
               sx={{
                 color: "#fff",
                 ml: 1,
+
                 fontWeight: "bold",
                 textTransform: "uppercase",
                 fontSize: "1.2rem",
@@ -261,11 +270,44 @@ export default function MiniDrawer() {
               Department of Electrical Engineering
             </Typography>
           </Box>
+          {/* Right Side: User Info */}
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-center",
+              color: "#fff",
+            }}
+          >
+            <Typography
+              variant="body1"
+              sx={{
+                fontWeight: "bold",
+                textTransform: "capitalize",
+                textAlign: "center",
+              }}
+            >
+              {user.name}
+            </Typography>
+            <Typography variant="body2" sx={{ fontSize: "10px" }}>
+              {user.email}
+            </Typography>
+            <Typography
+              variant="caption"
+              sx={{
+                fontSize: "8px",
+                textTransform: "capitalize",
+                textAlign: "center",
+              }}
+            >
+              Role: {user.role}
+            </Typography>
+          </Box>
         </Toolbar>
       </AppBar>
 
       <Drawer variant="permanent" open={open}>
-        <DrawerHeader sx={{ mt: "10px", alignItems: "center" }}></DrawerHeader>
+        <DrawerHeader sx={{ mt: "30px", alignItems: "center" }}></DrawerHeader>
 
         <List>
           {sidebarConfig?.items?.map((item, index) => {
@@ -321,7 +363,6 @@ export default function MiniDrawer() {
         component="main"
         sx={{
           flexGrow: 1,
-          // minHeight: "100vh",
           minHeight,
           p: 2,
           width: !open ? "100%" : "calc(100vw - 280px)",

@@ -55,101 +55,53 @@ function App() {
             </AuthRedirect>
           }
         />
-        <Route path="/register" element={<Register />} />
+        <Route
+          path="/register"
+          element={
+            <AuthRedirect>
+              <Register />
+            </AuthRedirect>
+          }
+        />
         <Route path="/user_form" element={<UserForm />} />
-
         {/* Role-Based Dashboards */}
-
-        {/* Master Dashboard with Nested Routes */}
+        {/* Master Dashboard with nested routes inside MiniDrawer */}
         <Route
           path="/dashboard/master"
           element={
             <ProtectedRoute allowedRoles={["master"]}>
-              <MiniDrawer>
-                <DashboardMaster />
-              </MiniDrawer>
+              <MiniDrawer />
             </ProtectedRoute>
           }
         >
-          <Route
-            path="issued_records"
-            element={
-              <ProtectedRoute allowedRoles={["master"]}>
-                <IssuedTable />
-              </ProtectedRoute>
-            }
-          />
+          <Route index element={<DashboardMaster />} />
+          <Route path="issued_records" element={<IssuedTable />} />
           <Route
             path="returned_consumed"
-            element={
-              <ProtectedRoute allowedRoles={["master"]}>
-                <ReturnedAndConsumedTable />
-              </ProtectedRoute>
-            }
+            element={<ReturnedAndConsumedTable />}
           />
-          <Route
-            path="inventory_form"
-            element={
-              <ProtectedRoute allowedRoles={["master"]}>
-                <InventoryForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="inventory_records"
-            element={
-              <ProtectedRoute allowedRoles={["master"]}>
-                <InventoryFormTable />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="inventory_form" element={<InventoryForm />} />
+          <Route path="inventory_records" element={<InventoryFormTable />} />
         </Route>
 
-        {/* Admin Dashboard with Nested Routes */}
+        {/* Admin Dashboard with nested routes inside MiniDrawer */}
         <Route
           path="/dashboard/admin"
           element={
             <ProtectedRoute allowedRoles={["admin", "master"]}>
-              <MiniDrawer>
-                <DashboardAdmin />
-              </MiniDrawer>
+              <MiniDrawer />
             </ProtectedRoute>
           }
         >
-          <Route
-            path="issued_records"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "master"]}>
-                <IssuedTable />
-              </ProtectedRoute>
-            }
-          />
+          <Route index element={<DashboardAdmin />} />
+          <Route path="issued_records" element={<IssuedTable />} />
           <Route
             path="returned_consumed"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "master"]}>
-                <ReturnedAndConsumedTable />
-              </ProtectedRoute>
-            }
+            element={<ReturnedAndConsumedTable />}
           />
-          <Route
-            path="inventory_form"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "master"]}>
-                <InventoryForm />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="inventory_records"
-            element={
-              <ProtectedRoute allowedRoles={["admin", "master"]}>
-                <InventoryFormTable />
-              </ProtectedRoute>
-            }
-          />
+          <Route path="inventory_form" element={<InventoryForm />} />
+          <Route path="inventory_records" element={<InventoryFormTable />} />
         </Route>
-
         {/* Catch All */}
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
@@ -158,6 +110,9 @@ function App() {
 }
 
 export default App;
+
+// ....................................................................
+//add role and department based routing for user dashboard
 
 // import { Routes, Route, Navigate } from "react-router-dom";
 // import DashboardAdmin from "./pages/DashboardAdmin";

@@ -201,7 +201,7 @@ export default function QuickFilteringGrid() {
 
   return (
     <>
-      <Box sx={{ width: "100%", height: "100vh", p: 1 }}>
+      <Box sx={{ width: "100%", height: "100vh", p: 1, marginTop: 3.5 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between" }} mb={2}>
           <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>
             Inventory Table

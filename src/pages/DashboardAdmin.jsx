@@ -97,9 +97,10 @@ export default function DashboardAdmin() {
   return (
     <Box
       sx={{
-        minHeight: "100vh",
+        minHeight: "85vh",
+        width: "100%",
         backgroundColor: "#f4f4f4",
-        padding: "20px",
+        padding: "40px 20px",
       }}
     >
       <Typography

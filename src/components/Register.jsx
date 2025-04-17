@@ -35,9 +35,13 @@ const AdminRegisterPage = () => {
     { id: 5, name: "IT" },
   ]);
 
-  const [showPassword, setShowPassword] = useState(false);
+  const [showPassword, setShowPassword] = useState({
+    password: false,
+    confirmPassword: false,
+  });
   const [openSnackbar, setOpenSnackbar] = useState(false);
   const [errorMessage, setErrorMessage] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const navigate = useNavigate();
 
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
@@ -50,8 +54,7 @@ const AdminRegisterPage = () => {
     e.preventDefault();
 
     if (formData.password !== formData.confirmPassword) {
-      setErrorMessage("Passwords do not match");
-      setOpenSnackbar(true);
+      setPasswordError("Passwords do not match");
       return;
     }
 
@@ -124,7 +127,8 @@ const AdminRegisterPage = () => {
             <TextField
               label="Password"
               name="password"
-              type={showPassword ? "text" : "password"}
+              // type={showPassword ? "text" : "password"}
+              type={showPassword.password ? "text" : "password"}
               value={formData.password}
               onChange={handleChange}
               fullWidth
@@ -135,7 +139,13 @@ const AdminRegisterPage = () => {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      onClick={() => setShowPassword((prev) => !prev)}
+                      // onClick={() => setShowPassword((prev) => !prev)}
+                      onClick={() =>
+                        setShowPassword((prev) => ({
+                          ...prev,
+                          password: !prev.password,
+                        }))
+                      }
                       onMouseDown={(e) => e.preventDefault()}
                       edge="end"
                       sx={{ color: "#fff" }}
@@ -149,7 +159,7 @@ const AdminRegisterPage = () => {
             <TextField
               label="Confirm Password"
               name="confirmPassword"
-              type={showPassword ? "text" : "password"}
+              type={showPassword.confirmPassword ? "text" : "password"}
               value={formData.confirmPassword}
               onChange={handleChange}
               fullWidth
@@ -160,7 +170,13 @@ const AdminRegisterPage = () => {
                 endAdornment: (
                   <InputAdornment position="end">
                     <IconButton
-                      onClick={() => setShowPassword((prev) => !prev)}
+                      // onClick={() => setShowPassword((prev) => !prev)}
+                      onClick={() =>
+                        setShowPassword((prev) => ({
+                          ...prev,
+                          confirmPassword: !prev.confirmPassword,
+                        }))
+                      }
                       onMouseDown={(e) => e.preventDefault()}
                       edge="end"
                       sx={{ color: "#fff" }}
@@ -170,6 +186,8 @@ const AdminRegisterPage = () => {
                   </InputAdornment>
                 ),
               }}
+              error={!!passwordError}
+              helperText={passwordError}
             />
             <TextField
               label="Mobile Number"

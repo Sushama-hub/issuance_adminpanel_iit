@@ -107,6 +107,7 @@ const ComponentForm = () => {
           // justifyContent: "center",
           backgroundColor: "#f5f5f5",
           padding: 2,
+          marginTop: 3.5,
         }}
       >
         <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>

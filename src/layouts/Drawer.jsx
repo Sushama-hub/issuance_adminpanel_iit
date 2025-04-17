@@ -18,8 +18,10 @@ import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Outlet } from "react-router-dom";
+import { Divider } from "@mui/material";
+import UserIssuanceFom from "../components/UserIssuanceFom";
 
-const drawerWidth = 250;
+const drawerWidth = 260;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -212,7 +214,7 @@ export default function MiniDrawer() {
           <Box
             sx={{
               display: "flex",
-              height: "100px",
+              height: "80px",
               alignItems: "center",
             }}
           >
@@ -274,41 +276,61 @@ export default function MiniDrawer() {
           <Box
             sx={{
               display: "flex",
-              flexDirection: "column",
-              alignItems: "flex-center",
-              color: "#fff",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "15%",
             }}
           >
-            <Typography
-              variant="body1"
+            <Box
               sx={{
-                fontWeight: "bold",
-                textTransform: "capitalize",
-                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "flex-center",
+                color: "#fff",
               }}
             >
-              {user.name}
-            </Typography>
-            <Typography variant="body2" sx={{ fontSize: "10px" }}>
-              {user.email}
-            </Typography>
-            <Typography
-              variant="caption"
+              <Typography
+                variant="body1"
+                sx={{
+                  fontWeight: "bold",
+                  textTransform: "capitalize",
+                  textAlign: "center",
+                }}
+              >
+                {user.name}
+              </Typography>
+              <Typography variant="body2">{user.email}</Typography>
+              <Typography
+                variant="caption"
+                sx={{
+                  textTransform: "capitalize",
+                  textAlign: "center",
+                }}
+              >
+                Role: {user.role}
+              </Typography>
+            </Box>
+            <Box
               sx={{
-                fontSize: "8px",
-                textTransform: "capitalize",
-                textAlign: "center",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                cursor: "pointer",
+              }}
+              onClick={() => {
+                localStorage.removeItem("token"); //  Clear the token, Clear auth data if needed
+                navigate("/login");
               }}
             >
-              Role: {user.role}
-            </Typography>
+              <LogoutIcon />
+              Logout
+            </Box>
           </Box>
         </Toolbar>
       </AppBar>
 
       <Drawer variant="permanent" open={open}>
         <DrawerHeader sx={{ mt: "30px", alignItems: "center" }}></DrawerHeader>
-
         <List>
           {sidebarConfig?.items?.map((item, index) => {
             const IconComponent = item?.icon;
@@ -356,6 +378,16 @@ export default function MiniDrawer() {
               </ListItem>
             );
           })}
+          <Divider
+            sx={{
+              backgroundColor: "#dcdcdc",
+              width: "90%",
+              margin: "0 auto",
+              mt: 2,
+              mb: 2,
+            }}
+          />
+          <UserIssuanceFom isDrawerOpen={open} />
         </List>
       </Drawer>
 

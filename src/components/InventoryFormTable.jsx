@@ -150,6 +150,9 @@ export default function QuickFilteringGrid() {
     }
   };
 
+  const user = JSON.parse(localStorage.getItem("user"));
+  console.log("Role:", user, user?.role);
+
   const columns = [
     {
       field: "id",
@@ -187,13 +190,15 @@ export default function QuickFilteringGrid() {
           >
             <EditIcon fontSize="small" />
           </IconButton>
-          <IconButton
-            color="error"
-            onClick={() => handleDelete(params.row._id)}
-            size="small"
-          >
-            <DeleteIcon fontSize="small" />
-          </IconButton>
+          {user && user?.role === "master" && (
+            <IconButton
+              color="error"
+              onClick={() => handleDelete(params.row._id)}
+              size="small"
+            >
+              <DeleteIcon fontSize="small" />
+            </IconButton>
+          )}
         </Box>
       ),
     },

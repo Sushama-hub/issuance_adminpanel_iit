@@ -101,6 +101,7 @@ export default function DashboardAdmin() {
         width: "100%",
         backgroundColor: "#f4f4f4",
         padding: "40px 20px",
+        mt: 4.5,
       }}
     >
       <Typography

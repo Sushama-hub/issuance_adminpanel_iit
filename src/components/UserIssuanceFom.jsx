@@ -135,7 +135,7 @@ export default function UserIssuanceFom({ isDrawerOpen }) {
                   gap: 1,
                 }}
               >
-                <Box sx={{ fontWeight: "bold", color: "gray" }}>Form</Box>
+                <Box sx={{ fontWeight: "bold", color: "#0284c7" }}>Form</Box>
                 <a
                   href="/user_form"
                   target="_blank"
@@ -143,7 +143,7 @@ export default function UserIssuanceFom({ isDrawerOpen }) {
                 >
                   📄
                 </a>
-                <Box sx={{ fontWeight: "bold", color: "gray" }}>Link</Box>
+                <Box sx={{ fontWeight: "bold", color: "#0284c7" }}>Link</Box>
                 <ContentCopy
                   onClick={handleCopyLink}
                   sx={{ cursor: "pointer", color: copied ? "green" : "" }}

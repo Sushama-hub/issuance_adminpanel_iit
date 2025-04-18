@@ -101,7 +101,7 @@ export default function DashboardAdmin() {
         width: "100%",
         backgroundColor: "#f4f4f4",
         padding: "40px 20px",
-        mt: 4.5,
+        mt: 1.5,
       }}
     >
       <Typography
@@ -245,7 +245,7 @@ function StatCardContent({ title, value, icon, color }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: 2,
+        padding: 0,
         transition: "transform 0.3s ease",
         "&:hover": {
           transform: "translateY(-5px)",

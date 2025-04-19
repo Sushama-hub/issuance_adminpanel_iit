@@ -46,6 +46,9 @@ export default function UserIssuanceFom({ isDrawerOpen }) {
             textAlign: "center",
             background: "#E3F2FD",
             maxWidth: "100%",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
 
             position: "relative",
             "&:after": {
@@ -95,17 +98,21 @@ export default function UserIssuanceFom({ isDrawerOpen }) {
               >
                 Click below to fill out the issuance form.
               </Typography>
-              <Box sx={{ mt: 2, display: "flex", flexDirection: "column" }}>
+              <Box
+                sx={{
+                  mt: 2,
+                  display: "flex",
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flexDirection: "column",
+                }}
+              >
                 <a
                   href="/user_form"
                   target="_blank"
                   style={{ textDecoration: "none" }}
                 >
-                  <Button
-                    variant="contained"
-                    color="primary"
-                    sx={{ marginRight: 1 }}
-                  >
+                  <Button variant="contained" color="primary">
                     📄 Fill Issuance Form
                   </Button>
                 </a>

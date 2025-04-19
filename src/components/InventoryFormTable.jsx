@@ -206,7 +206,7 @@ export default function QuickFilteringGrid() {
 
   return (
     <>
-      <Box sx={{ width: "100%", height: "100vh", p: 1, marginTop: 3.5 }}>
+      <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
         <Box sx={{ display: "flex", justifyContent: "space-between" }} mb={2}>
           <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>
             Inventory Table
@@ -219,7 +219,7 @@ export default function QuickFilteringGrid() {
             Add New Inventory
           </Button>
         </Box>
-        <Box sx={{ height: 400, width: "100%" }}>
+        <Box sx={{ width: "100%" }}>
           <DataGrid
             rows={rows}
             columns={columns}

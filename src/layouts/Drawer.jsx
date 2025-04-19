@@ -23,7 +23,7 @@ import LogoutIcon from "@mui/icons-material/Logout";
 import { Outlet } from "react-router-dom";
 import UserIssuanceFom from "../components/UserIssuanceFom";
 
-const drawerWidth = 260;
+const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -208,7 +208,7 @@ export default function MiniDrawer() {
         position="fixed"
         sx={{
           backgroundColor: "#075985",
-          // boxShadow: "0.8px 0.8px 0.8px 0.8px rgba(18, 56, 122, 0.9)",
+          boxShadow: "0.8px 0.8px 0.8px 0.8px rgba(18, 77, 122, 0.9)",
         }}
         elevation={0}
       >
@@ -328,7 +328,7 @@ export default function MiniDrawer() {
       </AppBar>
 
       <Drawer variant="permanent" open={open}>
-        <DrawerHeader sx={{ mt: 3, alignItems: "center" }}></DrawerHeader>
+        <DrawerHeader sx={{ mt: 1, alignItems: "center" }}></DrawerHeader>
 
         <List>
           {sidebarConfig?.items?.map((item, index) => {
@@ -355,7 +355,7 @@ export default function MiniDrawer() {
                     sx={{
                       minWidth: 0,
                       justifyContent: "center",
-                      mr: open ? 3 : "auto",
+                      mr: open ? 2 : "auto",
                       color: "#fff",
                     }}
                   >

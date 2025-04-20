@@ -6,11 +6,11 @@ import {
   Button,
   Box,
   Snackbar,
-} from "@mui/material";
+} from "@mui/material"
 
-import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { Link } from "react-router-dom"
+import { useState, useEffect } from "react"
+import axios from "axios"
 import {
   Inventory,
   AssignmentTurnedIn,
@@ -18,7 +18,7 @@ import {
   ListAlt,
   Edit,
   ContentCopy,
-} from "@mui/icons-material";
+} from "@mui/icons-material"
 // import MonthWiseBarChart from "../components/MonthWiseBarChart";
 
 export default function DashboardAdmin() {
@@ -27,70 +27,77 @@ export default function DashboardAdmin() {
     returnedOrConsumed: 0,
     totalInventory: 0,
     totalIssuedComponents: 0,
-  });
-  const [allIssuanceData, setAllIssuanceData] = useState([]);
-  const [copySuccess, setCopySuccess] = useState(false);
+  })
+  const [allIssuanceData, setAllIssuanceData] = useState([])
+  const [copySuccess, setCopySuccess] = useState(false)
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
-  const userFormURL = `${window.location.origin}/user_form`;
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+  const userFormURL = `${window.location.origin}/user_form`
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(userFormURL);
-      setCopySuccess(true);
+      await navigator.clipboard.writeText(userFormURL)
+      setCopySuccess(true)
     } catch (err) {
-      console.error("Failed to copy: ", err);
+      console.error("Failed to copy: ", err)
     }
-  };
+  }
 
   const handleCloseSnackbar = () => {
-    setCopySuccess(false);
-  };
+    setCopySuccess(false)
+  }
 
   useEffect(() => {
     const fetchIssuanceData = async () => {
       try {
-        const response = await axios.get(`${baseURL}/user/get-user`);
-        const allFetchedData = response?.data?.data || [];
-        setAllIssuanceData(allFetchedData);
+        const response = await axios.get(`${baseURL}/user/get-user`)
+        const allFetchedData = response?.data?.data || []
+        setAllIssuanceData(allFetchedData)
 
-        const totalIssuedCount = allFetchedData.length;
+        const totalIssuedCount = allFetchedData.length
         const currentlyIssuedCount = allFetchedData.filter(
           (item) => item.status === "Issued"
-        ).length;
+        ).length
 
         const returnedOrConsumedCount = allFetchedData.filter(
           (item) => item.status === "Returned" || item.status === "Consumed"
-        ).length;
+        ).length
 
         setData((prevData) => ({
           ...prevData,
           currentlyIssued: currentlyIssuedCount,
           returnedOrConsumed: returnedOrConsumedCount,
           totalIssuedComponents: totalIssuedCount,
-        }));
+        }))
       } catch (error) {
-        console.error("Error fetching issuance data:", error);
+        console.error("Error fetching issuance data:", error)
       }
-    };
+    }
 
     const fetchInventoryData = async () => {
       try {
-        const response = await axios.get(`${baseURL}/inventory`);
-        const inventoryData = response?.data?.data || [];
+        const token = localStorage.getItem("token")
+        const response = await axios.get(`${baseURL}/inventory`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        console.log("Full response:", response.data)
+        const inventoryData = response?.data?.data || []
+        console.log("Fetched Inventory:", inventoryData)
 
         setData((prevData) => ({
           ...prevData,
           totalInventory: inventoryData.length,
-        }));
+        }))
       } catch (error) {
-        console.error("Error fetching inventory data:", error);
+        console.error("Error fetching inventory data:", error)
       }
-    };
+    }
 
-    fetchIssuanceData();
-    fetchInventoryData();
-  }, [baseURL]);
+    fetchIssuanceData()
+    fetchInventoryData()
+  }, [baseURL])
 
   return (
     <Box
@@ -204,11 +211,11 @@ export default function DashboardAdmin() {
         </CardContent>
       </Card>
     </Box>
-  );
+  )
 }
 
 function StatCard({ title, value, icon, color, link }) {
-  const path = location.pathname + `${link}`;
+  const path = location.pathname + `${link}`
   return (
     <Grid item xs={12} sm={6} md={3}>
       {link ? (
@@ -229,7 +236,7 @@ function StatCard({ title, value, icon, color, link }) {
         />
       )}
     </Grid>
-  );
+  )
 }
 
 function StatCardContent({ title, value, icon, color }) {
@@ -296,5 +303,5 @@ function StatCardContent({ title, value, icon, color }) {
         </Box>
       </CardContent>
     </Card>
-  );
+  )
 }

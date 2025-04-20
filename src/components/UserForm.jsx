@@ -23,14 +23,11 @@ import axios from "axios";
 import GoogleLoginButton from "./GoogleLoginButton";
 import { auth, signInWithGoogle } from "../firebase";
 import { onAuthStateChanged, signOut } from "firebase/auth";
-
-const BATCH_YEARS = ["2022", "2023", "2024", "2025"];
-const CATEGORIES = [
-  { label: "B.Tech", value: "btech" },
-  { label: "M.Tech", value: "mtech" },
-  { label: "PhD", value: "phd" },
-  { label: "Project Staff", value: "project-staff" },
-];
+import {
+  BATCH_YEARS,
+  CATEGORIES,
+  IIT_BRANCHES,
+} from "../config/userformConfig";
 
 export default function IssuanceForm() {
   const [userEmail, setUserEmail] = useState("");
@@ -58,6 +55,7 @@ export default function IssuanceForm() {
   const [availableQuantities, setAvailableQuantities] = useState([]);
   const [quantityErrors, setQuantityErrors] = useState({});
   const [user, setUser] = useState(null);
+
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   // Track login state
@@ -92,14 +90,6 @@ export default function IssuanceForm() {
 
     return () => unsubscribe();
   }, []);
-
-  const handleLogin = async () => {
-    try {
-      await signInWithGoogle();
-    } catch (err) {
-      console.error("Login failed:", err);
-    }
-  };
 
   const handleLogout = async () => {
     // await signOut(auth);
@@ -243,9 +233,9 @@ export default function IssuanceForm() {
     setFormData({ ...formData, components: updatedComponents });
   };
 
+  console.log(" Submitting form data:", formData);
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     const mobilePattern = /^[6-9]\d{9}$/;
     let isValid = true;
 
@@ -267,8 +257,6 @@ export default function IssuanceForm() {
     }
 
     setLoading(true);
-
-    console.log(" Submitting form data:", formData); // Debugging Log
 
     try {
       const response = await axios.post(`${baseURL}/user/submit`, formData, {
@@ -348,8 +336,6 @@ export default function IssuanceForm() {
     }
   };
 
-  const isDisabled = !isLoggedIn;
-
   return (
     <>
       {submitted ? (
@@ -404,17 +390,20 @@ export default function IssuanceForm() {
                 mb={2}
                 sx={{
                   // backgroundColor: "#604CC3",
-                  backgroundImage:
-                    "url('/src/assets/images/userform-banner.jpg')",
+                  backgroundImage: "url('/src/assets/images/banner.jpg')",
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   color: "white",
-                  p: 4,
+                  p: 3,
                   borderRadius: "10px 10px 0px 0px",
                   textAlign: "center",
+                  textTransform: "uppercase",
+                  // textTransform: "capitalize",
+                  lineHeight: 1.5,
                 }}
               >
-                Electrical Engineering Department Issuance Record Form
+                {/* Electrical Engineering Department Issuance Record Form */}
+                Department Of Electrical Engineer <br /> Issuance Record Form
               </Typography>
 
               {!isLoggedIn ? (
@@ -521,8 +510,8 @@ export default function IssuanceForm() {
                   {[
                     { label: "ID Number", name: "idNumber" },
                     { label: "Name", name: "name" },
-                    { label: "Branch", name: "branch" },
                     { label: "Mobile Number", name: "mobile", type: "tel" },
+                    // { label: "Branch", name: "branch" },
                   ].map(({ label, name, type }, index) => (
                     <Grid item xs={12} sm={6} key={index}>
                       <TextField
@@ -541,6 +530,31 @@ export default function IssuanceForm() {
                     </Grid>
                   ))}
 
+                  <Grid item xs={6} sm={6}>
+                    <Autocomplete
+                      disablePortal
+                      options={IIT_BRANCHES}
+                      getOptionLabel={(option) => option.label}
+                      value={
+                        IIT_BRANCHES.find(
+                          (branch) => branch.value === formData.branch
+                        ) || null
+                      }
+                      onChange={(event, newValue) => {
+                        console.log("Selected branch value:", newValue?.value); // newValue = { label, value }
+
+                        setFormData((prev) => ({
+                          ...prev,
+                          branch: newValue ? newValue.value : "",
+                        }));
+                      }}
+                      disabled={!isLoggedIn}
+                      renderInput={(params) => (
+                        <TextField {...params} label="Branch" required />
+                      )}
+                    />
+                  </Grid>
+
                   {/* Components Selection */}
                   {formData.components.map((comp, index) => (
                     <Grid
@@ -553,7 +567,8 @@ export default function IssuanceForm() {
                     >
                       <Grid item xs={6} sm={6} md={3.6}>
                         <Autocomplete
-                          freeSolo
+                          // freeSolo
+                          disablePortal
                           options={componentsList.map(
                             (comp) => comp.componentName
                           )}

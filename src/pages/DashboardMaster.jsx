@@ -6,11 +6,11 @@ import {
   Button,
   Box,
   Snackbar,
-} from "@mui/material";
+} from "@mui/material"
 
-import { Link } from "react-router-dom";
-import { useState, useEffect } from "react";
-import axios from "axios";
+import { Link } from "react-router-dom"
+import { useState, useEffect } from "react"
+import axios from "axios"
 import {
   Inventory,
   AssignmentTurnedIn,
@@ -18,7 +18,7 @@ import {
   ListAlt,
   Edit,
   ContentCopy,
-} from "@mui/icons-material";
+} from "@mui/icons-material"
 // import MonthWiseBarChart from "../components/MonthWiseBarChart";
 
 export default function DashboardMaster() {
@@ -27,72 +27,82 @@ export default function DashboardMaster() {
     returnedOrConsumed: 0,
     inventory: 0,
     totalIssuance: 0,
-  });
-  const [allIssuanceData, setAllIssuanceData] = useState([]);
+  })
+  console.log("data", data)
+  const [allIssuanceData, setAllIssuanceData] = useState([])
 
-  const [copySuccess, setCopySuccess] = useState(false);
+  const [copySuccess, setCopySuccess] = useState(false)
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
-  const userFormURL = `${window.location.origin}/user_form`;
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+  const userFormURL = `${window.location.origin}/user_form`
 
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(userFormURL);
-      setCopySuccess(true);
+      await navigator.clipboard.writeText(userFormURL)
+      setCopySuccess(true)
     } catch (err) {
-      console.error("Failed to copy: ", err);
+      console.error("Failed to copy: ", err)
     }
-  };
+  }
 
   const handleCloseSnackbar = () => {
-    setCopySuccess(false);
-  };
+    setCopySuccess(false)
+  }
 
   useEffect(() => {
     const fetchIssuanceData = async () => {
       try {
-        const response = await axios.get(`${baseURL}/user/get-user`);
-        const allFetchedData = response?.data?.data || [];
-        console.log(allFetchedData);
-        setAllIssuanceData(allFetchedData);
+        const response = await axios.get(`${baseURL}/user/get-user`)
+        const allFetchedData = response?.data?.data || []
+        console.log(allFetchedData)
+        setAllIssuanceData(allFetchedData)
 
-        const totalIssuanceCount = allFetchedData.length;
+        const totalIssuanceCount = allFetchedData.length
         const issuedCount = allFetchedData.filter(
           (item) => item.status === "Issued"
-        ).length;
+        ).length
 
         const returnedOrConsumedCount = allFetchedData.filter(
           (item) => item.status === "Returned" || item.status === "Consumed"
-        ).length;
+        ).length
 
         setData((prevData) => ({
           ...prevData,
           issued: issuedCount,
           returnedOrConsumed: returnedOrConsumedCount,
           totalIssuance: totalIssuanceCount,
-        }));
+        }))
       } catch (error) {
-        console.error("Error fetching issuance data:", error);
+        console.error("Error fetching issuance data:", error)
       }
-    };
+    }
 
     const fetchInventoryData = async () => {
       try {
-        const response = await axios.get(`${baseURL}/inventory`);
-        const inventoryData = response?.data?.data || [];
+        const token = localStorage.getItem("token")
+        const response = await axios.get(`${baseURL}/inventory`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        console.log("Full response:", response.data)
+        const inventoryData = response?.data?.data || []
+
+        console.log("Fetched Inventory:", inventoryData)
 
         setData((prevData) => ({
           ...prevData,
           inventory: inventoryData.length,
-        }));
+          // inventoryList: inventoryData,
+        }))
       } catch (error) {
-        console.error("Error fetching inventory data:", error);
+        console.error("Error fetching inventory data:", error)
       }
-    };
+    }
 
-    fetchIssuanceData();
-    fetchInventoryData();
-  }, [baseURL]);
+    fetchIssuanceData()
+    fetchInventoryData()
+  }, [baseURL])
 
   return (
     <Box
@@ -204,7 +214,7 @@ export default function DashboardMaster() {
         </CardContent>
       </Card>
     </Box>
-  );
+  )
 }
 
 function StatCard({ title, value, icon, color, link }) {
@@ -228,7 +238,7 @@ function StatCard({ title, value, icon, color, link }) {
         />
       )}
     </Grid>
-  );
+  )
 }
 
 function StatCardContent({ title, value, icon, color }) {
@@ -295,5 +305,5 @@ function StatCardContent({ title, value, icon, color }) {
         </Box>
       </CardContent>
     </Card>
-  );
+  )
 }

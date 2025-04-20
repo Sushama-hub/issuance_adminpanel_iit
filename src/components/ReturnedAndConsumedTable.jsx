@@ -215,11 +215,11 @@ export default function QuickFilteringGrid() {
   }, []);
 
   return (
-    <Box sx={{ width: "100%", height: "100%", p: 1, marginTop: 3.5 }}>
+    <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
       <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>
         Returned / Consumed Table
       </Typography>
-      <Box sx={{ height: 400, width: "100%" }}>
+      <Box sx={{ width: "100%" }}>
         <DataGrid
           rows={rows}
           columns={columns}

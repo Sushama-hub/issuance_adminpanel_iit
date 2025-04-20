@@ -11,6 +11,7 @@ import {
   InputAdornment,
   IconButton,
   Link,
+  Grid,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +21,8 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [snackbarMessage, setSnackbarMessage] = useState("");
+  const [snackbarSeverity, setSnackbarSeverity] = useState("success");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
 
@@ -35,29 +37,24 @@ const LoginPage = () => {
   const handleLogin = async (event) => {
     event.preventDefault();
 
-    const url = `${baseURL}/admin/login`;
-
     try {
       const { data } = await axios.post(
-        url,
+        `${baseURL}/admin/login`,
         { email, password },
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
         }
       );
-      console.log("data login", data);
+      console.log("response login data===>", data);
       if (data?.success) {
-        localStorage.setItem("token", data.token);
-        console.log("token Login Section", data.token);
-        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("token", data?.token);
+        localStorage.setItem("user", JSON.stringify(data?.user));
         setOpenSnackbar(true);
+        setSnackbarMessage(data?.message);
+        setSnackbarSeverity("success");
 
-        const userRole = data.user.role;
-        // const role = data.user.role;
-        // const department = localStorage.getItem("department");
-        //
-        // setTimeout(() => navigate("/dashboard/admin"), 1500);
+        const userRole = data?.user?.role;
 
         // Redirect based on role
         setTimeout(() => {
@@ -69,37 +66,15 @@ const LoginPage = () => {
             navigate("/dashboard/user");
           }
         }, 1500);
-
-        // Redirect based on role and department
-        // setTimeout(() => {
-        //   if (role === "master") {
-        //     navigate("/dashboard/master");
-        //   } else if (role === "admin") {
-        //     if (department === "electrical") {
-        //       navigate("/dashboard/admin/electrical");
-        //     } else if (department === "mechanical") {
-        //       navigate("/dashboard/admin/mechanical");
-        //     } else {
-        //       navigate("/dashboard/admin");
-        //     }
-        //   } else if (role === "user") {
-        //     if (department === "civil") {
-        //       navigate("/dashboard/user/civil");
-        //     } else {
-        //       navigate("/dashboard/user");
-        //     }
-        //   } else {
-        //     navigate("/unauthorized"); // fallback
-        //   }
-        // }, 1500);
       }
     } catch (error) {
-      console.error("Error:", error.response?.data || error.message);
-      setErrorMessage(error.response?.data?.message || "Login failed");
-      setOpenSnackbar(false);
+      console.error("Error:", error?.response?.data?.message);
+      setSnackbarSeverity("error");
+      setSnackbarMessage(error.response?.data?.message || "Login failed");
+      setOpenSnackbar(true);
     }
   };
-
+  console.log("setOpenSnackbar===", openSnackbar);
   return (
     <Box
       sx={{
@@ -108,151 +83,133 @@ const LoginPage = () => {
         alignItems: "center",
         justifyContent: "center",
         width: "100%",
+        // background: "linear-gradient(135deg, #2575fccc, #32325a)",
         // background: "linear-gradient(135deg, #667eea 0%, #f4f4f4 100%)",
+        background: "linear-gradient(135deg, #075985 0%, #043c5a 100%)",
       }}
     >
-      <Container maxWidth="xs">
-        <Paper
-          elevation={6}
-          sx={{
-            p: 4,
-            textAlign: "center",
-            borderRadius: 3,
-            backgroundColor: "#075985",
-            // backgroundColor: "#043c5a",
-          }}
-        >
-          <Typography
-            variant="h4"
-            gutterBottom
-            fontWeight="bold"
-            // color="primary"
-            sx={{ color: "#fff" }}
-          >
-            Welcome
-          </Typography>
-          <Typography
-            variant="body1"
-            // color="textSecondary"
-            gutterBottom
-            sx={{ color: "#fff" }}
-          >
-            Please login to continue
-          </Typography>
-          <Box component="form" onSubmit={handleLogin}>
-            <TextField
-              label="Email"
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+      <Container maxWidth="md" sx={{ p: 1 }}>
+        <Grid container spacing={1}>
+          {/* Left Side - Image with Overlay */}
+          <Grid item xs={12} md={6}>
+            <Box
               sx={{
-                "& .MuiInputBase-root": {
-                  color: "#fff",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: "#fff",
-                    borderRadius: "10px",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "#fff",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#fff",
-                  },
-                },
-                "& .MuiInputLabel-root": {
-                  color: "#fff",
-                },
-                "& .MuiInputLabel-root.Mui-focused": {
-                  color: "#fff",
-                },
-              }}
-            />
-            <TextField
-              label="Password"
-              // type="password"
-              type={showPassword ? "text" : "password"}
-              variant="outlined"
-              fullWidth
-              margin="normal"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              sx={{
-                "& .MuiInputBase-root": {
-                  color: "#fff",
-                },
-                "& .MuiOutlinedInput-root": {
-                  "& fieldset": {
-                    borderColor: "#fff",
-                    borderRadius: "10px",
-                  },
-                  "&:hover fieldset": {
-                    borderColor: "#fff",
-                  },
-                  "&.Mui-focused fieldset": {
-                    borderColor: "#fff",
-                  },
-                },
-                "& .MuiInputLabel-root": {
-                  color: "#fff",
-                },
-                "& .MuiInputLabel-root.Mui-focused": {
-                  color: "#fff",
-                },
-              }}
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      aria-label="toggle password visibility"
-                      onClick={handleClickShowPassword}
-                      onMouseDown={handleMouseDownPassword}
-                      edge="end"
-                      sx={{ color: "#fff" }}
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
-              fullWidth
-              sx={{
-                marginTop: 2,
-                padding: 1,
-                borderRadius: 2,
-                backgroundColor: "#f0f9ff",
-                "&:hover": {
-                  backgroundColor: "#bae6fd",
-                },
-                color: "#082f49",
+                height: "100%",
+                borderRadius: "15px 0 0 15px",
+                overflow: "hidden",
+                display: { xs: "none", md: "block" },
               }}
             >
-              Login
-            </Button>
+              <img
+                src="/src/assets/images/login2.jpg"
+                alt="login"
+                style={{
+                  width: "100%",
+                  height: "100%",
+                  objectFit: "cover",
+                  borderRadius: "inherit",
+                }}
+              />
+            </Box>
+          </Grid>
 
-            {/* Register link */}
-            <Typography variant="body2" sx={{ color: "#fff", marginTop: 2 }}>
-              Don’t have an account?{" "}
-              <Link
-                href="/register"
-                underline="hover"
-                sx={{ color: "#fff", fontWeight: "bold" }}
+          {/* Right Side - Login Form */}
+          <Grid item xs={12} md={6}>
+            <Paper
+              elevation={12}
+              sx={{
+                p: 4,
+                height: "100%",
+                textAlign: "center",
+                borderRadius: { xs: "15px", md: "0 15px 15px 0" },
+                // backgroundColor: "#075985",
+                // backgroundColor: "#043c5a",
+                backgroundColor: "rgba(255, 255, 255, 0.3)",
+                backdropFilter: "blur(12px)", // Enhanced Blur Effect
+                boxShadow: "0px 6px 25px rgba(0, 0, 0, 0.3)",
+              }}
+            >
+              <Typography
+                variant="h4"
+                gutterBottom
+                fontWeight="bold"
+                color="#FFFFFF"
               >
-                Register
-              </Link>
-            </Typography>
-          </Box>
-        </Paper>
+                Welcome
+              </Typography>
+              <Typography variant="body1" gutterBottom color="#FFFFFF">
+                Please login to continue
+              </Typography>
+              <Box component="form" onSubmit={handleLogin}>
+                <TextField
+                  label="Email"
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  sx={textFieldStyles}
+                />
+                <TextField
+                  label="Password"
+                  type={showPassword ? "text" : "password"}
+                  variant="outlined"
+                  fullWidth
+                  margin="normal"
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  sx={textFieldStyles}
+                  InputProps={{
+                    endAdornment: (
+                      <InputAdornment position="end">
+                        <IconButton
+                          aria-label="toggle password visibility"
+                          onClick={handleClickShowPassword}
+                          onMouseDown={handleMouseDownPassword}
+                          edge="end"
+                          sx={{ color: "#fff" }}
+                        >
+                          {showPassword ? <Visibility /> : <VisibilityOff />}
+                        </IconButton>
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+                <Button
+                  type="submit"
+                  variant="contained"
+                  color="primary"
+                  fullWidth
+                  sx={{
+                    mt: 2,
+                    borderRadius: 2,
+                    backgroundColor: "#f0f9ff",
+                    "&:hover": {
+                      backgroundColor: "#bae6fd",
+                    },
+                    color: "#082f49",
+                  }}
+                >
+                  Login
+                </Button>
+
+                {/* Register link */}
+                <Typography variant="body2" sx={{ color: "#fff", mt: 2 }}>
+                  Don’t have an account?{" "}
+                  <Link
+                    href="/register"
+                    underline="hover"
+                    sx={{ color: "#fff", fontWeight: "bold" }}
+                  >
+                    Register here.
+                  </Link>
+                </Typography>
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
       </Container>
 
       {/* Snackbar for Success & Error Messages */}
@@ -264,14 +221,47 @@ const LoginPage = () => {
       >
         <Alert
           onClose={() => setOpenSnackbar(false)}
-          severity={errorMessage ? "error" : "success"}
+          severity={snackbarSeverity}
           sx={{ width: "100%" }}
         >
-          {errorMessage || "Login successful! Redirecting..."}
+          {/* "Login successful! Redirecting..." */}
+          {snackbarMessage}
         </Alert>
       </Snackbar>
     </Box>
   );
+};
+
+const textFieldStyles = {
+  textAlign: "left",
+  "& .MuiInputBase-root": {
+    color: "#fff",
+  },
+  "& .MuiOutlinedInput-root": {
+    "& fieldset": {
+      borderColor: "rgba(255, 255, 255, 0.6)",
+      borderRadius: "10px",
+    },
+    "&:hover fieldset": {
+      borderColor: "#fff",
+    },
+    "&.Mui-focused fieldset": {
+      borderColor: "#fff",
+    },
+  },
+  "& .MuiInputLabel-root": {
+    color: "#fff",
+  },
+  "& .MuiInputLabel-root.Mui-focused": {
+    color: "#fff",
+  },
+  "& input:-webkit-autofill": {
+    WebkitBoxShadow: "0 0 0 100px rgba(255,255,255,0.1) inset",
+    WebkitTextFillColor: "#fff",
+    caretColor: "#fff",
+    borderRadius: "10px",
+    transition: "background-color 5000s ease-in-out 0s",
+  },
 };
 
 export default LoginPage;

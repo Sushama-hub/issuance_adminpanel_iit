@@ -101,13 +101,11 @@ const ComponentForm = () => {
     <>
       <Box
         sx={{
-          minHeight: "100%",
-          // display: "flex",
-          // alignItems: "center",
-          // justifyContent: "center",
+          minHeight: "85vh",
+          width: "100%",
           backgroundColor: "#f5f5f5",
           padding: 2,
-          marginTop: 3.5,
+          mt: 1.5,
         }}
       >
         <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>

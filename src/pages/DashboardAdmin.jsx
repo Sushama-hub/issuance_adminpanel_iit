@@ -23,13 +23,12 @@ import {
 
 export default function DashboardAdmin() {
   const [data, setData] = useState({
-    issued: 0,
+    currentlyIssued: 0,
     returnedOrConsumed: 0,
-    inventory: 0,
-    totalIssuance: 0,
+    totalInventory: 0,
+    totalIssuedComponents: 0,
   });
   const [allIssuanceData, setAllIssuanceData] = useState([]);
-
   const [copySuccess, setCopySuccess] = useState(false);
 
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
@@ -53,11 +52,10 @@ export default function DashboardAdmin() {
       try {
         const response = await axios.get(`${baseURL}/user/get-user`);
         const allFetchedData = response?.data?.data || [];
-        console.log(allFetchedData);
         setAllIssuanceData(allFetchedData);
 
-        const totalIssuanceCount = allFetchedData.length;
-        const issuedCount = allFetchedData.filter(
+        const totalIssuedCount = allFetchedData.length;
+        const currentlyIssuedCount = allFetchedData.filter(
           (item) => item.status === "Issued"
         ).length;
 
@@ -67,9 +65,9 @@ export default function DashboardAdmin() {
 
         setData((prevData) => ({
           ...prevData,
-          issued: issuedCount,
+          currentlyIssued: currentlyIssuedCount,
           returnedOrConsumed: returnedOrConsumedCount,
-          totalIssuance: totalIssuanceCount,
+          totalIssuedComponents: totalIssuedCount,
         }));
       } catch (error) {
         console.error("Error fetching issuance data:", error);
@@ -83,7 +81,7 @@ export default function DashboardAdmin() {
 
         setData((prevData) => ({
           ...prevData,
-          inventory: inventoryData.length,
+          totalInventory: inventoryData.length,
         }));
       } catch (error) {
         console.error("Error fetching inventory data:", error);
@@ -101,7 +99,8 @@ export default function DashboardAdmin() {
         width: "100%",
         backgroundColor: "#f4f4f4",
         padding: "40px 20px",
-        mt: 4.5,
+        // padding: 2,
+        mt: 1.5,
       }}
     >
       <Typography
@@ -116,30 +115,30 @@ export default function DashboardAdmin() {
 
       <Grid container spacing={3}>
         <StatCard
-          title="Total Issued"
-          value={data.issued}
+          title="Currently Issued"
+          value={data?.currentlyIssued}
           icon={<Inventory fontSize="large" />}
           color="#3f51b5"
           link="/issued_records"
         />
         <StatCard
-          title="Total Returned/Consumed"
-          value={data.returnedOrConsumed}
+          title="Total Returned/ Consumed"
+          value={data?.returnedOrConsumed}
           icon={<AssignmentTurnedIn fontSize="large" />}
           color="#43A047"
           link="/returned_consumed"
         />
         <StatCard
-          title="Inventory Details"
-          value={data.inventory}
+          title="Total Inventory"
+          value={data?.totalInventory}
           icon={<Storage fontSize="large" />}
           // color="#FB8C00"
           color="#257180"
           link="/inventory_records"
         />
         <StatCard
-          title="Total Issuance"
-          value={data.totalIssuance}
+          title="Total Issued Components"
+          value={data?.totalIssuedComponents}
           icon={<ListAlt fontSize="large" />}
           color="#8E24AA"
         />
@@ -209,10 +208,11 @@ export default function DashboardAdmin() {
 }
 
 function StatCard({ title, value, icon, color, link }) {
+  const path = location.pathname + `${link}`;
   return (
     <Grid item xs={12} sm={6} md={3}>
       {link ? (
-        <Link to={link} style={{ textDecoration: "none" }}>
+        <Link to={path} style={{ textDecoration: "none" }}>
           <StatCardContent
             title={title}
             value={value}
@@ -245,7 +245,7 @@ function StatCardContent({ title, value, icon, color }) {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: 2,
+        padding: 0,
         transition: "transform 0.3s ease",
         "&:hover": {
           transform: "translateY(-5px)",

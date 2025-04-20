@@ -7,7 +7,7 @@ import DashboardIcon from "@mui/icons-material/Dashboard";
 export const sidebarConfig = {
   items: [
     {
-      id: "dashboard",
+      id: "/",
       label: "Dashboard",
       icon: DashboardIcon,
       iconColor: "#f8fafc",

@@ -1,27 +1,29 @@
 import * as React from "react";
 import { styled } from "@mui/material/styles";
-import Box from "@mui/material/Box";
+import {
+  Box,
+  Toolbar,
+  CssBaseline,
+  Typography,
+  IconButton,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  Divider,
+} from "@mui/material";
 import MuiDrawer from "@mui/material/Drawer";
 import MuiAppBar from "@mui/material/AppBar";
-import Toolbar from "@mui/material/Toolbar";
-import List from "@mui/material/List";
-import CssBaseline from "@mui/material/CssBaseline";
-import Typography from "@mui/material/Typography";
-import IconButton from "@mui/material/IconButton";
 import MenuIcon from "@mui/icons-material/Menu";
-import ListItem from "@mui/material/ListItem";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
 import { sidebarConfig } from "../config/sidebarConfig";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import LogoutIcon from "@mui/icons-material/Logout";
 import { Outlet } from "react-router-dom";
-import { Divider } from "@mui/material";
 import UserIssuanceFom from "../components/UserIssuanceFom";
 
-const drawerWidth = 260;
+const drawerWidth = 240;
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -92,7 +94,7 @@ const Drawer = styled(MuiDrawer, {
           ...openedMixin(theme),
           backgroundColor: "#f4f4f4",
           // backgroundImage: 'url("/src/assets/images/sidebar-bg-light.jpg")',
-          // backgroundSize: "cover",
+          // // backgroundSize: "cover",
           // backgroundRepeat: "no-repeat",
           // backgroundPosition: "center",
           // Overlay Layer
@@ -103,7 +105,7 @@ const Drawer = styled(MuiDrawer, {
             left: 0,
             right: 0,
             bottom: 0,
-            backgroundColor: "#075985", // Semi-transparent black overlay
+            backgroundColor: "#075985",
             // backgroundColor: "rgba(182, 195, 220, 0.7)", // Semi-transparent black overlay
             backdropFilter: "blur(5px)", // Optional: Adds a frosted glass effect
             WebkitBackdropFilter: "blur(5px)", // Safari support
@@ -175,20 +177,27 @@ export default function MiniDrawer() {
   }, [open]);
 
   useEffect(() => {
-    setActiveItem(location.pathname);
+    const restOfPath = location.pathname.replace("/dashboard/admin/", "");
+    if (restOfPath !== "/dashboard/admin") {
+      setActiveItem(restOfPath);
+    } else {
+      setActiveItem("/");
+    }
   }, [location.pathname]);
 
   const handleClick = (id) => {
     if (id === "logout") {
-      localStorage.removeItem("token"); //  Clear the token
-      navigate("/login"); //  Redirect to login page
+      localStorage.removeItem("token");
+      navigate("/login");
       return;
     }
-    navigate(id);
+
+    const basePath =
+      user && user?.role === "admin" ? "/dashboard/admin" : "/dashboard/master";
+    const target = id === "/" ? basePath : `${basePath}/${id}`;
+    navigate(target);
+    // navigate(id);
     setActiveItem(id); // Set active item on click
-    // if (id === "logout") {
-    //   navigate("/");
-    // }
   };
 
   return (
@@ -199,6 +208,7 @@ export default function MiniDrawer() {
         position="fixed"
         sx={{
           backgroundColor: "#075985",
+          boxShadow: "0.8px 0.8px 0.8px 0.8px rgba(18, 77, 122, 0.9)",
         }}
         elevation={0}
       >
@@ -207,14 +217,13 @@ export default function MiniDrawer() {
             display: "flex",
             justifyContent: "space-between",
             alignItems: "center",
-            px: 2,
+            p: 1,
           }}
         >
           {/* Left Side: Menu Icon */}
           <Box
             sx={{
               display: "flex",
-              height: "80px",
               alignItems: "center",
             }}
           >
@@ -223,12 +232,6 @@ export default function MiniDrawer() {
               aria-label="open drawer"
               onClick={() => setOpen(!open)}
               edge="start"
-              // sx={[
-              //   {
-              //     marginRight: 0,
-              //   },
-              //   open && { display: "block" },
-              // ]}
             >
               <MenuIcon />
             </IconButton>
@@ -244,35 +247,27 @@ export default function MiniDrawer() {
             }}
           >
             <img
-              src="/favicon1.png"
+              src="/favicon.png"
               alt="logo"
-              style={{
-                borderRadius: "50%",
-                width: "55px",
-                height: "55px",
-                objectFit: "cover",
-                border: "2px solid #ffffff",
-                marginRight: "8px",
-              }}
+              width="55px"
+              height="55px"
+              style={{ marginRight: "8px" }}
             />
             <Typography
-              textAlign={"center"}
               variant="h6"
               noWrap
               component="div"
               sx={{
-                color: "#fff",
                 ml: 1,
-
                 fontWeight: "bold",
                 textTransform: "uppercase",
                 fontSize: "1.2rem",
               }}
             >
-              Department of Electrical Engineering
+              Electrical Engineering Department
             </Typography>
           </Box>
-          {/* Right Side: User Info */}
+          {/* Right Side: User Info & Logout */}
           <Box
             sx={{
               display: "flex",
@@ -285,21 +280,19 @@ export default function MiniDrawer() {
               sx={{
                 display: "flex",
                 flexDirection: "column",
-                alignItems: "flex-center",
-                color: "#fff",
+                alignItems: "center",
               }}
             >
               <Typography
-                variant="body1"
+                variant="body2"
                 sx={{
                   fontWeight: "bold",
                   textTransform: "capitalize",
-                  textAlign: "center",
                 }}
               >
                 {user.name}
               </Typography>
-              <Typography variant="body2">{user.email}</Typography>
+              <Typography variant="caption">{user.email}</Typography>
               <Typography
                 variant="caption"
                 sx={{
@@ -310,31 +303,37 @@ export default function MiniDrawer() {
                 Role: {user.role}
               </Typography>
             </Box>
+
             <Box
               sx={{
                 display: "flex",
                 flexDirection: "column",
                 alignItems: "center",
                 cursor: "pointer",
+                transition: "all 0.3s ease-in-out",
+                transform: hover ? "translateX(-1px)" : "translateX(0)",
               }}
               onClick={() => {
                 localStorage.removeItem("token"); //  Clear the token, Clear auth data if needed
                 navigate("/login");
               }}
+              onMouseEnter={() => setHover(true)}
+              onMouseLeave={() => setHover(false)}
             >
               <LogoutIcon />
-              Logout
+              {hover && <span>Logout</span>}
             </Box>
           </Box>
         </Toolbar>
       </AppBar>
 
       <Drawer variant="permanent" open={open}>
-        <DrawerHeader sx={{ mt: "30px", alignItems: "center" }}></DrawerHeader>
+        <DrawerHeader sx={{ mt: 1, alignItems: "center" }}></DrawerHeader>
+
         <List>
           {sidebarConfig?.items?.map((item, index) => {
             const IconComponent = item?.icon;
-            const isActive = activeItem === `/${item.id}`; // Ensure it matches the route correctly
+            const isActive = activeItem === `${item?.id}`; // Ensure it matches the route correctly
 
             return (
               <ListItem key={index} disablePadding sx={{ display: "block" }}>
@@ -345,12 +344,10 @@ export default function MiniDrawer() {
                     px: 2.5,
                     py: 1,
                     justifyContent: open ? "initial" : "center",
-                    backgroundColor: isActive ? "#043c5a" : "transparent", // Active item color
+                    backgroundColor: isActive ? "#0284c7" : "transparent", // Active item color
                     borderRadius: "8px",
-                    margin: "5px 5px",
                     "&:hover": {
-                      backgroundColor: isActive ? "#0284c7" : "#0284c7", // Hover effect 0284c7 043c5a
-                      margin: "5px 5px",
+                      backgroundColor: "#043c5a", // Hover effect 0284c7 043c5a f1f5f9 083344
                     },
                   }}
                 >
@@ -358,11 +355,8 @@ export default function MiniDrawer() {
                     sx={{
                       minWidth: 0,
                       justifyContent: "center",
-                      mr: open ? 3 : "auto",
-                      color: isActive ? "#fff" : open ? "#fff" : "#fff",
-                      "&:hover": {
-                        color: isActive ? "#083344" : "#043c5a",
-                      },
+                      mr: open ? 2 : "auto",
+                      color: "#fff",
                     }}
                   >
                     <IconComponent />
@@ -371,7 +365,7 @@ export default function MiniDrawer() {
                     primary={item?.label}
                     sx={{
                       opacity: open ? 1 : 0,
-                      color: isActive ? "#fff" : "#fff",
+                      color: "#fff",
                     }}
                   />
                 </ListItemButton>
@@ -395,6 +389,7 @@ export default function MiniDrawer() {
         component="main"
         sx={{
           flexGrow: 1,
+          // minHeight: "100vh",
           minHeight,
           p: 2,
           width: !open ? "100%" : "calc(100vw - 280px)",

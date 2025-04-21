@@ -19,6 +19,8 @@ import {
   Edit,
   ContentCopy,
 } from "@mui/icons-material"
+import MonthWiseBarChart from "../components/MonthWiseBarChart"
+import StatusPieChart from "../components/StatusPieChart"
 
 export default function DashboardMaster() {
   const [data, setData] = useState({
@@ -29,23 +31,7 @@ export default function DashboardMaster() {
   })
   const [allIssuanceData, setAllIssuanceData] = useState([])
 
-  const [copySuccess, setCopySuccess] = useState(false)
-
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
-  const userFormURL = `${window.location.origin}/user_form`
-
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(userFormURL)
-      setCopySuccess(true)
-    } catch (err) {
-      console.error("Failed to copy: ", err)
-    }
-  }
-
-  const handleCloseSnackbar = () => {
-    setCopySuccess(false)
-  }
 
   useEffect(() => {
     const fetchIssuanceData = async () => {
@@ -151,65 +137,19 @@ export default function DashboardMaster() {
         />
       </Grid>
 
-      {/* Bar Chart Section */}
-      {/* <Card sx={{ marginTop: "20px", padding: 3 }}>
-        <Typography variant="h6" fontWeight="bold">
-          📊 Month-wise Issuance Chart
-        </Typography>
-        <MonthWiseBarChart data1={allIssuanceData} />
-      </Card> */}
-
-      {/* User Form Button */}
-      <Card
-        sx={{
-          marginTop: "20px",
-          textAlign: "center",
-          padding: 3,
-          background: "#E3F2FD",
-        }}
-      >
-        <CardContent>
-          <Edit sx={{ fontSize: 50, color: "#1976d2" }} />
-          <Typography variant="h6" fontWeight="bold" sx={{ mt: 1 }}>
-            Need to Issue a Component?
-          </Typography>
-          <Typography variant="body1" color="textSecondary" sx={{ mb: 2 }}>
-            Click below to fill out the issuance form.
-          </Typography>
-          <Box sx={{ mt: 2 }}>
-            <a
-              href="/user_form"
-              target="_blank"
-              style={{ textDecoration: "none" }}
-            >
-              <Button
-                variant="contained"
-                color="primary"
-                sx={{ marginRight: 1 }}
-              >
-                📄 Fill Issuance Form
-              </Button>
-            </a>
-
-            <Button
-              variant="outlined"
-              color="primary"
-              onClick={handleCopyLink}
-              startIcon={<ContentCopy />}
-            >
-              Copy Form Link
-            </Button>
-          </Box>
-
-          <Snackbar
-            open={copySuccess}
-            autoHideDuration={3000}
-            onClose={handleCloseSnackbar}
-            message="Link copied to clipboard!"
-            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-          />
-        </CardContent>
-      </Card>
+      {/* Charts Section */}
+      <Grid container spacing={3} sx={{ mt: 2 }}>
+        <Grid item xs={12} md={8}>
+          <Card sx={{ padding: 4 }}>
+            <MonthWiseBarChart graphData={allIssuanceData} />
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card sx={{ padding: 4 }}>
+            <StatusPieChart graphData={allIssuanceData} />
+          </Card>
+        </Grid>
+      </Grid>
     </Box>
   )
 }

@@ -1,91 +1,208 @@
-import React, { useEffect, useRef } from "react";
-import * as echarts from "echarts";
-import moment from "moment";
+import React, { useState, useEffect, useMemo } from "react";
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from "recharts";
+import {
+  Typography,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
+  Box,
+} from "@mui/material";
+// import { graphData } from "../config/graphData";
 
-// Sample data (replace this with your fetched data)
-const data = [
-  {
-    createdAt: "2025-03-07T09:54:50.151Z",
-    // ...other fields
-  },
-  {
-    createdAt: "2025-03-07T09:56:39.680Z",
-  },
-  {
-    createdAt: "2025-02-07T09:56:39.680Z",
-  },
-  {
-    createdAt: "2025-01-07T09:56:39.680Z",
-  },
-  {
-    createdAt: "2025-01-08T09:56:39.680Z",
-  },
-  // add more as per your data...
-];
+const MonthWiseBarChart = ({ graphData }) => {
+  const currentDate = new Date();
+  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
 
-const MonthWiseBarChart = ({ data1 }) => {
-  console.log("data/---", data1);
-  const chartRef = useRef(null);
+  // Calculate available years and their last months using useMemo
+  const { availableYears, yearMonthMap } = useMemo(() => {
+    if (!Array.isArray(graphData)) {
+      return { availableYears: [], yearMonthMap: {} };
+    }
+
+    const years = new Set();
+    const monthMap = {};
+
+    // Sort data by createdAt to get the latest date for each year
+    const sortedData = [...graphData].sort(
+      (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
+    );
+
+    sortedData.forEach((item) => {
+      if (item?.createdAt) {
+        const date = new Date(item.createdAt);
+        const year = date.getFullYear();
+        const month = date.getMonth(); // 0-11
+
+        years.add(year);
+
+        // Store the highest month number for each year
+        if (monthMap[year] === undefined || month > monthMap[year]) {
+          monthMap[year] = month;
+        }
+      }
+    });
+
+    return {
+      availableYears: Array.from(years).sort((a, b) => b - a),
+      yearMonthMap: monthMap,
+    };
+  }, [graphData]);
 
   useEffect(() => {
-    const chart = echarts.init(chartRef.current);
+    if (availableYears.length > 0 && !availableYears.includes(selectedYear)) {
+      setSelectedYear(availableYears[0]);
+    }
+  }, [availableYears, selectedYear]);
 
-    // Step 1: Process the data month-wise
-    const monthCount = {};
+  const handleYearChange = (event) => {
+    setSelectedYear(Number(event.target.value));
+  };
 
-    data.forEach((item) => {
-      const month = moment(item.createdAt).format("MMMM"); // E.g., March, January, etc.
-      monthCount[month] = (monthCount[month] || 0) + 1;
+  // Process the data to get month-wise counts for selected year
+  const processData = () => {
+    if (!Array.isArray(graphData)) return [];
+
+    const months = [
+      "Jan",
+      "Feb",
+      "Mar",
+      "Apr",
+      "May",
+      "Jun",
+      "Jul",
+      "Aug",
+      "Sep",
+      "Oct",
+      "Nov",
+      "Dec",
+    ];
+
+    // Get the last month for the selected year
+    const lastMonthForYear = yearMonthMap[selectedYear] ?? -1;
+    if (lastMonthForYear === -1) return [];
+
+    const monthCounts = {};
+    // Only initialize months up to the last month with data for the selected year
+    for (let i = 0; i <= lastMonthForYear; i++) {
+      monthCounts[months[i]] = {
+        month: months[i],
+        issued: 0,
+        returned: 0,
+        consumed: 0,
+      };
+    }
+
+    graphData.forEach((item) => {
+      if (item?.createdAt && item?.status) {
+        const date = new Date(item.createdAt);
+        const year = date.getFullYear();
+        const month = date.toLocaleString("default", { month: "short" });
+
+        if (year === selectedYear && monthCounts[month]) {
+          const status = item.status.toLowerCase();
+          if (
+            status === "issued" ||
+            status === "returned" ||
+            status === "consumed"
+          ) {
+            monthCounts[month][status]++;
+          }
+        }
+      }
     });
 
-    // Step 2: Prepare xAxis and series data
-    const months = Object.keys(monthCount); // ['January', 'February', ...]
-    const counts = Object.values(monthCount); // [2, 1, ...]
+    // Convert to array and maintain month order
+    return Object.values(monthCounts);
+  };
 
-    // Optional: To ensure months are always in correct order
-    const allMonths = moment.months(); // ['January', 'February', ...]
-    const xAxisMonths = [];
-    const seriesCounts = [];
+  const data = processData();
 
-    allMonths.forEach((m) => {
-      xAxisMonths.push(m);
-      seriesCounts.push(monthCount[m] || 0);
-    });
+  return (
+    <Box sx={{ width: "100%", height: 330, padding: 3 }}>
+      <Box
+        sx={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+          mb: 2,
+        }}
+      >
+        <Typography variant="h6">Monthly Issuance Statistics</Typography>
 
-    // Step 3: ECharts options
-    const option = {
-      title: {
-        text: "Month-wise Components Data",
-        left: "center",
-      },
-      tooltip: {},
-      xAxis: {
-        type: "category",
-        data: xAxisMonths,
-      },
-      yAxis: {
-        type: "value",
-      },
-      series: [
-        {
-          data: seriesCounts,
-          type: "bar",
-          itemStyle: {
-            color: "#5470C6",
-          },
-        },
-      ],
-    };
+        <FormControl sx={{ minWidth: 120 }} size="small">
+          <InputLabel id="year-select-label">Select Year</InputLabel>
+          <Select
+            labelId="year-select-label"
+            value={selectedYear}
+            label="Select Year"
+            onChange={handleYearChange}
+          >
+            {availableYears.map((year) => (
+              <MenuItem key={year} value={year}>
+                {year}
+              </MenuItem>
+            ))}
+          </Select>
+        </FormControl>
+      </Box>
 
-    chart.setOption(option);
-
-    // Cleanup on unmount
-    return () => {
-      chart.dispose();
-    };
-  }, []);
-
-  return <div ref={chartRef} style={{ width: "100%", height: "400px" }} />;
+      {data.length > 0 ? (
+        <ResponsiveContainer>
+          <BarChart
+            data={data}
+            margin={{
+              top: 20,
+              right: 30,
+              left: 20,
+              bottom: 5,
+            }}
+          >
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Bar dataKey="issued" stackId="a" fill="#8884d8" name="Issued" />
+            <Bar
+              dataKey="returned"
+              stackId="a"
+              fill="#82ca9d"
+              name="Returned"
+            />
+            <Bar
+              dataKey="consumed"
+              stackId="a"
+              fill="#ffc658"
+              name="Consumed"
+            />
+          </BarChart>
+        </ResponsiveContainer>
+      ) : (
+        <Box
+          sx={{
+            height: "calc(100% - 50px)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          <Typography variant="body1" color="text.secondary">
+            No data available for {selectedYear}
+          </Typography>
+        </Box>
+      )}
+    </Box>
+  );
 };
 
 export default MonthWiseBarChart;

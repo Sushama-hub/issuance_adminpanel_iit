@@ -29,7 +29,6 @@ export default function DashboardAdmin() {
         const response = await axios.get(`${baseURL}/user/get-user`);
         const allFetchedData = response?.data?.data || [];
         setAllIssuanceData(allFetchedData);
-        console.log("=======", response?.data?.data);
 
         const totalIssuedCount = allFetchedData.length;
         const currentlyIssuedCount = allFetchedData.filter(
@@ -53,8 +52,15 @@ export default function DashboardAdmin() {
 
     const fetchInventoryData = async () => {
       try {
-        const response = await axios.get(`${baseURL}/inventory`);
+        const token = localStorage.getItem("token");
+        const response = await axios.get(`${baseURL}/inventory`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        console.log("Full response:", response.data);
         const inventoryData = response?.data?.data || [];
+        console.log("Fetched Inventory:", inventoryData);
 
         setData((prevData) => ({
           ...prevData,

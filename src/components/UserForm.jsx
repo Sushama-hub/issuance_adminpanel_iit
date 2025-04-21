@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 import {
   TextField,
   Select,
@@ -16,23 +16,19 @@ import {
   IconButton,
   Box,
   Autocomplete,
-} from "@mui/material";
-import GoogleIcon from "@mui/icons-material/Google";
-import { AddCircle, RemoveCircle } from "@mui/icons-material";
-import axios from "axios";
-import GoogleLoginButton from "./GoogleLoginButton";
-import { auth, signInWithGoogle } from "../firebase";
-import { onAuthStateChanged, signOut } from "firebase/auth";
-import {
-  BATCH_YEARS,
-  CATEGORIES,
-  IIT_BRANCHES,
-} from "../config/userformConfig";
+} from "@mui/material"
+import GoogleIcon from "@mui/icons-material/Google"
+import { AddCircle, RemoveCircle } from "@mui/icons-material"
+import axios from "axios"
+import GoogleLoginButton from "./GoogleLoginButton"
+import { auth, signInWithGoogle } from "../firebase"
+import { onAuthStateChanged, signOut } from "firebase/auth"
+import { BATCH_YEARS, CATEGORIES, IIT_BRANCHES } from "../config/userformConfig"
 
 export default function IssuanceForm() {
-  const [userEmail, setUserEmail] = useState("");
-  const [userName, setUserName] = useState("");
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userEmail, setUserEmail] = useState("")
+  const [userName, setUserName] = useState("")
+  const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [formData, setFormData] = useState({
     email: "",
     batch: "",
@@ -46,33 +42,33 @@ export default function IssuanceForm() {
     // specification: "",
     // quantity: "",
     status: "Issued",
-  });
-  const [submitted, setSubmitted] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [emailError, setEmailError] = useState("");
-  const [mobileError, setMobileError] = useState("");
-  const [componentsList, setComponentsList] = useState([]);
-  const [availableQuantities, setAvailableQuantities] = useState([]);
-  const [quantityErrors, setQuantityErrors] = useState({});
-  const [user, setUser] = useState(null);
+  })
+  const [submitted, setSubmitted] = useState(false)
+  const [loading, setLoading] = useState(false)
+  const [emailError, setEmailError] = useState("")
+  const [mobileError, setMobileError] = useState("")
+  const [componentsList, setComponentsList] = useState([])
+  const [availableQuantities, setAvailableQuantities] = useState([])
+  const [quantityErrors, setQuantityErrors] = useState({})
+  const [user, setUser] = useState(null)
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
   // Track login state
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
       if (user) {
-        setUserEmail(user.email);
-        setUserName(user.displayName);
+        setUserEmail(user.email)
+        setUserName(user.displayName)
         setFormData((prev) => ({
           ...prev,
           email: user.email,
           name: user.displayName,
-        }));
-        setIsLoggedIn(true);
+        }))
+        setIsLoggedIn(true)
       } else {
-        setUserEmail("");
-        setUserName("");
+        setUserEmail("")
+        setUserName("")
         setFormData({
           email: "",
           batch: "",
@@ -83,74 +79,79 @@ export default function IssuanceForm() {
           mobile: "",
           components: [{ componentName: "", specification: "", quantity: "" }],
           status: "Issued",
-        });
-        setIsLoggedIn(false);
+        })
+        setIsLoggedIn(false)
       }
-    });
+    })
 
-    return () => unsubscribe();
-  }, []);
+    return () => unsubscribe()
+  }, [])
 
   const handleLogout = async () => {
     // await signOut(auth);
     try {
-      await signOut(auth);
-      setUser(null);
-      setUserEmail("");
-      setUserName("");
-      setIsLoggedIn(null); // or false if you're using boolean
+      await signOut(auth)
+      setUser(null)
+      setUserEmail("")
+      setUserName("")
+      setIsLoggedIn(null) // or false if you're using boolean
     } catch (error) {
-      console.error("Logout Error:", error);
+      console.error("Logout Error:", error)
     }
-  };
+  }
   // ..............
   useEffect(() => {
     const fetchComponents = async () => {
       try {
-        const response = await axios.get(`${baseURL}/inventory/components`);
-        console.log("response component list", response?.data);
+        const token = localStorage.getItem("token")
+        const response = await axios.get(`${baseURL}/inventory/components`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        console.log("response component list", response?.data)
         if (response?.data?.success) {
-          setComponentsList(response.data.components);
+          setComponentsList(response.data.components)
         }
       } catch (error) {
-        console.error("Error fetching components:", error);
+        console.error("Error fetching components:", error)
       }
-    };
-    fetchComponents();
-  }, [baseURL]);
+    }
+    fetchComponents()
+  }, [baseURL])
 
   // Handle component selection
   const handleComponentChange = (index, event, newValue) => {
-    let updatedComponents = [...formData.components];
+    let updatedComponents = [...formData.components]
     updatedComponents[index] = {
       ...updatedComponents[index],
       componentName: newValue,
       specification: "",
       quantity: "",
-    };
-    setFormData({ ...formData, components: updatedComponents });
+    }
+    setFormData({ ...formData, components: updatedComponents })
 
     const selectedComponent = componentsList.find(
       (comp) => comp.componentName === newValue
-    );
+    )
 
     if (selectedComponent) {
-      let updatedQuantities = [...availableQuantities];
-      updatedQuantities[index] = selectedComponent.specifications;
-      setAvailableQuantities(updatedQuantities);
+      let updatedQuantities = [...availableQuantities]
+      updatedQuantities[index] = selectedComponent.specifications
+      setAvailableQuantities(updatedQuantities)
     }
-  };
+  }
 
   // Handle specification selection
   const handleSpecificationChange = (index, event) => {
-    let updatedComponents = [...formData.components];
+    let updatedComponents = [...formData.components]
     updatedComponents[index] = {
       ...updatedComponents[index],
       specification: event.target.value,
       quantity: "",
-    };
-    setFormData({ ...formData, components: updatedComponents });
-  };
+    }
+    setFormData({ ...formData, components: updatedComponents })
+  }
 
   // Handle adding more component fields
   const handleAddComponent = () => {
@@ -160,121 +161,121 @@ export default function IssuanceForm() {
         ...formData.components,
         { componentName: "", specification: "", quantity: "" },
       ],
-    });
-    setAvailableQuantities([...availableQuantities, []]);
-  };
+    })
+    setAvailableQuantities([...availableQuantities, []])
+  }
 
   // Handle removing a component entry
   const handleRemoveComponent = (index) => {
-    let updatedComponents = [...formData.components];
-    updatedComponents.splice(index, 1);
-    setFormData({ ...formData, components: updatedComponents });
+    let updatedComponents = [...formData.components]
+    updatedComponents.splice(index, 1)
+    setFormData({ ...formData, components: updatedComponents })
 
-    let updatedQuantities = [...availableQuantities];
-    updatedQuantities.splice(index, 1);
-    setAvailableQuantities(updatedQuantities);
-  };
+    let updatedQuantities = [...availableQuantities]
+    updatedQuantities.splice(index, 1)
+    setAvailableQuantities(updatedQuantities)
+  }
 
   // Handle input change
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
 
-    console.log("namve, value", name, value);
+    console.log("namve, value", name, value)
 
     if (name === "email") {
-      const emailPattern = /^[a-zA-Z0-9._%+-]+@iitbhilai\.ac\.in$/;
+      const emailPattern = /^[a-zA-Z0-9._%+-]+@iitbhilai\.ac\.in$/
       if (!emailPattern.test(value)) {
         setEmailError(
           "Only IIT Bhilai emails are allowed (e.g., user@iitbhilai.ac.in)"
-        );
+        )
       } else {
-        setEmailError("");
+        setEmailError("")
       }
     }
 
     // Mobile number validation (10 digits, Indian format)
     if (name === "mobile") {
-      const mobilePattern = /^[6-9]\d{9}$/;
+      const mobilePattern = /^[6-9]\d{9}$/
       if (!mobilePattern.test(value)) {
-        setMobileError("Enter a valid 10-digit Indian mobile number");
+        setMobileError("Enter a valid 10-digit Indian mobile number")
       } else {
-        setMobileError("");
+        setMobileError("")
       }
     }
 
-    setFormData({ ...formData, [name]: value });
-  };
+    setFormData({ ...formData, [name]: value })
+  }
 
   const handleQuantityChange = (index, e) => {
-    let updatedComponents = [...formData.components];
-    let value = Number(e.target.value);
+    let updatedComponents = [...formData.components]
+    let value = Number(e.target.value)
 
     // Get available quantity for selected specification
     let availableQty =
       availableQuantities[index]?.find(
         (spec) => spec.specification === updatedComponents[index].specification
-      )?.quantity || 0;
+      )?.quantity || 0
 
     // Check if entered quantity exceeds available stock
     if (value > availableQty) {
       setQuantityErrors((prevErrors) => ({
         ...prevErrors,
         [index]: `Only ${availableQty} available!`,
-      }));
+      }))
     } else {
       setQuantityErrors((prevErrors) => {
-        let newErrors = { ...prevErrors };
-        delete newErrors[index]; // Remove error if quantity is valid
-        return newErrors;
-      });
+        let newErrors = { ...prevErrors }
+        delete newErrors[index] // Remove error if quantity is valid
+        return newErrors
+      })
     }
 
-    updatedComponents[index].quantity = e.target.value;
-    setFormData({ ...formData, components: updatedComponents });
-  };
+    updatedComponents[index].quantity = e.target.value
+    setFormData({ ...formData, components: updatedComponents })
+  }
 
-  console.log(" Submitting form data:", formData);
+  console.log(" Submitting form data:", formData)
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    const mobilePattern = /^[6-9]\d{9}$/;
-    let isValid = true;
+    e.preventDefault()
+    const mobilePattern = /^[6-9]\d{9}$/
+    let isValid = true
 
     if (!mobilePattern.test(formData.mobile)) {
-      setMobileError("Please Enter a valid 10-digit Indian mobile number");
-      isValid = false;
+      setMobileError("Please Enter a valid 10-digit Indian mobile number")
+      isValid = false
     } else {
-      setMobileError("");
+      setMobileError("")
     }
 
     if (!isValid) {
-      return; // stop form submission
+      return // stop form submission
     }
 
     // Check if any quantity error exists
     if (Object.keys(quantityErrors).length > 0) {
-      alert("Please fix the quantity errors before submitting.");
-      return;
+      alert("Please fix the quantity errors before submitting.")
+      return
     }
 
-    setLoading(true);
+    setLoading(true)
 
     try {
       const response = await axios.post(`${baseURL}/user/submit`, formData, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
-      });
+      })
 
       if (response?.data?.success) {
-        console.log("Form submitted successfully!");
+        console.log("Form submitted successfully!")
 
         if (
           !Array.isArray(formData.components) ||
           formData.components.length === 0
         ) {
-          console.error(" No components found in formData!");
-          alert("Please select at least one component.");
-          setLoading(false);
-          return;
+          console.error(" No components found in formData!")
+          alert("Please select at least one component.")
+          setLoading(false)
+          return
         }
 
         // Creating inventory update data
@@ -282,9 +283,9 @@ export default function IssuanceForm() {
           componentName: comp.componentName,
           specification: comp.specification,
           quantity: -Number(comp.quantity),
-        }));
+        }))
 
-        console.log(" Updating inventory with:", inventoryUpdateData);
+        console.log(" Updating inventory with:", inventoryUpdateData)
 
         try {
           await axios.put(
@@ -294,16 +295,16 @@ export default function IssuanceForm() {
               headers: { "Content-Type": "application/json" },
               withCredentials: true,
             }
-          );
-          console.log("Inventory updated successfully!");
+          )
+          console.log("Inventory updated successfully!")
         } catch (inventoryError) {
-          console.error("Inventory update error:", inventoryError);
-          alert("Error updating inventory! Please check logs.");
+          console.error("Inventory update error:", inventoryError)
+          alert("Error updating inventory! Please check logs.")
         }
 
         setTimeout(() => {
-          setSubmitted(true);
-          setLoading(false);
+          setSubmitted(true)
+          setLoading(false)
           setFormData({
             email: "",
             batch: "",
@@ -316,25 +317,25 @@ export default function IssuanceForm() {
               { componentName: "", specification: "", quantity: "" },
             ],
             status: "Issued",
-          });
-          setAvailableQuantities(0);
+          })
+          setAvailableQuantities(0)
 
           // Sign out user from Firebase
           signOut(auth)
             .then(() => {
-              console.log("👋 User logged out after submission.");
+              console.log("👋 User logged out after submission.")
             })
             .catch((error) => {
-              console.error("Logout failed:", error);
-            });
-        }, 1500);
+              console.error("Logout failed:", error)
+            })
+        }, 1500)
       }
     } catch (error) {
-      console.error(" Error submitting form:", error);
-      alert("Something went wrong. Please try again.");
-      setLoading(false);
+      console.error(" Error submitting form:", error)
+      alert("Something went wrong. Please try again.")
+      setLoading(false)
     }
-  };
+  }
 
   return (
     <>
@@ -410,16 +411,16 @@ export default function IssuanceForm() {
                 <Box textAlign="center" mb={4}>
                   <GoogleLoginButton
                     onSuccess={async (loggedUser) => {
-                      const email = loggedUser.email;
+                      const email = loggedUser.email
 
                       if (email.endsWith("@iitbhilai.ac.in")) {
-                        setUser(loggedUser);
-                        setIsLoggedIn(loggedUser);
-                        setUserName(loggedUser.displayName);
-                        setUserEmail(loggedUser.email);
+                        setUser(loggedUser)
+                        setIsLoggedIn(loggedUser)
+                        setUserName(loggedUser.displayName)
+                        setUserEmail(loggedUser.email)
                       } else {
-                        alert("Only IIT Bhilai emails allowed!");
-                        await signOut(auth); // logs out user immediately
+                        alert("Only IIT Bhilai emails allowed!")
+                        await signOut(auth) // logs out user immediately
                       }
                     }}
                   />
@@ -541,12 +542,12 @@ export default function IssuanceForm() {
                         ) || null
                       }
                       onChange={(event, newValue) => {
-                        console.log("Selected branch value:", newValue?.value); // newValue = { label, value }
+                        console.log("Selected branch value:", newValue?.value) // newValue = { label, value }
 
                         setFormData((prev) => ({
                           ...prev,
                           branch: newValue ? newValue.value : "",
-                        }));
+                        }))
                       }}
                       disabled={!isLoggedIn}
                       renderInput={(params) => (
@@ -760,5 +761,5 @@ export default function IssuanceForm() {
         </Box>
       )}
     </>
-  );
+  )
 }

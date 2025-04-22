@@ -64,10 +64,12 @@ export default function DashboardMaster() {
     const fetchInventoryData = async () => {
       try {
         const token = localStorage.getItem("token")
+        console.log("token", token)
         const response = await axios.get(`${baseURL}/inventory`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
+          withCredentials: true, // move it outside headers
         })
         console.log("Full response:", response.data)
         const inventoryData = response?.data?.data || []

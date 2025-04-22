@@ -1,11 +1,11 @@
-*{
+* {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
 }
 
 .editable-cell {
-  background-color: #f0f8ff !important; /* Light blue */
+  background-color: #f0f8ff !important;
   font-weight: bold;
   cursor: pointer;
 }

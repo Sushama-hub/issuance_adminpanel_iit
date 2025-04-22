@@ -1,12 +1,4 @@
-import {
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  Button,
-  Box,
-  Snackbar,
-} from "@mui/material"
+import { Grid, Card, CardContent, Typography, Box } from "@mui/material"
 
 import { Link } from "react-router-dom"
 import { useState, useEffect } from "react"
@@ -16,8 +8,6 @@ import {
   AssignmentTurnedIn,
   Storage,
   ListAlt,
-  Edit,
-  ContentCopy,
 } from "@mui/icons-material"
 import MonthWiseBarChart from "../components/MonthWiseBarChart"
 import StatusPieChart from "../components/StatusPieChart"
@@ -38,7 +28,6 @@ export default function DashboardMaster() {
       try {
         const response = await axios.get(`${baseURL}/user/get-user`)
         const allFetchedData = response?.data?.data || []
-        console.log(allFetchedData)
         setAllIssuanceData(allFetchedData)
 
         const totalIssuedCount = allFetchedData.length
@@ -64,16 +53,13 @@ export default function DashboardMaster() {
     const fetchInventoryData = async () => {
       try {
         const token = localStorage.getItem("token")
-        console.log("token", token)
         const response = await axios.get(`${baseURL}/inventory`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-          withCredentials: true, // move it outside headers
+          withCredentials: true,
         })
-        console.log("Full response:", response.data)
         const inventoryData = response?.data?.data || []
-        console.log("Fetched Inventory:", inventoryData)
 
         setData((prevData) => ({
           ...prevData,
@@ -127,7 +113,6 @@ export default function DashboardMaster() {
           title="Total Inventory"
           value={data?.totalInventory}
           icon={<Storage fontSize="large" />}
-          // color="#FB8C00"
           color="#257180"
           link="/inventory_records"
         />
@@ -187,7 +172,6 @@ function StatCardContent({ title, value, icon, color }) {
       sx={{
         height: "100%",
         background: `linear-gradient(135deg, ${color}, rgb(66, 71, 77))`,
-        // background: `linear-gradient(135deg, ${color}, rgb(45, 50, 56))`,
         color: "white",
         borderRadius: "12px",
         boxShadow: "0px 4px 15px rgba(0, 0, 0, 0.3)",
@@ -226,7 +210,6 @@ function StatCardContent({ title, value, icon, color }) {
           zIndex: 0,
         },
 
-        // Make sure your content stays above pseudo elements
         "& > *": {
           position: "relative",
           zIndex: 1,

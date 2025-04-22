@@ -1,5 +1,5 @@
-import * as React from "react";
-import { styled } from "@mui/material/styles";
+import * as React from "react"
+import { styled } from "@mui/material/styles"
 import {
   Box,
   Toolbar,
@@ -12,18 +12,18 @@ import {
   ListItemIcon,
   ListItemText,
   Divider,
-} from "@mui/material";
-import MuiDrawer from "@mui/material/Drawer";
-import MuiAppBar from "@mui/material/AppBar";
-import MenuIcon from "@mui/icons-material/Menu";
-import { sidebarConfig } from "../config/sidebarConfig";
-import { useNavigate, useLocation } from "react-router-dom";
-import { useState, useEffect } from "react";
-import LogoutIcon from "@mui/icons-material/Logout";
-import { Outlet } from "react-router-dom";
-import UserIssuanceFom from "../components/UserIssuanceFom";
+} from "@mui/material"
+import MuiDrawer from "@mui/material/Drawer"
+import MuiAppBar from "@mui/material/AppBar"
+import MenuIcon from "@mui/icons-material/Menu"
+import { sidebarConfig } from "../config/sidebarConfig"
+import { useNavigate, useLocation } from "react-router-dom"
+import { useState, useEffect } from "react"
+import LogoutIcon from "@mui/icons-material/Logout"
+import { Outlet } from "react-router-dom"
+import UserIssuanceFom from "../components/UserIssuanceFom"
 
-const drawerWidth = 240;
+const drawerWidth = 240
 
 const openedMixin = (theme) => ({
   width: drawerWidth,
@@ -32,7 +32,7 @@ const openedMixin = (theme) => ({
     duration: theme.transitions.duration.standard * 2,
   }),
   overflowX: "hidden",
-});
+})
 
 const closedMixin = (theme) => ({
   transition: theme.transitions.create("width", {
@@ -44,16 +44,15 @@ const closedMixin = (theme) => ({
   [theme.breakpoints.up("sm")]: {
     width: `calc(${theme.spacing(8)} + 1px)`,
   },
-});
+})
 
 const DrawerHeader = styled("div")(({ theme }) => ({
   display: "flex",
   alignItems: "center",
   justifyContent: "flex-end",
   padding: theme.spacing(0, 1),
-  // necessary for content to be below app bar
   ...theme.mixins.toolbar,
-}));
+}))
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== "open",
@@ -76,7 +75,7 @@ const AppBar = styled(MuiAppBar, {
       },
     },
   ],
-}));
+}))
 
 const Drawer = styled(MuiDrawer, {
   shouldForwardProp: (prop) => prop !== "open",
@@ -93,11 +92,6 @@ const Drawer = styled(MuiDrawer, {
         "& .MuiDrawer-paper": {
           ...openedMixin(theme),
           backgroundColor: "#f4f4f4",
-          // backgroundImage: 'url("/src/assets/images/sidebar-bg-light.jpg")',
-          // // backgroundSize: "cover",
-          // backgroundRepeat: "no-repeat",
-          // backgroundPosition: "center",
-          // Overlay Layer
           "&::before": {
             content: '""',
             position: "absolute",
@@ -106,13 +100,11 @@ const Drawer = styled(MuiDrawer, {
             right: 0,
             bottom: 0,
             backgroundColor: "#075985",
-            // backgroundColor: "rgba(182, 195, 220, 0.7)", // Semi-transparent black overlay
-            backdropFilter: "blur(5px)", // Optional: Adds a frosted glass effect
-            WebkitBackdropFilter: "blur(5px)", // Safari support
-            zIndex: 1, // Ensures it stays above the background image
+            backdropFilter: "blur(5px)",
+            WebkitBackdropFilter: "blur(5px)",
+            zIndex: 1,
           },
 
-          // Ensures text and icons remain on top of the overlay
           "& *": {
             position: "relative",
             zIndex: 2,
@@ -131,74 +123,67 @@ const Drawer = styled(MuiDrawer, {
       },
     },
   ],
-}));
+}))
 
 export default function MiniDrawer() {
-  const navigate = useNavigate();
-  const location = useLocation();
-  const [open, setOpen] = useState(true);
-  const [hover, setHover] = useState(false);
-  const [activeItem, setActiveItem] = useState(location.pathname);
-  const [minHeight, setMinHeight] = useState("100vh");
-  const [user, setUser] = useState({ name: "", email: "", role: "" });
+  const navigate = useNavigate()
+  const location = useLocation()
+  const [open, setOpen] = useState(true)
+  const [hover, setHover] = useState(false)
+  const [activeItem, setActiveItem] = useState(location.pathname)
+  const [minHeight, setMinHeight] = useState("100vh")
+  const [user, setUser] = useState({ name: "", email: "", role: "" })
 
   useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
+    const storedUser = JSON.parse(localStorage.getItem("user"))
     if (storedUser) {
-      setUser(storedUser);
+      setUser(storedUser)
     }
-  }, []);
+  }, [])
 
   useEffect(() => {
     const updateHeight = () => {
-      const header = document.getElementById("appBar");
+      const header = document.getElementById("appBar")
       if (header) {
-        const viewportHeight = window.innerHeight;
-        const headerHeight = header.offsetHeight;
-        // console.log(
-        //   headerHeight,
-        //   viewportHeight,
-        //   viewportHeight - headerHeight
-        // );
-        setMinHeight(`${viewportHeight - headerHeight}px`);
+        const viewportHeight = window.innerHeight
+        const headerHeight = header.offsetHeight
+        setMinHeight(`${viewportHeight - headerHeight}px`)
       }
-    };
-
-    updateHeight(); // Set initial height
-    window.addEventListener("resize", updateHeight);
-    return () => window.removeEventListener("resize", updateHeight);
-  }, []);
-
-  useEffect(() => {
-    // Force re-render when drawer state changes
-    setTimeout(() => {
-      window.dispatchEvent(new Event("resize"));
-    }, 300);
-  }, [open]);
-
-  useEffect(() => {
-    const restOfPath = location.pathname.replace("/dashboard/admin/", "");
-    if (restOfPath !== "/dashboard/admin") {
-      setActiveItem(restOfPath);
-    } else {
-      setActiveItem("/");
     }
-  }, [location.pathname]);
+
+    updateHeight()
+    window.addEventListener("resize", updateHeight)
+    return () => window.removeEventListener("resize", updateHeight)
+  }, [])
+
+  useEffect(() => {
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize"))
+    }, 300)
+  }, [open])
+
+  useEffect(() => {
+    const restOfPath = location.pathname.replace("/dashboard/admin/", "")
+    if (restOfPath !== "/dashboard/admin") {
+      setActiveItem(restOfPath)
+    } else {
+      setActiveItem("/")
+    }
+  }, [location.pathname])
 
   const handleClick = (id) => {
     if (id === "logout") {
-      localStorage.removeItem("token");
-      navigate("/login");
-      return;
+      localStorage.removeItem("token")
+      navigate("/login")
+      return
     }
 
     const basePath =
-      user && user?.role === "admin" ? "/dashboard/admin" : "/dashboard/master";
-    const target = id === "/" ? basePath : `${basePath}/${id}`;
-    navigate(target);
-    // navigate(id);
-    setActiveItem(id); // Set active item on click
-  };
+      user && user?.role === "admin" ? "/dashboard/admin" : "/dashboard/master"
+    const target = id === "/" ? basePath : `${basePath}/${id}`
+    navigate(target)
+    setActiveItem(id)
+  }
 
   return (
     <Box sx={{ display: "flex" }}>
@@ -314,8 +299,8 @@ export default function MiniDrawer() {
                 transform: hover ? "translateX(-1px)" : "translateX(0)",
               }}
               onClick={() => {
-                localStorage.removeItem("token"); //  Clear the token, Clear auth data if needed
-                navigate("/login");
+                localStorage.removeItem("token") //  Clear the token, Clear auth data if needed
+                navigate("/login")
               }}
               onMouseEnter={() => setHover(true)}
               onMouseLeave={() => setHover(false)}
@@ -332,8 +317,8 @@ export default function MiniDrawer() {
 
         <List>
           {sidebarConfig?.items?.map((item, index) => {
-            const IconComponent = item?.icon;
-            const isActive = activeItem === `${item?.id}`; // Ensure it matches the route correctly
+            const IconComponent = item?.icon
+            const isActive = activeItem === `${item?.id}`
 
             return (
               <ListItem key={index} disablePadding sx={{ display: "block" }}>
@@ -344,10 +329,10 @@ export default function MiniDrawer() {
                     px: 2.5,
                     py: 1,
                     justifyContent: open ? "initial" : "center",
-                    backgroundColor: isActive ? "#0284c7" : "transparent", // Active item color
+                    backgroundColor: isActive ? "#0284c7" : "transparent",
                     borderRadius: "8px",
                     "&:hover": {
-                      backgroundColor: "#043c5a", // Hover effect 0284c7 043c5a f1f5f9 083344
+                      backgroundColor: "#043c5a",
                     },
                   }}
                 >
@@ -370,7 +355,7 @@ export default function MiniDrawer() {
                   />
                 </ListItemButton>
               </ListItem>
-            );
+            )
           })}
           <Divider
             sx={{
@@ -389,7 +374,6 @@ export default function MiniDrawer() {
         component="main"
         sx={{
           flexGrow: 1,
-          // minHeight: "100vh",
           minHeight,
           p: 2,
           width: !open ? "100%" : "calc(100vw - 280px)",
@@ -405,5 +389,5 @@ export default function MiniDrawer() {
         />
       </Box>
     </Box>
-  );
+  )
 }

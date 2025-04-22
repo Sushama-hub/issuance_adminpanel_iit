@@ -1,101 +1,96 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from "react"
 import {
   TextField,
   Button,
   Card,
   CardContent,
   Typography,
-  Container,
   Box,
   Snackbar,
   Alert,
   Divider,
   Grid,
-} from "@mui/material";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
-import CsvUploader from "./CsvUploader";
-import moment from "moment";
-import { navigateToRoleBasedPath } from "../utils/roleNavigator";
+} from "@mui/material"
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
+import CsvUploader from "./CsvUploader"
+import moment from "moment"
+import { navigateToRoleBasedPath } from "../utils/roleNavigator"
 
 const ComponentForm = () => {
   const [formData, setFormData] = useState({
     componentName: "",
     specification: "",
     quantity: "",
-  });
-  const [loading, setLoading] = useState(false);
-  const [lastEntry, setLastEntry] = useState(null);
+  })
+  const [loading, setLoading] = useState(false)
+  const [lastEntry, setLastEntry] = useState(null)
   const [snackbarData, setSnackbarData] = useState({
     open: false,
     message: "",
-    severity: "success", // can be "success", "error", "warning", "info"
-  });
+    severity: "success",
+  })
 
-  const navigate = useNavigate();
+  const navigate = useNavigate()
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
   // Handle input changes
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+    setFormData({ ...formData, [e.target.name]: e.target.value })
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    console.log("formData", formData);
+    e.preventDefault()
+    setLoading(true)
 
     try {
       const response = await axios.post(`${baseURL}/inventory`, formData, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
-      });
-      console.log("response", response?.data);
+      })
       if (response?.data?.success === true) {
-        const newEntry = response?.data?.data;
+        const newEntry = response?.data?.data
 
         // Save last entry in state and localStorage
-        setLastEntry(newEntry);
-        localStorage.setItem("lastInventoryEntry", JSON.stringify(newEntry));
+        setLastEntry(newEntry)
+        localStorage.setItem("lastInventoryEntry", JSON.stringify(newEntry))
 
         setSnackbarData({
           open: true,
           message: " Inventory entry submitted successfully!",
           severity: "success",
-        });
+        })
         setTimeout(() => {
           setFormData({
             ...formData,
             componentName: "",
             specification: "",
             quantity: "",
-          });
-          setLoading(false);
-        }, 1500);
+          })
+          setLoading(false)
+        }, 1500)
       }
     } catch (error) {
-      console.error("Error submitting form:", error);
+      console.error("Error submitting form:", error)
 
       setSnackbarData({
         open: true,
         message: " Error submitting inventory. Please try again!",
         severity: "error",
-      });
+      })
 
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // Load last entry from localStorage on mount
   useEffect(() => {
-    const storedEntry = localStorage.getItem("lastInventoryEntry");
+    const storedEntry = localStorage.getItem("lastInventoryEntry")
     if (storedEntry) {
-      setLastEntry(JSON.parse(storedEntry));
+      setLastEntry(JSON.parse(storedEntry))
     }
-    // const storedCsvEntry = localStorage.getItem("lastCsvEntry");
-    // if (storedCsvEntry) setCsvLastEntry(JSON.parse(storedCsvEntry));
-  }, []);
+  }, [])
 
   return (
     <>
@@ -262,7 +257,6 @@ const ComponentForm = () => {
                   borderRadius: "10px",
                   padding: "16px",
                   color: "#333",
-                  // backgroundColor: "#e0f7fa",
                   backgroundColor: "#E3F2FD",
                   boxShadow: "0px 4px 20px rgba(0, 0, 0, 0.1)",
                   marginBottom: 4,
@@ -296,7 +290,6 @@ const ComponentForm = () => {
                     sx={{ mt: 1 }}
                   >
                     <em>Added On:</em>
-                    {/* {new Date(lastEntry.createdAt).toLocaleString()} <br /> */}
                     {moment(lastEntry.createdAt).format(
                       "DD-MM-YYYY hh:mm:ss A"
                     )}
@@ -334,7 +327,7 @@ const ComponentForm = () => {
         </Snackbar>
       </Box>
     </>
-  );
-};
+  )
+}
 
-export default ComponentForm;
+export default ComponentForm

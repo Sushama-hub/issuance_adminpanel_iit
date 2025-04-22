@@ -17,11 +17,10 @@ import {
   Box,
   Autocomplete,
 } from "@mui/material"
-import GoogleIcon from "@mui/icons-material/Google"
 import { AddCircle, RemoveCircle } from "@mui/icons-material"
 import axios from "axios"
 import GoogleLoginButton from "./GoogleLoginButton"
-import { auth, signInWithGoogle } from "../firebase"
+import { auth } from "../firebase"
 import { onAuthStateChanged, signOut } from "firebase/auth"
 import { BATCH_YEARS, CATEGORIES, IIT_BRANCHES } from "../config/userformConfig"
 
@@ -38,9 +37,6 @@ export default function IssuanceForm() {
     branch: "",
     mobile: "",
     components: [{ componentName: "", specification: "", quantity: "" }],
-    // components: "",
-    // specification: "",
-    // quantity: "",
     status: "Issued",
   })
   const [submitted, setSubmitted] = useState(false)
@@ -88,13 +84,12 @@ export default function IssuanceForm() {
   }, [])
 
   const handleLogout = async () => {
-    // await signOut(auth);
     try {
       await signOut(auth)
       setUser(null)
       setUserEmail("")
       setUserName("")
-      setIsLoggedIn(null) // or false if you're using boolean
+      setIsLoggedIn(null)
     } catch (error) {
       console.error("Logout Error:", error)
     }
@@ -109,7 +104,6 @@ export default function IssuanceForm() {
             Authorization: `Bearer ${token}`,
           },
         })
-        console.log("response component list", response?.data)
         if (response?.data?.success) {
           setComponentsList(response.data.components)
         }
@@ -180,8 +174,6 @@ export default function IssuanceForm() {
   const handleChange = (e) => {
     const { name, value } = e.target
 
-    console.log("namve, value", name, value)
-
     if (name === "email") {
       const emailPattern = /^[a-zA-Z0-9._%+-]+@iitbhilai\.ac\.in$/
       if (!emailPattern.test(value)) {
@@ -225,7 +217,7 @@ export default function IssuanceForm() {
     } else {
       setQuantityErrors((prevErrors) => {
         let newErrors = { ...prevErrors }
-        delete newErrors[index] // Remove error if quantity is valid
+        delete newErrors[index]
         return newErrors
       })
     }
@@ -234,7 +226,6 @@ export default function IssuanceForm() {
     setFormData({ ...formData, components: updatedComponents })
   }
 
-  console.log(" Submitting form data:", formData)
   const handleSubmit = async (e) => {
     e.preventDefault()
     const mobilePattern = /^[6-9]\d{9}$/
@@ -266,8 +257,6 @@ export default function IssuanceForm() {
       })
 
       if (response?.data?.success) {
-        console.log("Form submitted successfully!")
-
         if (
           !Array.isArray(formData.components) ||
           formData.components.length === 0
@@ -285,8 +274,6 @@ export default function IssuanceForm() {
           quantity: -Number(comp.quantity),
         }))
 
-        console.log(" Updating inventory with:", inventoryUpdateData)
-
         try {
           await axios.put(
             `${baseURL}/inventory/update-quantity`,
@@ -296,7 +283,6 @@ export default function IssuanceForm() {
               withCredentials: true,
             }
           )
-          console.log("Inventory updated successfully!")
         } catch (inventoryError) {
           console.error("Inventory update error:", inventoryError)
           alert("Error updating inventory! Please check logs.")
@@ -323,7 +309,7 @@ export default function IssuanceForm() {
           // Sign out user from Firebase
           signOut(auth)
             .then(() => {
-              console.log("👋 User logged out after submission.")
+              console.log(" User logged out after submission.")
             })
             .catch((error) => {
               console.error("Logout failed:", error)
@@ -390,7 +376,6 @@ export default function IssuanceForm() {
                 fontWeight="bold"
                 mb={2}
                 sx={{
-                  // backgroundColor: "#604CC3",
                   backgroundImage: "url('/src/assets/images/banner.jpg')",
                   backgroundSize: "cover",
                   backgroundPosition: "center",
@@ -399,11 +384,9 @@ export default function IssuanceForm() {
                   borderRadius: "10px 10px 0px 0px",
                   textAlign: "center",
                   textTransform: "uppercase",
-                  // textTransform: "capitalize",
                   lineHeight: 1.5,
                 }}
               >
-                {/* Electrical Engineering Department Issuance Record Form */}
                 Department Of Electrical Engineer <br /> Issuance Record Form
               </Typography>
 
@@ -512,7 +495,6 @@ export default function IssuanceForm() {
                     { label: "ID Number", name: "idNumber" },
                     { label: "Name", name: "name" },
                     { label: "Mobile Number", name: "mobile", type: "tel" },
-                    // { label: "Branch", name: "branch" },
                   ].map(({ label, name, type }, index) => (
                     <Grid item xs={12} sm={6} key={index}>
                       <TextField
@@ -542,8 +524,6 @@ export default function IssuanceForm() {
                         ) || null
                       }
                       onChange={(event, newValue) => {
-                        console.log("Selected branch value:", newValue?.value) // newValue = { label, value }
-
                         setFormData((prev) => ({
                           ...prev,
                           branch: newValue ? newValue.value : "",
@@ -564,11 +544,9 @@ export default function IssuanceForm() {
                       key={index}
                       alignItems="center"
                       margin="1px"
-                      // sx={{ my: 1 }}
                     >
                       <Grid item xs={6} sm={6} md={3.6}>
                         <Autocomplete
-                          // freeSolo
                           disablePortal
                           options={componentsList.map(
                             (comp) => comp.componentName
@@ -626,8 +604,8 @@ export default function IssuanceForm() {
                           onChange={(e) => handleQuantityChange(index, e)}
                           disabled={!isLoggedIn}
                           required
-                          error={!!quantityErrors[index]} // Show error if exists
-                          helperText={quantityErrors[index] || ""} // Show error message
+                          error={!!quantityErrors[index]}
+                          helperText={quantityErrors[index] || ""}
                           InputProps={{
                             inputProps: { min: 1 },
                           }}
@@ -664,7 +642,6 @@ export default function IssuanceForm() {
                       <Grid item xs={1}>
                         {index === 0 ? (
                           <IconButton
-                            // color="primary"
                             onClick={handleAddComponent}
                             sx={{ color: "#261FB3" }}
                             disabled={
@@ -691,8 +668,8 @@ export default function IssuanceForm() {
                         xs={3.6}
                         sx={{
                           display: {
-                            xs: "none", // for mobile
-                            sm: "flex", // for tablets screens and up
+                            xs: "none",
+                            sm: "flex",
                           },
                         }}
                       ></Grid>
@@ -701,8 +678,8 @@ export default function IssuanceForm() {
                         xs={3.6}
                         sx={{
                           display: {
-                            xs: "none", // for mobile
-                            sm: "flex", // for tablets screens and up
+                            xs: "none",
+                            sm: "flex",
                           },
                         }}
                       ></Grid>

@@ -1,15 +1,14 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import { Typography } from "@mui/material";
+import * as React from "react"
+import Box from "@mui/material/Box"
+import { DataGrid, GridToolbar } from "@mui/x-data-grid"
+import axios from "axios"
+import { useEffect, useState } from "react"
+import { Typography } from "@mui/material"
 
 const columns = [
   {
     field: "id",
     headerName: "SNo.",
-    // flex: 1,
     editable: false,
     width: 55,
   },
@@ -78,51 +77,51 @@ const columns = [
     editable: false,
     width: 120,
   },
-];
+]
 
 // Custom Component for Editable Status Cell
 
 export default function QuickFilteringGrid() {
-  const [rows, setRows] = useState([]);
+  const [rows, setRows] = useState([])
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
   const fetchTableData = async () => {
     try {
-      const response = await axios.get(`${baseURL}/user/get-user`);
+      const response = await axios.get(`${baseURL}/user/get-user`)
 
       const rawData = response?.data?.data?.filter(
         (item) => item.status === "Returned" || item.status === "Consumed"
-      );
+      )
 
       const groupedData = rawData.reduce((acc, user) => {
-        const existingUser = acc.find((item) => item._id === user._id);
+        const existingUser = acc.find((item) => item._id === user._id)
 
         const componentNames = user.components
           .map((comp) => comp.componentName)
-          .join(", ");
+          .join(", ")
         const specifications = user.components
           .map((comp) => comp.specification)
-          .join(", ");
+          .join(", ")
         const quantities = user.components
           .map((comp) => comp.quantity)
-          .join(", ");
+          .join(", ")
 
-        const createdDate = new Date(user.createdAt);
-        const updatedDate = new Date(user.updatedAt);
+        const createdDate = new Date(user.createdAt)
+        const updatedDate = new Date(user.updatedAt)
 
         const formattedCreatedAt = `${createdDate.getDate()}/${
           createdDate.getMonth() + 1
-        }/${createdDate.getFullYear()}, ${createdDate.toLocaleTimeString()}`;
+        }/${createdDate.getFullYear()}, ${createdDate.toLocaleTimeString()}`
 
         const formattedUpdatedAt = `${updatedDate.getDate()}/${
           updatedDate.getMonth() + 1
-        }/${updatedDate.getFullYear()}, ${updatedDate.toLocaleTimeString()}`;
+        }/${updatedDate.getFullYear()}, ${updatedDate.toLocaleTimeString()}`
 
         if (existingUser) {
-          existingUser.components += `, ${componentNames}`;
-          existingUser.specification += `, ${specifications}`;
-          existingUser.quantity += `, ${quantities}`;
+          existingUser.components += `, ${componentNames}`
+          existingUser.specification += `, ${specifications}`
+          existingUser.quantity += `, ${quantities}`
         } else {
           acc.push({
             _id: user._id,
@@ -133,86 +132,33 @@ export default function QuickFilteringGrid() {
             name: user.name,
             branch: user.branch,
             mobile: user.mobile,
-            components: componentNames, // Only component names
-            specification: specifications, // Separate field for specification
-            quantity: quantities, // Separate field for quantity
+            components: componentNames,
+            specification: specifications,
+            quantity: quantities,
             status: user.status,
-            createdAt: formattedCreatedAt, // Formatted createdAt
-            updatedAt: formattedUpdatedAt, // Formatted updatedAt
-            updatedAtTimestamp: updatedDate.getTime(), // Timestamp for sorting
-          });
+            createdAt: formattedCreatedAt,
+            updatedAt: formattedUpdatedAt,
+            updatedAtTimestamp: updatedDate.getTime(),
+          })
         }
 
-        return acc;
-      }, []);
+        return acc
+      }, [])
 
       // Sort data by latest updatedAt timestamp
       const sortedData = groupedData
         .sort((a, b) => b.updatedAtTimestamp - a.updatedAtTimestamp)
-        .map((item, index) => ({ ...item, id: index + 1 }));
+        .map((item, index) => ({ ...item, id: index + 1 }))
 
-      setRows(sortedData);
+      setRows(sortedData)
     } catch (error) {
-      console.log("Error fetching data", error);
+      console.log("Error fetching data", error)
     }
-  };
-
-  // const fetchTableData = async () => {
-  //   try {
-  //     const response = await axios.get(`${baseURL}/user/get-user`);
-
-  //     const rawData = response?.data?.data?.filter(
-  //       (item) => item.status === "Returned" || item.status === "Consumed"
-  //     );
-
-  //     const groupedData = rawData.reduce((acc, user, index) => {
-  //       const existingUser = acc.find((item) => item._id === user._id);
-
-  //       const componentNames = user.components
-  //         .map((comp) => comp.componentName)
-  //         .join(", ");
-  //       const specifications = user.components
-  //         .map((comp) => comp.specification)
-  //         .join(", ");
-  //       const quantities = user.components
-  //         .map((comp) => comp.quantity)
-  //         .join(", ");
-
-  //       if (existingUser) {
-  //         existingUser.components += `, ${componentNames}`;
-  //         existingUser.specification += `, ${specifications}`;
-  //         existingUser.quantity += `, ${quantities}`;
-  //       } else {
-  //         acc.push({
-  //           id: index + 1,
-  //           _id: user._id,
-  //           email: user.email,
-  //           batch: user.batch,
-  //           category: user.category,
-  //           idNumber: user.idNumber,
-  //           name: user.name,
-  //           branch: user.branch,
-  //           mobile: user.mobile,
-  //           components: componentNames, // Only component names
-  //           specification: specifications, // Separate field for specification
-  //           quantity: quantities, // Separate field for quantity
-  //           status: user.status,
-  //           createdAt: new Date(user.createdAt).toLocaleString(),
-  //         });
-  //       }
-
-  //       return acc;
-  //     }, []);
-
-  //     setRows(groupedData);
-  //   } catch (error) {
-  //     console.log("Error fetching data", error);
-  //   }
-  // };
+  }
 
   useEffect(() => {
-    fetchTableData();
-  }, []);
+    fetchTableData()
+  }, [])
 
   return (
     <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
@@ -247,5 +193,5 @@ export default function QuickFilteringGrid() {
         />
       </Box>
     </Box>
-  );
+  )
 }

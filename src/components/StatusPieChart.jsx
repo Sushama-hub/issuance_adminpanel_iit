@@ -9,10 +9,8 @@ import {
 } from "recharts"
 import { Typography, Box } from "@mui/material"
 
-// const COLORS = ["#8884d8", "#82ca9d", "#ffc658"];
 const COLORS = ["#3f51b5", "#43A047", "#FB8C00"]
 
-// Add this new custom legend renderer component after the COLORS constant
 const CustomLegend = (props) => {
   const { payload } = props
 
@@ -53,7 +51,6 @@ const CustomLegend = (props) => {
 }
 
 const StatusPieChart = ({ graphData }) => {
-  // Process the data to get status-wise counts and percentages
   const processData = () => {
     const statusCounts = {
       issued: 0,
@@ -82,7 +79,6 @@ const StatusPieChart = ({ graphData }) => {
 
   const data = processData()
 
-  // Custom tooltip content
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload

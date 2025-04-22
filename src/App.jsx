@@ -14,7 +14,6 @@ const getUserFromStorage = () => {
   const user = localStorage.getItem("user")
   const expiresAt = localStorage.getItem("expiresAt")
   if (!user || !expiresAt) return null
-  // return user ? JSON.parse(user) : null;
 
   const isExpired = new Date().getTime() > parseInt(expiresAt, 10)
   if (isExpired) {
@@ -34,7 +33,6 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   const token = localStorage.getItem("token")
   const user = getUserFromStorage()
 
-  // (<Navigate to="/login" replace />), (<Navigate to="/register" replace />)
   if (!token || !user || hasTokenExpired()) {
     localStorage.clear()
     return <Navigate to="/login" replace />
@@ -45,20 +43,12 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   return children
-
-  // if (!token || !user) return <Navigate to="/login" replace />
-  // if (allowedRoles && !allowedRoles.includes(user.role)) {
-  //   return <Navigate to="/unauthorized" replace />
-  // }
-
-  // return children
 }
 
 const AuthRedirect = ({ children }) => {
   const token = localStorage.getItem("token")
   const user = getUserFromStorage()
 
-  // if (token && user)
   if (token && user && !hasTokenExpired()) {
     if (user.role === "master")
       return <Navigate to="/dashboard/master" replace />

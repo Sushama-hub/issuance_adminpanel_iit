@@ -17,13 +17,11 @@ import {
   MenuItem,
   Box,
 } from "@mui/material"
-// import { graphData } from "../config/graphData";
 
 const MonthWiseBarChart = ({ graphData }) => {
   const currentDate = new Date()
   const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear())
 
-  // Calculate available years and their last months using useMemo
   const { availableYears, yearMonthMap } = useMemo(() => {
     if (!Array.isArray(graphData)) {
       return { availableYears: [], yearMonthMap: {} }

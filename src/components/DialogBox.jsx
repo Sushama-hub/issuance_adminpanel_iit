@@ -1,5 +1,5 @@
-import * as React from "react";
-import axios from "axios";
+import * as React from "react"
+import axios from "axios"
 import {
   Dialog,
   DialogTitle,
@@ -9,8 +9,8 @@ import {
   Button,
   Snackbar,
   Alert,
-} from "@mui/material";
-import { useState } from "react";
+} from "@mui/material"
+import { useState } from "react"
 
 export default function DialogBox({
   editDialogOpen,
@@ -21,66 +21,64 @@ export default function DialogBox({
   setEditValues,
   fetchTableData,
 }) {
-  const [errors, setErrors] = useState({});
+  const [errors, setErrors] = useState({})
   const [snackbarData, setSnackbarData] = useState({
     open: false,
     message: "",
-    severity: "success", // can be "success", "error", "warning", "info"
-  });
+    severity: "success",
+  })
 
-  const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
 
   //  Validate Single Field
   const validateField = (name, value) => {
-    let error = "";
+    let error = ""
 
     switch (name) {
       case "componentName":
         if (!value || value.trim() === "") {
-          error = "Component Name is required";
+          error = "Component Name is required"
         }
-        break;
+        break
 
       case "specification":
         if (!value || value.trim() === "") {
-          error = "Specification is required";
+          error = "Specification is required"
         }
-        break;
+        break
 
       case "quantity":
         if (value === "" || value === null || Number(value) <= 0) {
-          error = "Quantity must be greater than zero";
+          error = "Quantity must be greater than zero"
         }
-        break;
+        break
 
       default:
-        break;
+        break
     }
 
     setErrors((prevErrors) => ({
       ...prevErrors,
       [name]: error,
-    }));
-  };
+    }))
+  }
 
   //   Handle Input Change in Edit Dialog
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    console.log("handleInputChange", name, value);
+    const { name, value } = e.target
     setEditValues((prev) => ({
       ...prev,
       [name]: value,
-    }));
+    }))
 
     // Real-time validation as user types
-    validateField(name, value);
-  };
+    validateField(name, value)
+  }
 
   // Handle Edit Form Submit
   const handleEditSubmit = async () => {
     try {
-      const token = localStorage.getItem("token");
-      console.log("Edit token", token);
+      const token = localStorage.getItem("token")
       const response = await axios.put(
         `${baseUrl}/inventory/${editRow._id}`,
         editValues,
@@ -89,36 +87,34 @@ export default function DialogBox({
             Authorization: `Bearer ${token}`,
           },
         }
-      );
-
-      console.log("response edit--->", response?.data?.success);
+      )
 
       if (response?.data?.success === true) {
         setSnackbarData({
           open: true,
           message: `${response?.data?.message} `,
           severity: "success",
-        });
+        })
       }
 
       setTimeout(() => {
-        setEditDialogOpen(false);
-        setEditRow(null);
-        fetchTableData();
-      }, 1500);
+        setEditDialogOpen(false)
+        setEditRow(null)
+        fetchTableData()
+      }, 1500)
     } catch (error) {
-      console.error("Error updating item", error);
+      console.error("Error updating item", error)
 
       setSnackbarData({
         open: true,
         message: " Error Updating inventory. Please try again!",
         severity: "error",
-      });
+      })
     }
-  };
+  }
 
   const isDisabledButton = () => {
-    const { componentName, specification, quantity } = editValues;
+    const { componentName, specification, quantity } = editValues
     // Basic validations
     if (
       !componentName ||
@@ -129,11 +125,11 @@ export default function DialogBox({
       quantity === null ||
       Number(quantity) <= 0
     ) {
-      return true; // Disable button
+      return true // Disable button
     }
 
-    return false; // Enable button
-  };
+    return false // Enable button
+  }
   return (
     <>
       <Dialog
@@ -210,5 +206,5 @@ export default function DialogBox({
         </Alert>
       </Snackbar>
     </>
-  );
+  )
 }

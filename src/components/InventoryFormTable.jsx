@@ -1,7 +1,7 @@
-import * as React from "react";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import axios from "axios";
-import { useEffect, useState } from "react";
+import * as React from "react"
+import { DataGrid, GridToolbar } from "@mui/x-data-grid"
+import axios from "axios"
+import { useEffect, useState } from "react"
 import {
   Box,
   Typography,
@@ -9,40 +9,39 @@ import {
   Button,
   Snackbar,
   Alert,
-} from "@mui/material";
-import DeleteIcon from "@mui/icons-material/Delete";
-import EditIcon from "@mui/icons-material/Edit";
-import DialogBox from "./DialogBox";
-import { useNavigate } from "react-router-dom";
-import { navigateToRoleBasedPath } from "../utils/roleNavigator";
+} from "@mui/material"
+import DeleteIcon from "@mui/icons-material/Delete"
+import EditIcon from "@mui/icons-material/Edit"
+import DialogBox from "./DialogBox"
+import { useNavigate } from "react-router-dom"
+import { navigateToRoleBasedPath } from "../utils/roleNavigator"
 
 export default function QuickFilteringGrid() {
-  const [rows, setRows] = useState([]);
-  const [editDialogOpen, setEditDialogOpen] = useState(false);
-  const [editRow, setEditRow] = useState(null);
+  const [rows, setRows] = useState([])
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [editRow, setEditRow] = useState(null)
   const [editValues, setEditValues] = useState({
     componentName: "",
     specification: "",
     quantity: "",
-  });
+  })
   const [snackbarData, setSnackbarData] = useState({
     open: false,
     message: "",
-    severity: "success", // can be "success", "error", "warning", "info"
-  });
-  const navigate = useNavigate();
+    severity: "success",
+  })
+  const navigate = useNavigate()
 
-  const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL;
+  const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
 
   const fetchTableData = async () => {
-    const token = localStorage.getItem("token");
-    console.log("Token sent:", token);
+    const token = localStorage.getItem("token")
     try {
       const response = await axios.get(`${baseUrl}/inventory`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      })
 
       // Parse and set data
       const dataWithId = response?.data?.data?.map((item, index) => {
@@ -52,106 +51,68 @@ export default function QuickFilteringGrid() {
           ...item,
           createdAt: new Date(item.createdAt).toLocaleString(),
           updatedAt: new Date(item.updatedAt).toLocaleString(),
-        };
-      });
+        }
+      })
 
-      setRows(dataWithId);
+      setRows(dataWithId)
     } catch (error) {
-      console.log("Error fetching data", error.response?.data || error.message);
+      console.log("Error fetching data", error.response?.data || error.message)
     }
-  };
-
-  // const fetchTableData = async () => {
-  //   try {
-  //     const token = localStorage.getItem("token");
-  //     console.log("token", token);
-  //     const response = await axios.get(`${baseUrl}/inventory`, {
-  //       headers: {
-  //         Authorization: `Bearer ${token}`,
-  //       },
-  //     });
-
-  //     // Ensure each row has a unique id
-  //     const dataWithId = response?.data?.data?.map((item, index) => {
-  //       const date = new Date(item.createdAt);
-  //       const date2 = new Date(item.updatedAt);
-  //       const formattedDate = `${date.getDate()}/${date.getMonth() + 1}/${date.getFullYear()}, ${date.toLocaleTimeString()}`;
-  //       const formattedDate2 = `${date2.getDate()}/${date2.getMonth() + 1}/${date2.getFullYear()}, ${date2.toLocaleTimeString()}`;
-
-  //       return {
-  //         id: item.id || index + 1, // Use API id or fallback to index
-  //         _id: item._id,
-  //         ...item,
-  //         createdAt: formattedDate,
-  //         updatedAt: formattedDate2,
-  //       };
-  //     });
-  //     // console.log("dataWithId", dataWithId);
-  //     setRows(dataWithId);
-  //   } catch (error) {
-  //     console.log("Error fetching data", error);
-  //   }
-  // };
+  }
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("token")
     if (token) {
-      fetchTableData();
+      fetchTableData()
     }
-  }, []);
+  }, [])
 
   // Handle Edit (Open Dialog)
   const handleEdit = (row) => {
-    console.log("handleEdit called", row);
-    setEditRow(row);
+    setEditRow(row)
     setEditValues({
       componentName: row.componentName,
       specification: row.specification,
       quantity: row.quantity,
-    });
-    setEditDialogOpen(true);
-  };
+    })
+    setEditDialogOpen(true)
+  }
 
   // Handle Delete
   const handleDelete = async (id) => {
-    console.log("handleDelete called", id);
-    const confirm = window.confirm(
-      "Are you sure you want to delete this item?"
-    );
-    if (!confirm) return;
+    const confirm = window.confirm("Are you sure you want to delete this item?")
+    if (!confirm) return
 
     try {
-      const token = localStorage.getItem("token");
-      console.log("Edit token", token);
+      const token = localStorage.getItem("token")
       const response = await axios.delete(`${baseUrl}/inventory/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      });
+      })
 
       if (response?.data?.success === true) {
         setSnackbarData({
           open: true,
           message: ` ${response?.data?.message} `,
           severity: "success",
-        });
+        })
       }
       setTimeout(() => {
-        fetchTableData();
-      }, 1500);
-      fetchTableData();
+        fetchTableData()
+      }, 1500)
+      fetchTableData()
     } catch (error) {
-      console.error("Error deleting item", error);
+      console.error("Error deleting item", error)
       setSnackbarData({
         open: true,
         message: " Error Updating inventory. Please try again!",
         severity: "error",
-      });
+      })
     }
-  };
+  }
 
-  const user = JSON.parse(localStorage.getItem("user"));
-  console.log("Role:", user, user?.role);
+  const user = JSON.parse(localStorage.getItem("user"))
 
   const columns = [
     {
@@ -174,7 +135,6 @@ export default function QuickFilteringGrid() {
       editable: false,
     },
     { field: "quantity", headerName: "Quantity", flex: 1, editable: false },
-    // { field: "createdAt", headerName: "Created At", flex: 1, editable: false },
     {
       field: "actions",
       headerName: "Actions",
@@ -202,7 +162,7 @@ export default function QuickFilteringGrid() {
         </Box>
       ),
     },
-  ];
+  ]
 
   return (
     <>
@@ -298,5 +258,5 @@ export default function QuickFilteringGrid() {
         </Alert>
       </Snackbar>
     </>
-  );
+  )
 }

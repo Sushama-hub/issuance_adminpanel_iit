@@ -271,7 +271,6 @@ export default function IssuanceForm() {
   // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
-    console.log("name, value==========",name, value)
 
     if (name === "email") {
       const emailPattern = /^[a-zA-Z0-9._%+-]+@iitbhilai\.ac\.in$/;

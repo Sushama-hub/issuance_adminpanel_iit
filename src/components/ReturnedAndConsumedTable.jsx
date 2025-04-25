@@ -13,14 +13,8 @@ const columns = [
     width: 55,
   },
   { field: "email", headerName: "Email", flex: 0, editable: false, width: 130 },
+  { field: "name", headerName: "Name", flex: 0, editable: false, width: 120 },
   { field: "batch", headerName: "Batch", flex: 0, editable: false, width: 60 },
-  {
-    field: "category",
-    headerName: "Category",
-    flex: 0,
-    editable: false,
-    width: 100,
-  },
   {
     field: "idNumber",
     headerName: "ID Number",
@@ -28,7 +22,13 @@ const columns = [
     editable: false,
     width: 100,
   },
-  { field: "name", headerName: "Name", flex: 0, editable: false, width: 120 },
+  {
+    field: "category",
+    headerName: "Category",
+    flex: 0,
+    editable: false,
+    width: 100,
+  },
   {
     field: "branch",
     headerName: "Branch",
@@ -42,6 +42,13 @@ const columns = [
     flex: 0,
     editable: false,
     width: 100,
+  },
+  {
+    field: "labNumber",
+    headerName: "Lab Number",
+    flex: 0,
+    editable: false,
+    width: 105,
   },
   {
     field: "components",
@@ -132,6 +139,7 @@ export default function QuickFilteringGrid() {
             name: user.name,
             branch: user.branch,
             mobile: user.mobile,
+            labNumber:user.labNumber,
             components: componentNames,
             specification: specifications,
             quantity: quantities,

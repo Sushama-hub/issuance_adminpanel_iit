@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 import {
   PieChart,
   Pie,
@@ -6,13 +6,14 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from "recharts"
-import { Typography, Box } from "@mui/material"
+} from "recharts";
+import { Typography, Box } from "@mui/material";
 
-const COLORS = ["#3f51b5", "#43A047", "#FB8C00"]
+const COLORS = ["#8884d8", "#82ca9d", "#ffc658"];
 
+// Add this new custom legend renderer component after the COLORS constant
 const CustomLegend = (props) => {
-  const { payload } = props
+  const { payload } = props;
 
   return (
     <div
@@ -47,41 +48,44 @@ const CustomLegend = (props) => {
         </div>
       ))}
     </div>
-  )
-}
+  );
+};
 
 const StatusPieChart = ({ graphData }) => {
+  // Process the data to get status-wise counts and percentages
   const processData = () => {
     const statusCounts = {
       issued: 0,
       returned: 0,
       consumed: 0,
-    }
+    };
 
     // Count total items for each status
     graphData.forEach((item) => {
-      statusCounts[item.status.toLowerCase()]++
-    })
+      statusCounts[item.status.toLowerCase()]++;
+    });
 
     // Calculate total count
     const total = Object.values(statusCounts).reduce(
       (sum, count) => sum + count,
       0
-    )
+    );
 
     // Convert to array with percentages
     return Object.entries(statusCounts).map(([name, value]) => ({
       name: name.charAt(0).toUpperCase() + name.slice(1),
       value,
       percentage: total > 0 ? ((value / total) * 100).toFixed(1) : 0,
-    }))
-  }
+    }));
+  };
 
-  const data = processData()
+  const data = processData();
+  console.log("hbjfbjh======", data);
 
+  // Custom tooltip content
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload
+      const data = payload[0].payload;
       return (
         <div
           style={{
@@ -96,10 +100,10 @@ const StatusPieChart = ({ graphData }) => {
           <p style={{ margin: "0" }}>Count: {data.value}</p>
           <p style={{ margin: "0" }}>Percentage: {data.percentage}%</p>
         </div>
-      )
+      );
     }
-    return null
-  }
+    return null;
+  };
 
   return (
     <Box sx={{ width: "100%", height: 330, p: 3 }}>
@@ -107,38 +111,53 @@ const StatusPieChart = ({ graphData }) => {
         Status Distribution
       </Typography>
       <Box sx={{ width: "100%", height: 300 }}>
-        <ResponsiveContainer>
-          <PieChart>
-            <Pie
-              data={data}
-              cx="50%"
-              cy="50%"
-              innerRadius={0}
-              outerRadius={120}
-              fill="#8884d8"
-              dataKey="value"
-              paddingAngle={2}
-            >
-              {data.map((entry, index) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
-              ))}
-            </Pie>
-            <Tooltip content={<CustomTooltip />} />
+        {data[0].value > 0 ? (
+          <ResponsiveContainer>
+            <PieChart>
+              <Pie
+                data={data}
+                cx="50%"
+                cy="50%"
+                innerRadius={0}
+                outerRadius={120}
+                fill="#8884d8"
+                dataKey="value"
+                paddingAngle={2}
+              >
+                {data.map((entry, index) => (
+                  <Cell
+                    key={`cell-${index}`}
+                    fill={COLORS[index % COLORS.length]}
+                  />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
 
-            <Legend
-              content={<CustomLegend />}
-              layout="horizontal"
-              verticalAlign="bottom"
-              align="center"
-            />
-          </PieChart>
-        </ResponsiveContainer>
+              <Legend
+                content={<CustomLegend />}
+                layout="horizontal"
+                verticalAlign="bottom"
+                align="center"
+              />
+            </PieChart>
+          </ResponsiveContainer>
+        ) : (
+          <Box
+            sx={{
+              height: "calc(100% - 50px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Typography variant="body1" color="text.secondary">
+              No data available.
+            </Typography>
+          </Box>
+        )}
       </Box>
     </Box>
-  )
-}
+  );
+};
 
-export default StatusPieChart
+export default StatusPieChart;

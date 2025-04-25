@@ -2,9 +2,9 @@ VITE_BACKEND_BASE_URL = http://localhost:5000/api/v1
 
 //This is FIREBASE Secret kyes
 
-VITE_FIREBASE_API_KEY=AIzaSyD_lSOmn4e-520Soz3HUtmIlfuOyMsKBqY
-VITE_FIREBASE_AUTH_DOMAIN=iitbhilai-inventory.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=iitbhilai-inventory
-VITE_FIREBASE_STORAGE_BUCKET=iitbhilai-inventory.firebasestorage.app
-VITE_FIREBASE_MESSAGING_SENDER_ID=263775373432
-VITE_FIREBASE_APP_ID=1:263775373432:web:a61bc5f06b6e4edef2c58d
+// VITE_FIREBASE_API_KEY=AIzaSyD_lSOmn4e-520Soz3HUtmIlfuOyMsKBqY
+// VITE_FIREBASE_AUTH_DOMAIN=iitbhilai-inventory.firebaseapp.com
+// VITE_FIREBASE_PROJECT_ID=iitbhilai-inventory
+// VITE_FIREBASE_STORAGE_BUCKET=iitbhilai-inventory.firebasestorage.app
+// VITE_FIREBASE_MESSAGING_SENDER_ID=263775373432
+// VITE_FIREBASE_APP_ID=1:263775373432:web:a61bc5f06b6e4edef2c58d

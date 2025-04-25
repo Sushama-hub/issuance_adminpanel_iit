@@ -4,7 +4,21 @@ export const CATEGORIES = [
   { label: "B.Tech", value: "btech" },
   { label: "M.Tech", value: "mtech" },
   { label: "PhD", value: "phd" },
-  { label: "Project Staff", value: "project-staff" },
+  { label: "Staff", value: "staff" },
+];
+
+export const STAFFS = [
+  { label: "Project Staff", value: "Project Staff" },
+  { label: "IBITF Staff", value: "IBITF Staff" },
+  { label: "Regular Staff", value: "Regular Staff" },
+];
+
+export const LAB_NUMBERS = [
+  { label: "102", value: "102" },
+  { label: "104", value: "104" },
+  { label: "305", value: "305" },
+  { label: "306", value: "306" },
+  { label: "Other", value: "other" },
 ];
 
 export const IIT_BRANCHES = [

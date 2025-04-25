@@ -20,8 +20,9 @@ import {
 import { AddCircle, RemoveCircle } from "@mui/icons-material"
 import axios from "axios"
 import GoogleLoginButton from "./GoogleLoginButton"
-import { auth } from "../firebase"
-import { onAuthStateChanged, signOut } from "firebase/auth"
+// import { auth } from "../firebase"
+import { initializeFirebase, firebaseSignOut, onAuthChange } from "../firebase"
+// import { onAuthStateChanged, signOut } from "firebase/auth"
 import { BATCH_YEARS, CATEGORIES, IIT_BRANCHES } from "../config/userformConfig"
 
 export default function IssuanceForm() {
@@ -51,59 +52,147 @@ export default function IssuanceForm() {
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
   // Track login state
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (user) => {
-      if (user) {
-        setUserEmail(user.email)
-        setUserName(user.displayName)
-        setFormData((prev) => ({
-          ...prev,
-          email: user.email,
-          name: user.displayName,
-        }))
-        setIsLoggedIn(true)
-      } else {
-        setUserEmail("")
-        setUserName("")
-        setFormData({
-          email: "",
-          batch: "",
-          category: "",
-          idNumber: "",
-          name: "",
-          branch: "",
-          mobile: "",
-          components: [{ componentName: "", specification: "", quantity: "" }],
-          status: "Issued",
-        })
-        setIsLoggedIn(false)
-      }
-    })
+  // useEffect(() => {
+  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
+  //     if (user) {
+  //       setUserEmail(user.email)
+  //       setUserName(user.displayName)
+  //       setFormData((prev) => ({
+  //         ...prev,
+  //         email: user.email,
+  //         name: user.displayName,
+  //       }))
+  //       setIsLoggedIn(true)
+  //     } else {
+  //       setUserEmail("")
+  //       setUserName("")
+  //       setFormData({
+  //         email: "",
+  //         batch: "",
+  //         category: "",
+  //         idNumber: "",
+  //         name: "",
+  //         branch: "",
+  //         mobile: "",
+  //         components: [{ componentName: "", specification: "", quantity: "" }],
+  //         status: "Issued",
+  //       })
+  //       setIsLoggedIn(false)
+  //     }
+  //   })
 
-    return () => unsubscribe()
+  //   return () => unsubscribe()
+  // }, [])
+  // Init Firebase + track auth state
+  useEffect(() => {
+    let unsubscribe
+    const init = async () => {
+      await initializeFirebase()
+      unsubscribe = onAuthChange((user) => {
+        if (user) {
+          setUser(user)
+          setUserEmail(user.email)
+          setUserName(user.displayName)
+          setFormData((prev) => ({
+            ...prev,
+            email: user.email,
+            name: user.displayName,
+          }))
+          setIsLoggedIn(true)
+        } else {
+          setUser(null)
+          setUserEmail("")
+          setUserName("")
+          setFormData({
+            email: "",
+            batch: "",
+            category: "",
+            idNumber: "",
+            name: "",
+            branch: "",
+            mobile: "",
+            components: [
+              { componentName: "", specification: "", quantity: "" },
+            ],
+            status: "Issued",
+          })
+          setIsLoggedIn(false)
+        }
+      })
+    }
+    init()
+    return () => unsubscribe && unsubscribe()
   }, [])
 
-  const handleLogout = async () => {
+  // Called by GoogleLoginButton on successful popup login
+  const handleGoogleSuccess = async (loggedUser) => {
+    if (!loggedUser.email.endsWith("@iitbhilai.ac.in")) {
+      alert("Only IIT Bhilai emails allowed!")
+      await firebaseSignOut()
+      return
+    }
+
     try {
-      await signOut(auth)
-      setUser(null)
-      setUserEmail("")
-      setUserName("")
-      setIsLoggedIn(null)
+      const token = await loggedUser.getIdToken()
+      const res = await fetch(
+        "http://localhost:5000/api/v1/firebase/firebase-login",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token }),
+        }
+      )
+      const data = await res.json()
+
+      if (data.success) {
+        setUser(loggedUser)
+        setIsLoggedIn(true)
+        setUserEmail(loggedUser.email)
+        setUserName(loggedUser.displayName)
+      } else {
+        alert("Login failed: " + data.message)
+        await firebaseSignOut()
+      }
+    } catch (err) {
+      console.error("Login flow error:", err)
+      alert("Something went wrong during login.")
+    }
+  }
+  const handleLogout = async (e) => {
+    if (e?.preventDefault) e.preventDefault()
+    try {
+      await firebaseSignOut()
+      console.log(" Successfully signed out")
+      // onAuthChange will reset formData & logged-in flags
     } catch (error) {
       console.error("Logout Error:", error)
     }
   }
+
+  // const handleLogout = async () => {
+  //   try {
+  //     await firebaseSignOut(auth)
+  //     setUser(null)
+  //     setUserEmail("")
+  //     setUserName("")
+  //     setIsLoggedIn(null)
+  //   } catch (error) {
+  //     console.error("Logout Error:", error)
+  //   }
+  // }
   // ..............
   useEffect(() => {
     const fetchComponents = async () => {
       try {
-        const token = localStorage.getItem("token")
-        const response = await axios.get(`${baseURL}/inventory/components`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        })
+        // const token = localStorage.getItem("token")
+        const response = await axios.get(
+          `${baseURL}/inventory/components`
+          //   {
+          //   headers: {
+          //     Authorization: `Bearer ${token}`,
+          //   },
+          // }
+        )
         if (response?.data?.success) {
           setComponentsList(response.data.components)
         }
@@ -166,6 +255,7 @@ export default function IssuanceForm() {
     setFormData({ ...formData, components: updatedComponents })
 
     let updatedQuantities = [...availableQuantities]
+
     updatedQuantities.splice(index, 1)
     setAvailableQuantities(updatedQuantities)
   }
@@ -307,7 +397,7 @@ export default function IssuanceForm() {
           setAvailableQuantities(0)
 
           // Sign out user from Firebase
-          signOut(auth)
+          firebaseSignOut()
             .then(() => {
               console.log(" User logged out after submission.")
             })
@@ -392,21 +482,7 @@ export default function IssuanceForm() {
 
               {!isLoggedIn ? (
                 <Box textAlign="center" mb={4}>
-                  <GoogleLoginButton
-                    onSuccess={async (loggedUser) => {
-                      const email = loggedUser.email
-
-                      if (email.endsWith("@iitbhilai.ac.in")) {
-                        setUser(loggedUser)
-                        setIsLoggedIn(loggedUser)
-                        setUserName(loggedUser.displayName)
-                        setUserEmail(loggedUser.email)
-                      } else {
-                        alert("Only IIT Bhilai emails allowed!")
-                        await signOut(auth) // logs out user immediately
-                      }
-                    }}
-                  />
+                  <GoogleLoginButton onSuccess={handleGoogleSuccess} />
 
                   <Typography
                     variant="h6"
@@ -420,7 +496,7 @@ export default function IssuanceForm() {
               ) : (
                 <Box textAlign="center">
                   <Typography variant="h6" sx={{ color: "#261FB3" }}>
-                    Welcome, {userName || "Guest"}!
+                    Welcome, {userName || "Guest"}!, ({userEmail})
                   </Typography>
                   <p className="mb-2">
                     Logged in as: <strong>{userEmail}</strong>
@@ -567,10 +643,8 @@ export default function IssuanceForm() {
                       </Grid>
 
                       <Grid item xs={6} sm={6} md={3.6}>
-                        <FormControl fullWidth required>
-                          <InputLabel disabled={!isLoggedIn}>
-                            Specification
-                          </InputLabel>
+                        <FormControl fullWidth required disabled={!isLoggedIn}>
+                          <InputLabel>Specification</InputLabel>
                           <Select
                             label="Specification"
                             name="specification"
@@ -578,18 +652,18 @@ export default function IssuanceForm() {
                             onChange={(e) =>
                               handleSpecificationChange(index, e)
                             }
-                            disabled={!isLoggedIn}
                           >
-                            {(availableQuantities[index] || []).map(
-                              (spec, specIndex) => (
-                                <MenuItem
-                                  key={specIndex}
-                                  value={spec.specification}
-                                >
-                                  {spec.specification}
-                                </MenuItem>
-                              )
-                            )}
+                            {comp.componentName &&
+                              (availableQuantities[index] || []).map(
+                                (spec, specIndex) => (
+                                  <MenuItem
+                                    key={specIndex}
+                                    value={spec.specification}
+                                  >
+                                    {spec.specification}
+                                  </MenuItem>
+                                )
+                              )}
                           </Select>
                         </FormControl>
                       </Grid>
@@ -740,3 +814,143 @@ export default function IssuanceForm() {
     </>
   )
 }
+
+// import React, { useEffect, useState } from "react"
+// import {
+//   initializeFirebase,
+//   signInWithGoogle,
+//   firebaseSignOut,
+//   onAuthChange,
+// } from "../firebase"
+
+// const FormComponent = () => {
+//   const [user, setUser] = useState(null)
+//   const [isLoggedIn, setIsLoggedIn] = useState(false)
+//   const [userEmail, setUserEmail] = useState("")
+//   const [userName, setUserName] = useState("")
+//   const [formData, setFormData] = useState({
+//     email: "",
+//     batch: "",
+//     category: "",
+//     idNumber: "",
+//     name: "",
+//     branch: "",
+//     mobile: "",
+//     components: [{ componentName: "", specification: "", quantity: "" }],
+//     status: "Issued",
+//   })
+
+//   // Initialize Firebase + Auth State
+//   useEffect(() => {
+//     const init = async () => {
+//       await initializeFirebase()
+
+//       const unsubscribe = onAuthChange(async (user) => {
+//         if (user) {
+//           setUser(user)
+//           setUserEmail(user.email)
+//           setUserName(user.displayName)
+//           setFormData((prev) => ({
+//             ...prev,
+//             email: user.email,
+//             name: user.displayName,
+//           }))
+//           setIsLoggedIn(true)
+//         } else {
+//           setUser(null)
+//           setUserEmail("")
+//           setUserName("")
+//           setFormData({
+//             email: "",
+//             batch: "",
+//             category: "",
+//             idNumber: "",
+//             name: "",
+//             branch: "",
+//             mobile: "",
+//             components: [
+//               { componentName: "", specification: "", quantity: "" },
+//             ],
+//             status: "Issued",
+//           })
+//           setIsLoggedIn(false)
+//         }
+//       })
+
+//       return () => unsubscribe()
+//     }
+
+//     init()
+//   }, [])
+
+//   // 🔓 Login handler
+//   const handleLogin = async () => {
+//     await initializeFirebase()
+//     try {
+//       const result = await signInWithGoogle()
+//       const loggedUser = result.user
+
+//       if (!loggedUser.email.endsWith("@iitbhilai.ac.in")) {
+//         alert("Only IIT Bhilai emails allowed!")
+//         await firebaseSignOut()
+//         return
+//       }
+
+//       const token = await loggedUser.getIdToken()
+//       const response = await fetch(
+//         "http://localhost:5000/api/auth/firebase-login",
+//         {
+//           method: "POST",
+//           headers: { "Content-Type": "application/json" },
+//           body: JSON.stringify({ token }),
+//         }
+//       )
+
+//       const data = await response.json()
+
+//       if (data.success) {
+//         setUser(loggedUser)
+//         setIsLoggedIn(true)
+//         setUserEmail(loggedUser.email)
+//         setUserName(loggedUser.displayName)
+//       } else {
+//         alert("Login failed: " + data.message)
+//         await firebaseSignOut()
+//       }
+//     } catch (error) {
+//       console.error("Login error:", error)
+//     }
+//   }
+
+//   // 🔒 Logout
+//   const handleLogout = async () => {
+//     try {
+//       await firebaseSignOut()
+//       setUser(null)
+//       setUserEmail("")
+//       setUserName("")
+//       setIsLoggedIn(false)
+//     } catch (error) {
+//       console.error("Logout Error:", error)
+//     }
+//   }
+
+//   return (
+//     <div>
+//       {!isLoggedIn ? (
+//         <button onClick={handleLogin}>Sign in with Google</button>
+//       ) : (
+//         <>
+//           <p>
+//             Welcome, {userName} ({userEmail})
+//           </p>
+//           <button onClick={handleLogout}>Logout</button>
+//         </>
+//       )}
+
+//       {/* Form UI using formData here */}
+//     </div>
+//   )
+// }
+
+// export default FormComponent

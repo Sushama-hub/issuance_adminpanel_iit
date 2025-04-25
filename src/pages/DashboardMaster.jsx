@@ -11,6 +11,7 @@ import {
 } from "@mui/icons-material"
 import MonthWiseBarChart from "../components/MonthWiseBarChart"
 import StatusPieChart from "../components/StatusPieChart"
+import { Approve } from "./Approve"
 
 export default function DashboardMaster() {
   const [data, setData] = useState({
@@ -84,6 +85,7 @@ export default function DashboardMaster() {
         mt: 1.5,
       }}
     >
+      <Approve />
       <Typography
         variant="h5"
         fontWeight="bold"

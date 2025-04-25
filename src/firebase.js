@@ -1,19 +1,25 @@
-import { initializeApp } from "firebase/app";
-import { getAuth, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
+import { initializeApp } from "firebase/app"
+import {
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  onAuthStateChanged,
+} from "firebase/auth"
 
-//  Firebase configuration
-const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
-};
+let app, auth, provider
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
+export const initializeFirebase = async () => {
+  if (!app) {
+    const response = await fetch("http://localhost:5000/api/v1/firebase/config")
+    const firebaseConfig = await response.json()
+    app = initializeApp(firebaseConfig)
+    auth = getAuth(app)
+    provider = new GoogleAuthProvider()
+  }
+}
 
-export const signInWithGoogle = () => signInWithPopup(auth, provider);
-export { auth, provider };
+export const signInWithGoogle = () => signInWithPopup(auth, provider)
+export const firebaseSignOut = () => signOut(auth)
+export const onAuthChange = (callback) => onAuthStateChanged(auth, callback)
+export { auth, provider }

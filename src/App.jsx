@@ -10,6 +10,7 @@ import Register from "./components/Register"
 import UserForm from "./components/UserForm"
 import MiniDrawer from "./layouts/Drawer"
 
+import { useEffect } from "react"
 const getUserFromStorage = () => {
   const user = localStorage.getItem("user")
   const expiresAt = localStorage.getItem("expiresAt")

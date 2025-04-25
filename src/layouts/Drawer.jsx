@@ -249,7 +249,7 @@ export default function MiniDrawer() {
                 fontSize: "1.2rem",
               }}
             >
-              Electrical Engineering Department
+              Department of Electrical Engineering, IIT Bhilai Durg
             </Typography>
           </Box>
           {/* Right Side: User Info & Logout */}

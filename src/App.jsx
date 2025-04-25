@@ -54,7 +54,7 @@ const AuthRedirect = ({ children }) => {
     if (user.role === "master")
       return <Navigate to="/dashboard/master" replace />
     if (user.role === "admin") return <Navigate to="/dashboard/admin" replace />
-    return <Navigate to="/dashboard/user" replace />
+    return <Navigate to="/unauthorized" replace />
   }
 
   return children

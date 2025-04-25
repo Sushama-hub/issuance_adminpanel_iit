@@ -64,15 +64,34 @@ const LoginPage = () => {
         const userRole = data?.user?.role
 
         // Redirect based on role
-        setTimeout(() => {
-          if (userRole === "master") {
+        // setTimeout(() => {
+        //   if (userRole === "master") {
+        //     navigate("/dashboard/master")
+        //   } else if (userRole === "admin") {
+        //     navigate("/dashboard/admin")
+        //   } else {
+        //     navigate("/dashboard/user")
+        //   }
+        // }, 1500)
+        if (userRole === "master") {
+          setTimeout(() => {
             navigate("/dashboard/master")
-          } else if (userRole === "admin") {
+          }, 1500)
+        } else if (userRole === "admin") {
+          setTimeout(() => {
             navigate("/dashboard/admin")
-          } else {
-            navigate("/dashboard/user")
-          }
-        }, 1500)
+          }, 1500)
+        } else {
+          // Handle case for "user" role - show error
+          setSnackbarSeverity("error")
+          setSnackbarMessage(
+            "Access denied. Only admins and masters are allowed."
+          )
+          setOpenSnackbar(true)
+          localStorage.removeItem("token")
+          localStorage.removeItem("user")
+          localStorage.removeItem("expiresAt")
+        }
 
         // Auto logout after token expiry
         setTimeout(() => {

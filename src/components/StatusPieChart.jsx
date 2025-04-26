@@ -80,7 +80,6 @@ const StatusPieChart = ({ graphData }) => {
   };
 
   const data = processData();
-  console.log("hbjfbjh======", data);
 
   // Custom tooltip content
   const CustomTooltip = ({ active, payload }) => {

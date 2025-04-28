@@ -36,15 +36,10 @@ export default function AdminApproval() {
 
   const handleApproveUser = async (userId) => {
     console.log("handleApproveUser called", userId)
-    await axios.put(`${baseURL}/admin/approve/${userId}`)
+    const response = await axios.put(`${baseURL}/admin/approve/${userId}`)
+    console.log("response approve====", response.data)
     alert("User approved as admin")
-    window.location.reload()
-  }
-
-  const handleRemoveUser = async (userId) => {
-    console.log("handleApproveUser called", userId)
-    alert("Do You Want To Denied User!")
-    await axios.delete(`${baseURL}/admin/deletePendingUser/${userId}`)
+    // fetchUsers()
     window.location.reload()
   }
 
@@ -106,26 +101,15 @@ export default function AdminApproval() {
                       {user.email}
                     </Typography>
                   </Box>
-                  <Box sx={{ display: "flex", gap: 1 }}>
-                    <Button
-                      variant="outlined"
-                      color="success"
-                      size="small"
-                      onClick={() => handleApproveUser(user?._id)}
-                      sx={{ whiteSpace: "nowrap", mt: 2 }} //prevents line break inside button
-                    >
-                      Approve as Admin
-                    </Button>
-                    <Button
-                      variant="outlined"
-                      color="error"
-                      size="small"
-                      onClick={() => handleRemoveUser(user?._id)}
-                      sx={{ whiteSpace: "nowrap", mt: 2 }} //prevents line break inside button
-                    >
-                      cancel
-                    </Button>
-                  </Box>
+                  <Button
+                    variant="outlined"
+                    color="success"
+                    size="small"
+                    onClick={() => handleApproveUser(user?._id)}
+                    sx={{ whiteSpace: "nowrap", mt: 2 }} //prevents line break inside button
+                  >
+                    Approve as Admin
+                  </Button>
                 </CardContent>
               </Card>
             ))}

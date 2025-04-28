@@ -321,15 +321,21 @@ export default function MiniDrawer() {
       </AppBar>
 
       <Drawer variant="permanent" open={open}>
-        <DrawerHeader sx={{ mt: 1, alignItems: "center" }}></DrawerHeader>
+        <DrawerHeader sx={{ mt: 1.8, alignItems: "center" }}></DrawerHeader>
 
-        <List>
+        <List sx={{ p: 0 }}>
           {sidebarConfig?.items?.map((item, index) => {
             const IconComponent = item?.icon
             const isActive = activeItem === `${item?.id}`
 
             return (
-              <ListItem key={index} disablePadding sx={{ display: "block" }}>
+              <ListItem
+                key={index}
+                disablePadding
+                sx={{
+                  display: "block",
+                }}
+              >
                 <ListItemButton
                   onClick={() => handleClick(item?.id)}
                   sx={{

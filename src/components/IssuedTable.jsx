@@ -1,13 +1,13 @@
-import * as React from "react";
-import Box from "@mui/material/Box";
-import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import axios from "axios";
-import { useEffect, useState } from "react";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import IconButton from "@mui/material/IconButton";
-import Menu from "@mui/material/Menu";
-import MenuItem from "@mui/material/MenuItem";
-import { Typography } from "@mui/material";
+import * as React from "react"
+import Box from "@mui/material/Box"
+import { DataGrid, GridToolbar } from "@mui/x-data-grid"
+import axios from "axios"
+import { useEffect, useState } from "react"
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
+import IconButton from "@mui/material/IconButton"
+import Menu from "@mui/material/Menu"
+import MenuItem from "@mui/material/MenuItem"
+import { Typography } from "@mui/material"
 
 const columns = [
   {
@@ -89,18 +89,18 @@ const columns = [
     editable: false,
     width: 120,
   },
-];
+]
 
-const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
 const EditableStatusCell = ({ params, refreshData }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const open = Boolean(anchorEl);
+  const [anchorEl, setAnchorEl] = useState(null)
+  const open = Boolean(anchorEl)
   const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
+    setAnchorEl(event.currentTarget)
+  }
   const handleClose = async (status) => {
-    setAnchorEl(null);
+    setAnchorEl(null)
     if (status && status !== params.value) {
       try {
         const response = await axios.put(
@@ -108,15 +108,15 @@ const EditableStatusCell = ({ params, refreshData }) => {
           {
             status: status,
           }
-        );
+        )
 
         // refresh the table
-        refreshData();
+        refreshData()
       } catch (error) {
-        console.error("Error updating status", error);
+        console.error("Error updating status", error)
       }
     }
-  };
+  }
 
   return (
     <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -132,38 +132,37 @@ const EditableStatusCell = ({ params, refreshData }) => {
         ))}
       </Menu>
     </Box>
-  );
-};
+  )
+}
 
 export default function QuickFilteringGrid() {
-  const [rows, setRows] = useState([]);
+  const [rows, setRows] = useState([])
 
   const fetchTableData = async () => {
     try {
-      const response = await axios.get(`${baseURL}/user/get-user`);
+      const response = await axios.get(`${baseURL}/user/get-user`)
       const rawData = response?.data?.data?.filter(
         (item) => item.status === "Issued"
-      );
-
+      )
 
       // Group data by user name
       const groupedData = rawData.reduce((acc, user, index) => {
-        const existingUser = acc.find((item) => item._id === user._id);
+        const existingUser = acc.find((item) => item._id === user._id)
 
         const componentNames = user.components
           .map((comp) => comp.componentName)
-          .join(", ");
+          .join(", ")
         const specifications = user.components
           .map((comp) => comp.specification)
-          .join(", ");
+          .join(", ")
         const quantities = user.components
           .map((comp) => comp.quantity)
-          .join(", ");
+          .join(", ")
 
         if (existingUser) {
-          existingUser.components += `, ${componentNames}`;
-          existingUser.specification += `, ${specifications}`;
-          existingUser.quantity += `, ${quantities}`;
+          existingUser.components += `, ${componentNames}`
+          existingUser.specification += `, ${specifications}`
+          existingUser.quantity += `, ${quantities}`
         } else {
           acc.push({
             id: index + 1,
@@ -175,27 +174,27 @@ export default function QuickFilteringGrid() {
             name: user.name,
             branch: user.branch,
             mobile: user.mobile,
-            labNumber:user.labNumber,
+            labNumber: user.labNumber,
             components: componentNames,
             specification: specifications,
             quantity: quantities,
             status: user.status,
             createdAt: new Date(user.createdAt).toLocaleString(),
-          });
+          })
         }
 
-        return acc;
-      }, []);
+        return acc
+      }, [])
 
-      setRows(groupedData);
+      setRows(groupedData)
     } catch (error) {
-      console.log("Error fetching data", error);
+      console.log("Error fetching data", error)
     }
-  };
+  }
 
   useEffect(() => {
-    fetchTableData();
-  }, []);
+    fetchTableData()
+  }, [])
 
   return (
     <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
@@ -235,7 +234,7 @@ export default function QuickFilteringGrid() {
           slotProps={{
             toolbar: {
               csvOptions: { disableToolbarButton: false },
-              printOptions: { disableToolbarButton: false },
+              printOptions: { disableToolbarButton: true },
               showQuickFilter: true,
               quickFilterProps: { debounceMs: 500 },
             },
@@ -243,5 +242,5 @@ export default function QuickFilteringGrid() {
         />
       </Box>
     </Box>
-  );
+  )
 }

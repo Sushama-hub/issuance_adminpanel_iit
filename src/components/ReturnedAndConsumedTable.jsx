@@ -139,7 +139,7 @@ export default function QuickFilteringGrid() {
             name: user.name,
             branch: user.branch,
             mobile: user.mobile,
-            labNumber:user.labNumber,
+            labNumber: user.labNumber,
             components: componentNames,
             specification: specifications,
             quantity: quantities,
@@ -193,7 +193,7 @@ export default function QuickFilteringGrid() {
           slotProps={{
             toolbar: {
               csvOptions: { disableToolbarButton: false },
-              printOptions: { disableToolbarButton: false },
+              printOptions: { disableToolbarButton: true },
               showQuickFilter: true,
               quickFilterProps: { debounceMs: 500 },
             },

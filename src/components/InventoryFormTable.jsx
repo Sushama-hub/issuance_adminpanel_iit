@@ -222,7 +222,7 @@ export default function QuickFilteringGrid() {
             slotProps={{
               toolbar: {
                 csvOptions: { disableToolbarButton: false },
-                printOptions: { disableToolbarButton: false },
+                printOptions: { disableToolbarButton: true },
                 showQuickFilter: true,
                 quickFilterProps: { debounceMs: 500 },
               },

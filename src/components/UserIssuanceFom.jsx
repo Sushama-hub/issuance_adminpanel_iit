@@ -86,7 +86,7 @@ export default function UserIssuanceFom({ isDrawerOpen }) {
               </Typography>
               <Box
                 sx={{
-                  mt: 2,
+                  mt: 1,
                   display: "flex",
                   justifyContent: "center",
                   alignItems: "center",
@@ -108,7 +108,7 @@ export default function UserIssuanceFom({ isDrawerOpen }) {
                   color={copied ? "success" : "primary"}
                   onClick={handleCopyLink}
                   startIcon={<ContentCopy />}
-                  sx={{ mt: 2 }}
+                  sx={{ mt: 1 }}
                 >
                   {copied ? "Copied!" : "Copy Form Link"}
                 </Button>

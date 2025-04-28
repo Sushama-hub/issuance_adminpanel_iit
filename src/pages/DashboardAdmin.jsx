@@ -1,16 +1,16 @@
-import { Grid, Card, CardContent, Typography, Box } from "@mui/material"
+import { Grid, Card, CardContent, Typography, Box } from "@mui/material";
 
-import { Link } from "react-router-dom"
-import { useState, useEffect } from "react"
-import axios from "axios"
+import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Inventory,
   AssignmentTurnedIn,
   Storage,
   ListAlt,
-} from "@mui/icons-material"
-import MonthWiseBarChart from "../components/MonthWiseBarChart"
-import StatusPieChart from "../components/StatusPieChart"
+} from "@mui/icons-material";
+import MonthWiseBarChart from "../components/MonthWiseBarChart";
+import StatusPieChart from "../components/StatusPieChart";
 
 export default function DashboardAdmin() {
   const [data, setData] = useState({
@@ -18,60 +18,60 @@ export default function DashboardAdmin() {
     returnedOrConsumed: 0,
     totalInventory: 0,
     totalIssuedComponents: 0,
-  })
-  const [allIssuanceData, setAllIssuanceData] = useState([])
+  });
+  const [allIssuanceData, setAllIssuanceData] = useState([]);
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   useEffect(() => {
     const fetchIssuanceData = async () => {
       try {
-        const response = await axios.get(`${baseURL}/user/get-user`)
-        const allFetchedData = response?.data?.data || []
-        setAllIssuanceData(allFetchedData)
+        const response = await axios.get(`${baseURL}/user/get-user`);
+        const allFetchedData = response?.data?.data || [];
+        setAllIssuanceData(allFetchedData);
 
-        const totalIssuedCount = allFetchedData.length
+        const totalIssuedCount = allFetchedData.length;
         const currentlyIssuedCount = allFetchedData.filter(
           (item) => item.status === "Issued"
-        ).length
+        ).length;
 
         const returnedOrConsumedCount = allFetchedData.filter(
           (item) => item.status === "Returned" || item.status === "Consumed"
-        ).length
+        ).length;
 
         setData((prevData) => ({
           ...prevData,
           currentlyIssued: currentlyIssuedCount,
           returnedOrConsumed: returnedOrConsumedCount,
           totalIssuedComponents: totalIssuedCount,
-        }))
+        }));
       } catch (error) {
-        console.error("Error fetching issuance data:", error)
+        console.error("Error fetching issuance data:", error);
       }
-    }
+    };
 
     const fetchInventoryData = async () => {
       try {
-        const token = localStorage.getItem("token")
+        const token = localStorage.getItem("token");
         const response = await axios.get(`${baseURL}/inventory`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
-        })
-        const inventoryData = response?.data?.data || []
+        });
+        const inventoryData = response?.data?.data || [];
 
         setData((prevData) => ({
           ...prevData,
           totalInventory: inventoryData.length,
-        }))
+        }));
       } catch (error) {
-        console.error("Error fetching inventory data:", error)
+        console.error("Error fetching inventory data:", error);
       }
-    }
+    };
 
-    fetchIssuanceData()
-    fetchInventoryData()
-  }, [baseURL])
+    fetchIssuanceData();
+    fetchInventoryData();
+  }, [baseURL]);
 
   return (
     <Box
@@ -137,11 +137,11 @@ export default function DashboardAdmin() {
         </Grid>
       </Grid>
     </Box>
-  )
+  );
 }
 
 function StatCard({ title, value, icon, color, link }) {
-  const path = location.pathname + `${link}`
+  const path = location.pathname + `${link}`;
   return (
     <Grid item xs={12} sm={6} md={3}>
       {link ? (
@@ -162,7 +162,7 @@ function StatCard({ title, value, icon, color, link }) {
         />
       )}
     </Grid>
-  )
+  );
 }
 
 function StatCardContent({ title, value, icon, color }) {
@@ -227,5 +227,5 @@ function StatCardContent({ title, value, icon, color }) {
         </Box>
       </CardContent>
     </Card>
-  )
+  );
 }

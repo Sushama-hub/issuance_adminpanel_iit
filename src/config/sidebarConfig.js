@@ -1,10 +1,10 @@
-import TableViewIcon from "@mui/icons-material/TableView";
-import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn";
-import DynamicFormIcon from "@mui/icons-material/DynamicForm";
-import InventoryIcon from "@mui/icons-material/Inventory";
-import LogoutIcon from "@mui/icons-material/Logout";
-import DashboardIcon from "@mui/icons-material/Dashboard";
-import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import TableViewIcon from "@mui/icons-material/TableView"
+import AssignmentReturnIcon from "@mui/icons-material/AssignmentReturn"
+import DynamicFormIcon from "@mui/icons-material/DynamicForm"
+import InventoryIcon from "@mui/icons-material/Inventory"
+import LogoutIcon from "@mui/icons-material/Logout"
+import DashboardIcon from "@mui/icons-material/Dashboard"
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount"
 
 export const sidebarConfig = {
   items: [
@@ -39,6 +39,12 @@ export const sidebarConfig = {
       iconColor: "#f8fafc",
     },
     {
+      id: "non_consumable_form",
+      label: "Non Consumable Form",
+      icon: DynamicFormIcon,
+      iconColor: "#f8fafc",
+    },
+    {
       id: "non_consumable_stock",
       label: "Non Consumable Stock",
       icon: InventoryIcon,
@@ -52,4 +58,4 @@ export const sidebarConfig = {
     },
     { id: "logout", label: "Logout", icon: LogoutIcon, iconColor: "#f8fafc" },
   ],
-};
+}

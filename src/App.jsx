@@ -11,6 +11,9 @@ import UserForm from "./components/UserForm"
 import MiniDrawer from "./layouts/Drawer"
 
 import { useEffect } from "react"
+import NonConsumableForm from "./components/NonConsumableForm"
+import NonConsumableStock from "./components/NonConsumableStock"
+import AdminDetails from "./components/AdminDetails"
 const getUserFromStorage = () => {
   const user = localStorage.getItem("user")
   const expiresAt = localStorage.getItem("expiresAt")
@@ -100,6 +103,9 @@ function App() {
           />
           <Route path="inventory_form" element={<InventoryForm />} />
           <Route path="inventory_records" element={<InventoryFormTable />} />
+          <Route path="non_consumable_form" element={<NonConsumableForm />} />
+          <Route path="non_Consumable_stock" element={<NonConsumableStock />} />
+          <Route path="admin_records" element={<AdminDetails />} />
         </Route>
 
         {/* Admin Dashboard with nested routes inside MiniDrawer */}
@@ -119,6 +125,8 @@ function App() {
           />
           <Route path="inventory_form" element={<InventoryForm />} />
           <Route path="inventory_records" element={<InventoryFormTable />} />
+          <Route path="non_consumable_form" element={<NonConsumableForm />} />
+          <Route path="non_Consumable_stock" element={<NonConsumableStock />} />
         </Route>
         {/* Catch All */}
         <Route path="*" element={<Navigate to="/login" replace />} />

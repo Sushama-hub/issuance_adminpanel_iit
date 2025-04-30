@@ -179,16 +179,16 @@ export default function MiniDrawer() {
     }
   }, [location.pathname, user])
 
-  const handleClick = (id) => {
+  const handleClick = (id, path) => {
     if (id === "logout") {
       localStorage.removeItem("token")
-      navigate("/login")
+      navigate(`/${path}`)
       return
     }
 
     const basePath =
       user && user?.role === "admin" ? "/dashboard/admin" : "/dashboard/master"
-    const target = id === "/" ? basePath : `${basePath}/${id}`
+    const target = id === "/" ? basePath : `${basePath}/${path}`
     navigate(target)
     setActiveItem(id)
   }
@@ -337,7 +337,7 @@ export default function MiniDrawer() {
                 }}
               >
                 <ListItemButton
-                  onClick={() => handleClick(item?.id)}
+                  onClick={() => handleClick(item?.id, item?.path)}
                   sx={{
                     minHeight: 48,
                     px: 2.5,

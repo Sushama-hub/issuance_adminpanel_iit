@@ -373,7 +373,7 @@ export default function QuickFilteringGrid() {
           </Typography>
           <Typography variant="body1" mb={3}>
             Please select a year to view the Non Consumable Stock Table, or fill
-            the Non Consumable Form to add new data.
+            the Non Consumable Form to add new data if needed.
             {/* To view the Non Consumable Stock Table, please select a year.
             Alternatively, you can fill the Non Consumable Form to add new data */}
           </Typography>

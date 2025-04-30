@@ -12,6 +12,7 @@ import axios from "axios"
 import { useState, useEffect } from "react"
 import AddIcon from "@mui/icons-material/Add"
 import { useNavigate } from "react-router-dom"
+import { Edit } from "@mui/icons-material"
 
 export default function BasicChips() {
   const [data, setData] = useState([])
@@ -31,6 +32,7 @@ export default function BasicChips() {
           Authorization: `Bearer ${token}`,
         },
       })
+      // console.log("response===", response?.data?.years)
       // setData(response?.data?.data)
       setData(response?.data?.years)
     } catch (error) {
@@ -56,7 +58,7 @@ export default function BasicChips() {
     // console.log("handleSubmitYear", newYear)
 
     // Check if the year already exists in the array of objects
-    const alreadyExists = data.some((item) => item.year === newYear)
+    const alreadyExists = data?.some((item) => item?.year === newYear)
     // console.log("alreadyExists=====", alreadyExists)
 
     // //---------------- 1.---------Add to local data as manually
@@ -162,15 +164,16 @@ export default function BasicChips() {
             gap: 1,
           }}
         >
-          {data.map((item, index) => (
+          {data?.map((item, index) => (
             <Chip
               key={index}
               // label={typeof item === "string" ? item : item.year}
-              label={item.year}
+              label={item?.year}
               variant="outlined"
               color="primary"
-              onClick={() => handleClick(item.year)}
-              onDelete={() => handleDelete(item?._id)}
+              onClick={() => handleClick(item?.year)}
+              // onDelete={() => handleDelete(item?._id)}
+              // deleteIcon={<Edit size="small" />}
             />
           ))}
           {/* <Chip

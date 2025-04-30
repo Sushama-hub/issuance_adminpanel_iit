@@ -10,7 +10,6 @@ import Register from "./components/Register"
 import UserForm from "./components/UserForm"
 import MiniDrawer from "./layouts/Drawer"
 
-import { useEffect } from "react"
 import NonConsumableForm from "./components/NonConsumableForm"
 import NonConsumableStock from "./components/NonConsumableStock"
 import AdminDetails from "./components/AdminDetails"

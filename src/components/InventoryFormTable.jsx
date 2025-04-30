@@ -221,7 +221,10 @@ export default function QuickFilteringGrid() {
             slots={{ toolbar: GridToolbar }}
             slotProps={{
               toolbar: {
-                csvOptions: { disableToolbarButton: false },
+                csvOptions: {
+                  disableToolbarButton: false,
+                  fileName: "Inventory Record",
+                },
                 printOptions: { disableToolbarButton: true },
                 showQuickFilter: true,
                 quickFilterProps: { debounceMs: 500 },

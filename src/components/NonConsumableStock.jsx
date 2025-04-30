@@ -345,8 +345,11 @@ export default function QuickFilteringGrid() {
               slots={{ toolbar: GridToolbar }}
               slotProps={{
                 toolbar: {
-                  csvOptions: { disableToolbarButton: false },
-                  printOptions: { disableToolbarButton: false },
+                  csvOptions: {
+                    disableToolbarButton: false,
+                    fileName: "Non Consumable Stock",
+                  },
+                  printOptions: { disableToolbarButton: true },
                   showQuickFilter: true,
                   quickFilterProps: { debounceMs: 500 },
                 },

@@ -11,7 +11,7 @@ import {
 } from "@mui/icons-material"
 import MonthWiseBarChart from "../components/MonthWiseBarChart"
 import StatusPieChart from "../components/StatusPieChart"
-import { Approve } from "./Approve"
+import AdminApprovalButton from "../components/AdminApprovalButton"
 
 export default function DashboardMaster() {
   const [data, setData] = useState({
@@ -21,6 +21,7 @@ export default function DashboardMaster() {
     totalIssuedComponents: 0,
   })
   const [allIssuanceData, setAllIssuanceData] = useState([])
+  const [pendingUsers, setPendingUsers] = useState([])
 
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
@@ -73,7 +74,22 @@ export default function DashboardMaster() {
 
     fetchIssuanceData()
     fetchInventoryData()
+    fetchPendingUsers()
   }, [baseURL])
+
+  const fetchPendingUsers = async () => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await axios.get(`${baseURL}/admin/pending-approvals`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      setPendingUsers(response?.data?.users)
+    } catch (error) {
+      console.error("Error fetching users:", error)
+    }
+  }
 
   return (
     <Box
@@ -85,7 +101,6 @@ export default function DashboardMaster() {
         mt: 1.5,
       }}
     >
-      <Approve />
       <Typography
         variant="h5"
         fontWeight="bold"
@@ -125,6 +140,8 @@ export default function DashboardMaster() {
           color="#8E24AA"
         />
       </Grid>
+
+      <AdminApprovalButton pendingUsers={pendingUsers} />
 
       {/* Charts Section */}
       <Grid container spacing={3} sx={{ mt: 2 }}>

@@ -15,6 +15,7 @@ import EditIcon from "@mui/icons-material/Edit"
 import DialogBox from "./DialogBox"
 import { useNavigate } from "react-router-dom"
 import { navigateToRoleBasedPath } from "../utils/roleNavigator"
+import { InventoryColumns } from "../config/tableConfig"
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([])
@@ -114,56 +115,6 @@ export default function QuickFilteringGrid() {
 
   const user = JSON.parse(localStorage.getItem("user"))
 
-  const columns = [
-    {
-      field: "id",
-      headerName: "SNo.",
-      flex: 0,
-      editable: false,
-      width: 100,
-    },
-    {
-      field: "componentName",
-      headerName: "Component Name",
-      flex: 1,
-      editable: false,
-    },
-    {
-      field: "specification",
-      headerName: "Specification",
-      flex: 1,
-      editable: false,
-    },
-    { field: "quantity", headerName: "Quantity", flex: 1, editable: false },
-    {
-      field: "actions",
-      headerName: "Actions",
-      flex: 0.5,
-      sortable: false,
-      filterable: false,
-      renderCell: (params) => (
-        <Box sx={{ display: "flex", gap: 1 }}>
-          <IconButton
-            color="primary"
-            onClick={() => handleEdit(params.row)}
-            size="small"
-          >
-            <EditIcon fontSize="small" />
-          </IconButton>
-          {user && user?.role === "master" && (
-            <IconButton
-              color="error"
-              onClick={() => handleDelete(params.row._id)}
-              size="small"
-            >
-              <DeleteIcon fontSize="small" />
-            </IconButton>
-          )}
-        </Box>
-      ),
-    },
-  ]
-
   return (
     <>
       <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
@@ -182,7 +133,34 @@ export default function QuickFilteringGrid() {
         <Box sx={{ width: "100%" }}>
           <DataGrid
             rows={rows}
-            columns={columns}
+            // columns={columns}
+            columns={InventoryColumns?.map((col) =>
+              col.field === "actions"
+                ? {
+                    ...col,
+                    renderCell: (params) => (
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        <IconButton
+                          color="primary"
+                          onClick={() => handleEdit(params.row)}
+                          size="small"
+                        >
+                          <EditIcon fontSize="small" />
+                        </IconButton>
+                        {user && user?.role === "master" && (
+                          <IconButton
+                            color="error"
+                            onClick={() => handleDelete(params.row._id)}
+                            size="small"
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        )}
+                      </Box>
+                    ),
+                  }
+                : col
+            )}
             disableColumnFilter
             disableColumnSelector
             disableDensitySelector

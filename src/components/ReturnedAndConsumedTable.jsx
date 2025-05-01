@@ -4,89 +4,7 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid"
 import axios from "axios"
 import { useEffect, useState } from "react"
 import { Typography } from "@mui/material"
-
-const columns = [
-  {
-    field: "id",
-    headerName: "SNo.",
-    editable: false,
-    width: 55,
-  },
-  { field: "email", headerName: "Email", flex: 0, editable: false, width: 130 },
-  { field: "name", headerName: "Name", flex: 0, editable: false, width: 120 },
-  { field: "batch", headerName: "Batch", flex: 0, editable: false, width: 60 },
-  {
-    field: "idNumber",
-    headerName: "ID Number",
-    flex: 0,
-    editable: false,
-    width: 100,
-  },
-  {
-    field: "category",
-    headerName: "Category",
-    flex: 0,
-    editable: false,
-    width: 100,
-  },
-  {
-    field: "branch",
-    headerName: "Branch",
-    flex: 0,
-    editable: false,
-    width: 100,
-  },
-  {
-    field: "mobile",
-    headerName: "Mobile",
-    flex: 0,
-    editable: false,
-    width: 100,
-  },
-  {
-    field: "labNumber",
-    headerName: "Lab Number",
-    flex: 0,
-    editable: false,
-    width: 105,
-  },
-  {
-    field: "components",
-    headerName: "Components",
-    flex: 0,
-    editable: false,
-    width: 170,
-  },
-  {
-    field: "specification",
-    headerName: "specification",
-    flex: 0,
-    editable: false,
-    width: 160,
-  },
-  {
-    field: "quantity",
-    headerName: "quantity",
-    flex: 0,
-    editable: false,
-    width: 120,
-  },
-  {
-    field: "status",
-    headerName: "Status",
-    flex: 0,
-    editable: false,
-  },
-  {
-    field: "updatedAt",
-    headerName: "UpdatedAt At",
-    flex: 0,
-    editable: false,
-    width: 120,
-  },
-]
-
-// Custom Component for Editable Status Cell
+import { ReturnedAndConsumedColumns } from "../config/tableConfig"
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([])
@@ -176,7 +94,7 @@ export default function QuickFilteringGrid() {
       <Box sx={{ width: "100%" }}>
         <DataGrid
           rows={rows}
-          columns={columns}
+          columns={ReturnedAndConsumedColumns}
           disableColumnFilter
           disableColumnSelector
           disableDensitySelector

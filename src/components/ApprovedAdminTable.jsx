@@ -4,6 +4,7 @@ import { DataGrid, GridToolbar } from "@mui/x-data-grid"
 import axios from "axios"
 import { useEffect, useState } from "react"
 import { Typography, Switch } from "@mui/material"
+import { AdminColumns } from "../config/tableConfig"
 
 const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
@@ -18,7 +19,6 @@ export default function QuickFilteringGrid() {
           Authorization: `Bearer ${token}`,
         },
       })
-      // console.log("response===", response?.data);
 
       const rowsWithId = response?.data?.users
         ?.map((user, index) => ({
@@ -44,10 +44,9 @@ export default function QuickFilteringGrid() {
   const ToggleActiveCell = ({ params }) => {
     const handleToggle = async (event) => {
       const newValue = event.target.checked
-      // console.log("newValue---", newValue)
       try {
         const token = localStorage.getItem("token")
-        const response = await axios.patch(
+        await axios.patch(
           `${baseURL}/admin/update-active/${params.row._id}`,
           // { active: newValue },
           { active: params.row.active },
@@ -71,61 +70,6 @@ export default function QuickFilteringGrid() {
     )
   }
 
-  const columns = [
-    {
-      field: "id",
-      headerName: "SNo.",
-      editable: false,
-      width: 55,
-    },
-    { field: "name", headerName: "Name", flex: 0, editable: false, width: 130 },
-    {
-      field: "email",
-      headerName: "Email",
-      flex: 0,
-      editable: false,
-      width: 200,
-    },
-    {
-      field: "mobile",
-      headerName: "Mobile",
-      flex: 0,
-      editable: false,
-      width: 120,
-    },
-    { field: "role", headerName: "Role", flex: 0, editable: false, width: 80 },
-    {
-      field: "department",
-      headerName: "Department",
-      flex: 0,
-      editable: false,
-      width: 120,
-    },
-    {
-      field: "active",
-      headerName: "Active",
-      flex: 0,
-      editable: false,
-      width: 100,
-      // renderCell: (params) => (
-      //   <ToggleActiveCell params={params} refreshData={fetchTableData} />
-      // ),
-      renderCell: (params) => <ToggleActiveCell params={params} />,
-    },
-    // {
-    //   field: "createdAt",
-    //   headerName: "Created At",
-    //   flex: 1,
-    //   editable: false,
-    // },
-    {
-      field: "updatedAt",
-      headerName: "Updated At",
-      flex: 1,
-      editable: false,
-    },
-  ]
-
   return (
     <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
       <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>
@@ -134,7 +78,19 @@ export default function QuickFilteringGrid() {
       <Box sx={{ width: "100%" }}>
         <DataGrid
           rows={rows}
-          columns={columns}
+          columns={AdminColumns?.map((col) =>
+            col.field === "active"
+              ? {
+                  ...col,
+                  renderCell: (params) => (
+                    <ToggleActiveCell
+                      params={params}
+                      // refreshData={fetchTableData}
+                    />
+                  ),
+                }
+              : col
+          )}
           disableColumnFilter
           disableColumnSelector
           disableDensitySelector

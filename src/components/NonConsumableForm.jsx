@@ -16,7 +16,7 @@ import { useNavigate } from "react-router-dom"
 import NonConsumableCsvUploader from "./NonConsumableCsvUploader"
 import moment from "moment"
 import { navigateToRoleBasedPath } from "../utils/roleNavigator"
-import YearChipList from "./YearChipList"
+import YearTagList from "./YearTagList"
 
 const NonConsumableForm = () => {
   const [formData, setFormData] = useState({
@@ -241,7 +241,7 @@ const NonConsumableForm = () => {
           </Grid>
         </Grid>
 
-        <YearChipList />
+        <YearTagList />
 
         {/* Snackbar for Success & Error Messages */}
         <Snackbar

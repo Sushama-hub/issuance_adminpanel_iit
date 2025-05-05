@@ -6,8 +6,6 @@ import {
   Typography,
   Box,
   Paper,
-  Snackbar,
-  Alert,
   InputAdornment,
   IconButton,
   Link,
@@ -16,13 +14,15 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material"
 import { useNavigate } from "react-router-dom"
 import axios from "axios"
+import {
+  showSuccessToast,
+  showErrorToast,
+  showWarningToast,
+} from "../utils/toastUtils"
 
 const LoginPage = () => {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [openSnackbar, setOpenSnackbar] = useState(false)
-  const [snackbarMessage, setSnackbarMessage] = useState("")
-  const [snackbarSeverity, setSnackbarSeverity] = useState("success")
   const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
 
@@ -46,6 +46,7 @@ const LoginPage = () => {
           withCredentials: true,
         }
       )
+
       if (data?.success) {
         const token = data?.token
         const user = data?.user
@@ -56,10 +57,6 @@ const LoginPage = () => {
         localStorage.setItem("token", token)
         localStorage.setItem("user", JSON.stringify(user))
         localStorage.setItem("expiresAt", expiresAt.toString())
-
-        setOpenSnackbar(true)
-        setSnackbarMessage(data?.message)
-        setSnackbarSeverity("success")
 
         const userRole = data?.user?.role
 
@@ -74,20 +71,21 @@ const LoginPage = () => {
         //   }
         // }, 1500)
         if (userRole === "master") {
+          showSuccessToast(data?.message || "Login successful! Redirecting...")
           setTimeout(() => {
             navigate("/dashboard/master")
           }, 1500)
         } else if (userRole === "admin") {
+          showSuccessToast(data?.message || "Login successful! Redirecting...")
           setTimeout(() => {
             navigate("/dashboard/admin")
           }, 1500)
         } else {
           // Handle case for "user" role - show error
-          setSnackbarSeverity("error")
-          setSnackbarMessage(
-            "Access denied. Only admins and masters are allowed."
+          showWarningToast(
+            data?.message ||
+              "Access denied. Only admins and masters are allowed."
           )
-          setOpenSnackbar(true)
           localStorage.removeItem("token")
           localStorage.removeItem("user")
           localStorage.removeItem("expiresAt")
@@ -99,15 +97,13 @@ const LoginPage = () => {
           localStorage.removeItem("user")
           localStorage.removeItem("expiresAt")
 
-          alert("Session expired. Please log in again.")
+          showWarningToast("Session expired. Please log in again.")
           navigate("/login")
         }, expiresIn)
       }
     } catch (error) {
       console.error("Error:", error?.response?.data?.message)
-      setSnackbarSeverity("error")
-      setSnackbarMessage(error.response?.data?.message || "Login failed")
-      setOpenSnackbar(true)
+      showErrorToast("Login failed. Please try again.")
     }
   }
   return (
@@ -242,23 +238,6 @@ const LoginPage = () => {
           </Grid>
         </Grid>
       </Container>
-
-      {/* Snackbar for Success & Error Messages */}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setOpenSnackbar(false)}
-          severity={snackbarSeverity}
-          sx={{ width: "100%" }}
-        >
-          {/* "Login successful! Redirecting..." */}
-          {snackbarMessage}
-        </Alert>
-      </Snackbar>
     </Box>
   )
 }

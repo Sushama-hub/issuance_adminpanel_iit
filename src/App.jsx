@@ -9,10 +9,12 @@ import Login from "./components/Login"
 import Register from "./components/Register"
 import UserForm from "./components/UserForm"
 import MiniDrawer from "./layouts/Drawer"
-
 import NonConsumableForm from "./components/NonConsumableForm"
 import NonConsumableStock from "./components/NonConsumableStock"
 import AdminDetails from "./components/AdminDetails"
+import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+
 const getUserFromStorage = () => {
   const user = localStorage.getItem("user")
   const expiresAt = localStorage.getItem("expiresAt")
@@ -65,6 +67,8 @@ const AuthRedirect = ({ children }) => {
 function App() {
   return (
     <div className="App">
+      <ToastContainer position="top-right" newestOnTop />
+
       <Routes>
         {/* Public Routes */}
         <Route

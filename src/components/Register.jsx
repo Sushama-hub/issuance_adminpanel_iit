@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "react"
 import {
   Container,
   TextField,
@@ -6,17 +6,16 @@ import {
   Typography,
   Box,
   Paper,
-  Snackbar,
-  Alert,
   InputAdornment,
   IconButton,
   MenuItem,
   Link,
   Grid,
-} from "@mui/material";
-import { Visibility, VisibilityOff } from "@mui/icons-material";
-import axios from "axios";
-import { useNavigate } from "react-router-dom";
+} from "@mui/material"
+import { Visibility, VisibilityOff } from "@mui/icons-material"
+import axios from "axios"
+import { useNavigate } from "react-router-dom"
+import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
 
 const AdminRegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -26,7 +25,7 @@ const AdminRegisterPage = () => {
     confirmPassword: "",
     department: "Electronics",
     mobile: "",
-  });
+  })
 
   const [departments] = useState([
     { id: 1, name: "Electrical" },
@@ -35,76 +34,73 @@ const AdminRegisterPage = () => {
     { id: 4, name: "CSE" },
     { id: 5, name: "IT" },
     { id: 6, name: "Electrical" },
-  ]);
+  ])
 
   const [showPassword, setShowPassword] = useState({
     password: false,
     confirmPassword: false,
-  });
-  const [openSnackbar, setOpenSnackbar] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [mobileError, setMobileError] = useState("");
-  const navigate = useNavigate();
+  })
+  const [passwordError, setPasswordError] = useState("")
+  const [mobileError, setMobileError] = useState("")
+  const navigate = useNavigate()
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
 
     // Mobile number validation (10 digits, Indian format)
     if (name === "mobile") {
-      const mobilePattern = /^[6-9]\d{9}$/;
+      const mobilePattern = /^[6-9]\d{9}$/
       if (!mobilePattern.test(value)) {
-        setMobileError("Enter a valid 10-digit Indian mobile number");
+        setMobileError("Enter a valid 10-digit Indian mobile number")
       } else {
-        setMobileError("");
+        setMobileError("")
       }
     }
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+    setFormData((prev) => ({ ...prev, [name]: value }))
+  }
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+    e.preventDefault()
 
-    const mobilePattern = /^[6-9]\d{9}$/;
-    let isValid = true;
+    const mobilePattern = /^[6-9]\d{9}$/
+    let isValid = true
 
     if (!mobilePattern.test(formData.mobile)) {
-      setMobileError("Please Enter a valid 10-digit Indian mobile number");
-      isValid = false;
+      setMobileError("Please Enter a valid 10-digit Indian mobile number")
+      isValid = false
     } else {
-      setMobileError("");
+      setMobileError("")
     }
 
     if (formData.password !== formData.confirmPassword) {
-      setPasswordError("Passwords do not match");
-      isValid = false;
+      setPasswordError("Passwords do not match")
+      isValid = false
     } else {
-      setPasswordError("");
+      setPasswordError("")
     }
 
     if (!isValid) {
-      return; // stop form submission
+      return // stop form submission
     }
 
     try {
       const { data } = await axios.post(`${baseURL}/admin/register`, formData, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
-      });
-
+      })
       if (data?.success) {
-        setOpenSnackbar(true);
-        setErrorMessage(""); // Clear error if previously set
-        setTimeout(() => navigate("/login"), 1500);
+        showSuccessToast(
+          data?.message || "Registration successful! Please proceed to login."
+        )
+        setTimeout(() => navigate("/login"), 1500)
       }
     } catch (error) {
-      console.error("Error:", error.response?.data || error.message);
-      setErrorMessage(error.response?.data?.message || "Registration failed");
-      setOpenSnackbar(true);
+      console.error("Error:", error.response?.data || error.message)
+      showErrorToast("Registration failed. Please try again.")
     }
-  };
+  }
 
   return (
     <Box
@@ -162,7 +158,7 @@ const AdminRegisterPage = () => {
                 fontWeight="bold"
                 color="#FFFFFF"
               >
-                Admin Register
+                Register
               </Typography>
 
               <Box component="form" onSubmit={handleSubmit}>
@@ -337,25 +333,9 @@ const AdminRegisterPage = () => {
           </Grid>
         </Grid>
       </Container>
-
-      {/* Snackbar */}
-      <Snackbar
-        open={openSnackbar}
-        autoHideDuration={3000}
-        onClose={() => setOpenSnackbar(false)}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setOpenSnackbar(false)}
-          severity={errorMessage ? "error" : "success"}
-          sx={{ width: "100%" }}
-        >
-          {errorMessage || "Registration successful! Redirecting..."}
-        </Alert>
-      </Snackbar>
     </Box>
-  );
-};
+  )
+}
 
 const textFieldStyles = {
   textAlign: "left",
@@ -387,6 +367,6 @@ const textFieldStyles = {
     borderRadius: "10px",
     transition: "background-color 5000s ease-in-out 0s",
   },
-};
+}
 
-export default AdminRegisterPage;
+export default AdminRegisterPage

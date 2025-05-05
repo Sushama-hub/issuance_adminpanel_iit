@@ -6,8 +6,6 @@ import {
   CardContent,
   Typography,
   Box,
-  Snackbar,
-  Alert,
   Divider,
   Grid,
 } from "@mui/material"
@@ -16,6 +14,7 @@ import { useNavigate } from "react-router-dom"
 import CsvUploader from "./CsvUploader"
 import moment from "moment"
 import { navigateToRoleBasedPath } from "../utils/roleNavigator"
+import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
 
 const ComponentForm = () => {
   const [formData, setFormData] = useState({
@@ -25,14 +24,8 @@ const ComponentForm = () => {
   })
   const [loading, setLoading] = useState(false)
   const [lastEntry, setLastEntry] = useState(null)
-  const [snackbarData, setSnackbarData] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  })
 
   const navigate = useNavigate()
-
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
   // Handle input changes
@@ -49,6 +42,7 @@ const ComponentForm = () => {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
       })
+
       if (response?.data?.success === true) {
         const newEntry = response?.data?.data
 
@@ -56,11 +50,9 @@ const ComponentForm = () => {
         setLastEntry(newEntry)
         localStorage.setItem("lastInventoryEntry", JSON.stringify(newEntry))
 
-        setSnackbarData({
-          open: true,
-          message: " Inventory entry submitted successfully!",
-          severity: "success",
-        })
+        showSuccessToast(
+          response?.data?.message || "Inventory entry submitted successfully!"
+        )
         setTimeout(() => {
           setFormData({
             ...formData,
@@ -73,13 +65,7 @@ const ComponentForm = () => {
       }
     } catch (error) {
       console.error("Error submitting form:", error)
-
-      setSnackbarData({
-        open: true,
-        message: " Error submitting inventory. Please try again!",
-        severity: "error",
-      })
-
+      showErrorToast(" Error submitting inventory. Please try again!")
       setLoading(false)
     }
   }
@@ -309,22 +295,6 @@ const ComponentForm = () => {
             </Card>
           </Grid>
         </Grid>
-
-        {/* Snackbar for Success & Error Messages */}
-        <Snackbar
-          open={snackbarData.open}
-          autoHideDuration={3000}
-          onClose={() => setSnackbarData({ ...snackbarData, open: false })}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <Alert
-            onClose={() => setSnackbarData({ ...snackbarData, open: false })}
-            severity={snackbarData.severity}
-            sx={{ width: "100%" }}
-          >
-            {snackbarData.message}
-          </Alert>
-        </Snackbar>
       </Box>
     </>
   )

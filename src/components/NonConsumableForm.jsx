@@ -17,6 +17,7 @@ import NonConsumableCsvUploader from "./NonConsumableCsvUploader"
 import moment from "moment"
 import { navigateToRoleBasedPath } from "../utils/roleNavigator"
 import YearTagList from "./YearTagList"
+import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
 
 const NonConsumableForm = () => {
   const [formData, setFormData] = useState({
@@ -25,11 +26,6 @@ const NonConsumableForm = () => {
     quantity: "",
   })
   const [loading, setLoading] = useState(false)
-  const [snackbarData, setSnackbarData] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  })
 
   const navigate = useNavigate()
 
@@ -50,11 +46,8 @@ const NonConsumableForm = () => {
         withCredentials: true,
       })
       if (response?.data?.success === true) {
-        setSnackbarData({
-          open: true,
-          message: " Inventory entry submitted successfully!",
-          severity: "success",
-        })
+        showSuccessToast("Inventory entry submitted successfully!")
+
         setTimeout(() => {
           setFormData({
             ...formData,
@@ -67,13 +60,7 @@ const NonConsumableForm = () => {
       }
     } catch (error) {
       console.error("Error submitting form:", error)
-
-      setSnackbarData({
-        open: true,
-        message: " Error submitting inventory. Please try again!",
-        severity: "error",
-      })
-
+      showErrorToast("Error submitting inventory. Please try again!")
       setLoading(false)
     }
   }
@@ -240,24 +227,7 @@ const NonConsumableForm = () => {
             </Card>
           </Grid>
         </Grid>
-
         <YearTagList />
-
-        {/* Snackbar for Success & Error Messages */}
-        <Snackbar
-          open={snackbarData.open}
-          autoHideDuration={3000}
-          onClose={() => setSnackbarData({ ...snackbarData, open: false })}
-          anchorOrigin={{ vertical: "top", horizontal: "right" }}
-        >
-          <Alert
-            onClose={() => setSnackbarData({ ...snackbarData, open: false })}
-            severity={snackbarData.severity}
-            sx={{ width: "100%" }}
-          >
-            {snackbarData.message}
-          </Alert>
-        </Snackbar>
       </Box>
     </>
   )

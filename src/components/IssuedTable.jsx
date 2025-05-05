@@ -9,6 +9,7 @@ import Menu from "@mui/material/Menu"
 import MenuItem from "@mui/material/MenuItem"
 import { Typography } from "@mui/material"
 import { IssuedColumns } from "../config/tableConfig"
+import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
 
 const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
@@ -21,15 +22,29 @@ const EditableStatusCell = ({ params, refreshData }) => {
   const handleClose = async (status) => {
     setAnchorEl(null)
     if (status && status !== params.value) {
+      const confirmEdit = window.confirm(
+        `Do you want to update the status "${params.value}" to "${status}" ?`
+      )
+      if (!confirmEdit) return
       try {
-        await axios.put(`${baseURL}/user/update-status/${params.row._id}`, {
-          status: status,
-        })
+        const response = await axios.put(
+          `${baseURL}/user/update-status/${params.row._id}`,
+          {
+            status: status,
+          }
+        )
 
-        // refresh the table
-        refreshData()
+        if (response?.data?.success) {
+          showSuccessToast(
+            response?.data?.message || "Status updated successfully!"
+          )
+
+          // refresh the table
+          refreshData()
+        }
       } catch (error) {
         console.error("Error updating status", error)
+        showErrorToast(`Failed to update status. Please try again.`)
       }
     }
   }
@@ -113,52 +128,54 @@ export default function QuickFilteringGrid() {
   }, [])
 
   return (
-    <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
-      <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>
-        Issued Table
-      </Typography>
-      <Box sx={{ width: "100%" }}>
-        <DataGrid
-          rows={rows}
-          columns={IssuedColumns?.map((col) =>
-            col.field === "status"
-              ? {
-                  ...col,
-                  renderCell: (params) => (
-                    <EditableStatusCell
-                      params={params}
-                      refreshData={fetchTableData}
-                    />
-                  ),
-                }
-              : col
-          )}
-          disableColumnFilter
-          disableColumnSelector
-          disableDensitySelector
-          autoHeight
-          disableRowSelectionOnClick
-          disableColumnMenu
-          getRowHeight={() => "auto"}
-          sx={{
-            "& .MuiDataGrid-cell:focus-within": {
-              outline: "none",
-            },
-          }}
-          slots={{ toolbar: GridToolbar }}
-          slotProps={{
-            toolbar: {
-              csvOptions: {
-                disableToolbarButton: false,
-                fileName: "Issued Inventory Record", //custom file name here
+    <>
+      <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
+        <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>
+          Issued Table
+        </Typography>
+        <Box sx={{ width: "100%" }}>
+          <DataGrid
+            rows={rows}
+            columns={IssuedColumns?.map((col) =>
+              col.field === "status"
+                ? {
+                    ...col,
+                    renderCell: (params) => (
+                      <EditableStatusCell
+                        params={params}
+                        refreshData={fetchTableData}
+                      />
+                    ),
+                  }
+                : col
+            )}
+            disableColumnFilter
+            disableColumnSelector
+            disableDensitySelector
+            autoHeight
+            disableRowSelectionOnClick
+            disableColumnMenu
+            getRowHeight={() => "auto"}
+            sx={{
+              "& .MuiDataGrid-cell:focus-within": {
+                outline: "none",
               },
-              printOptions: { disableToolbarButton: true },
-              showQuickFilter: true,
-              quickFilterProps: { debounceMs: 500 },
-            },
-          }}
-        />
+            }}
+            slots={{ toolbar: GridToolbar }}
+            slotProps={{
+              toolbar: {
+                csvOptions: {
+                  disableToolbarButton: false,
+                  fileName: "Issued Inventory Record", //custom file name here
+                },
+                printOptions: { disableToolbarButton: true },
+                showQuickFilter: true,
+                quickFilterProps: { debounceMs: 500 },
+              },
+            }}
+          />
+        </Box>
       </Box>
-    </Box>
+    </>
   )
 }

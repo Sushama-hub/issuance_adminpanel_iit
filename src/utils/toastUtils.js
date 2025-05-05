@@ -25,7 +25,7 @@ export const showInfoToast = (message) => {
   })
 }
 export const showWarningToast = (message) => {
-  toast.info(message, {
+  toast.warning(message, {
     autoClose: 1500,
     transition: Slide,
     style: { width: "auto" },

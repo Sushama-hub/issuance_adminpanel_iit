@@ -7,10 +7,13 @@ import {
   TextField,
   DialogActions,
   Button,
-  Snackbar,
-  Alert,
 } from "@mui/material"
 import { useState } from "react"
+import {
+  showSuccessToast,
+  showErrorToast,
+  showInfoToast,
+} from "../utils/toastUtils"
 
 export default function DialogBox({
   editDialogOpen,
@@ -22,11 +25,6 @@ export default function DialogBox({
   fetchTableData,
 }) {
   const [errors, setErrors] = useState({})
-  const [snackbarData, setSnackbarData] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  })
 
   const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
 
@@ -90,26 +88,14 @@ export default function DialogBox({
       )
 
       if (response?.data?.success === true) {
-        setSnackbarData({
-          open: true,
-          message: `${response?.data?.message} `,
-          severity: "success",
-        })
-      }
-
-      setTimeout(() => {
+        showSuccessToast("Inventory item updated successfully!")
         setEditDialogOpen(false)
         setEditRow(null)
         fetchTableData()
-      }, 1500)
+      }
     } catch (error) {
       console.error("Error updating item", error)
-
-      setSnackbarData({
-        open: true,
-        message: " Error Updating inventory. Please try again!",
-        severity: "error",
-      })
+      showErrorToast("Something went wrong while updating!")
     }
   }
 
@@ -130,6 +116,12 @@ export default function DialogBox({
 
     return false // Enable button
   }
+
+  const handleCancel = () => {
+    setEditDialogOpen(false)
+    showInfoToast("Edit cancelled")
+  }
+
   return (
     <>
       <Dialog
@@ -179,7 +171,8 @@ export default function DialogBox({
           ))}
         </DialogContent>
         <DialogActions>
-          <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button>
+          {/* <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button> */}
+          <Button onClick={handleCancel}>Cancel</Button>
           <Button
             variant="contained"
             onClick={handleEditSubmit}
@@ -189,22 +182,6 @@ export default function DialogBox({
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* Snackbar for Success & Error Messages */}
-      <Snackbar
-        open={snackbarData.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarData({ ...snackbarData, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setSnackbarData({ ...snackbarData, open: false })}
-          severity={snackbarData.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarData.message}
-        </Alert>
-      </Snackbar>
     </>
   )
 }

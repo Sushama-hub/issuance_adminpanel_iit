@@ -2,20 +2,14 @@ import * as React from "react"
 import { DataGrid, GridToolbar } from "@mui/x-data-grid"
 import axios from "axios"
 import { useEffect, useState } from "react"
-import {
-  Box,
-  Typography,
-  IconButton,
-  Button,
-  Snackbar,
-  Alert,
-} from "@mui/material"
+import { Box, Typography, IconButton, Button } from "@mui/material"
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
 import DialogBox from "./DialogBox"
 import { useNavigate } from "react-router-dom"
 import { navigateToRoleBasedPath } from "../utils/roleNavigator"
 import { InventoryColumns } from "../config/tableConfig"
+import { showErrorToast, showSuccessToast } from "../utils/toastUtils"
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([])
@@ -26,13 +20,8 @@ export default function QuickFilteringGrid() {
     specification: "",
     quantity: "",
   })
-  const [snackbarData, setSnackbarData] = useState({
-    open: false,
-    message: "",
-    severity: "success",
-  })
-  const navigate = useNavigate()
 
+  const navigate = useNavigate()
   const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
 
   const fetchTableData = async () => {
@@ -93,23 +82,14 @@ export default function QuickFilteringGrid() {
       })
 
       if (response?.data?.success === true) {
-        setSnackbarData({
-          open: true,
-          message: ` ${response?.data?.message} `,
-          severity: "success",
-        })
+        showSuccessToast(response?.data?.message || "Deleted successfully")
+        setTimeout(() => {
+          fetchTableData()
+        }, 1500)
       }
-      setTimeout(() => {
-        fetchTableData()
-      }, 1500)
-      fetchTableData()
     } catch (error) {
       console.error("Error deleting item", error)
-      setSnackbarData({
-        open: true,
-        message: " Error Updating inventory. Please try again!",
-        severity: "error",
-      })
+      showErrorToast("Error deleting inventory item. Please try again!")
     }
   }
 
@@ -222,22 +202,6 @@ export default function QuickFilteringGrid() {
         setEditValues={setEditValues}
         fetchTableData={fetchTableData}
       />
-
-      {/* Snackbar for Success & Error Messages */}
-      <Snackbar
-        open={snackbarData.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarData({ ...snackbarData, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setSnackbarData({ ...snackbarData, open: false })}
-          severity={snackbarData.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarData.message}
-        </Alert>
-      </Snackbar>
     </>
   )
 }

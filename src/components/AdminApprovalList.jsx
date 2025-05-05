@@ -1,19 +1,10 @@
-import {
-  Alert,
-  Box,
-  Button,
-  Card,
-  CardContent,
-  Stack,
-  Typography,
-} from "@mui/material"
+import { Box, Button, Card, CardContent, Typography } from "@mui/material"
 import axios from "axios"
 import React, { useEffect, useState } from "react"
+import { showErrorToast, showSuccessToast } from "../utils/toastUtils"
 
 export default function AdminApproval() {
-  const [approveMsg, setApproveMsg] = useState("")
   const [users, setUsers] = useState([])
-  const [isApproved, setIsApproved] = useState(false)
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
   const fetchUsers = async () => {
@@ -24,28 +15,57 @@ export default function AdminApproval() {
           Authorization: `Bearer ${token}`,
         },
       })
-      // console.log("response====", response?.data)
       setUsers(response?.data?.users || [])
-      if (response?.data?.success && response?.data?.users.length === 0) {
-        setApproveMsg("User approved as admin")
-      }
     } catch (error) {
       console.error("Error fetching users:", error)
     }
   }
 
   const handleApproveUser = async (userId) => {
-    console.log("handleApproveUser called", userId)
-    await axios.put(`${baseURL}/admin/approve/${userId}`)
-    alert("User approved as admin")
-    window.location.reload()
+    // console.log("handleApproveUser called", userId)
+    const confirm = window.confirm(
+      "Are you sure you want to approve this user as admin?"
+    )
+    if (!confirm) return
+
+    try {
+      const response = await axios.put(`${baseURL}/admin/approve/${userId}`)
+
+      if (response?.data?.success) {
+        showSuccessToast(
+          response?.data?.message || "User successfully approved as admin!"
+        )
+        setTimeout(() => {
+          window.location.reload()
+        }, 1500)
+      }
+    } catch (error) {
+      console.error("Error approving user:", error)
+      showErrorToast("Failed to approve user. Please try again.")
+    }
   }
 
   const handleRemoveUser = async (userId) => {
-    console.log("handleApproveUser called", userId)
-    alert("Do You Want To Denied User!")
-    await axios.delete(`${baseURL}/admin/deletePendingUser/${userId}`)
-    window.location.reload()
+    // console.log("handleApproveUser called", userId)
+    const confirm = window.confirm("Are you sure, Do You Want To Denied User?")
+    if (!confirm) return
+    try {
+      const response = await axios.delete(
+        `${baseURL}/admin/deletePendingUser/${userId}`
+      )
+
+      if (response?.data?.success) {
+        showSuccessToast(
+          response?.data?.message || "User deleted successfully!"
+        )
+        setTimeout(() => {
+          window.location.reload()
+        }, 1500)
+      }
+    } catch (error) {
+      console.error("Error deleting data:", error)
+      showErrorToast(`Failed to delete User. Please try again.`)
+    }
   }
 
   useEffect(() => {
@@ -54,18 +74,6 @@ export default function AdminApproval() {
 
   return (
     <>
-      {/* <Box
-        sx={{
-          minHeight: "85vh",
-          width: "100%",
-          backgroundColor: "#f4f4f4",
-          padding: 2,
-          mt: 1.5,
-        }}
-      > */}
-      {/* <Alert severity="success" sx={{ border: "1px solid green" }}>
-        {approveMsg}
-      </Alert> */}
       {users.length > 0 && (
         <>
           <Typography
@@ -132,7 +140,6 @@ export default function AdminApproval() {
           </Box>
         </>
       )}
-      {/* </Box> */}
     </>
   )
 }

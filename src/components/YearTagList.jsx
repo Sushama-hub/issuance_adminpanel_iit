@@ -13,8 +13,6 @@ import AddIcon from "@mui/icons-material/Add"
 import { useNavigate } from "react-router-dom"
 import { Delete, DeleteTwoTone, Edit } from "@mui/icons-material"
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
-import DialogBox from "./DialogBox"
-import { ToastContainer } from "react-toastify"
 
 export default function YearTagList() {
   const [data, setData] = useState([])
@@ -74,7 +72,7 @@ export default function YearTagList() {
   }
 
   const handleClick = (year) => {
-    console.info("You clicked the Chip.", year)
+    // console.info("You clicked the Chip.", year)
 
     const storedUser = JSON.parse(localStorage.getItem("user"))
 
@@ -143,9 +141,9 @@ export default function YearTagList() {
   }
 
   const handleDeleteClick = async (id, year) => {
-    console.info("You clicked the DELETE icon.", id, year)
+    // console.info("You clicked the DELETE icon.", id, year)
     const confirmDelete = window.confirm(
-      `Do you want to delete the year session ${year}?`
+      `Do you want to delete the year session "${year}"?`
     )
     if (!confirmDelete) return
 
@@ -169,7 +167,7 @@ export default function YearTagList() {
   }
 
   const handleEditClick = async (id, year) => {
-    console.info("You clicked the EDIT icon.", id, year)
+    // console.info("You clicked the EDIT icon.", id, year)
 
     // setEditableYear((prev) => ({ ...prev, id: id, year: year }))
     setEditableYear({ id, year })
@@ -177,9 +175,9 @@ export default function YearTagList() {
   }
 
   const handleEditYear = async () => {
-    console.info("You submit  EDIT year.", editableYear)
+    // console.info("You submit  EDIT year.", editableYear)
     const confirmEdit = window.confirm(
-      `Do you want to update the year session to ${editableYear?.year}?`
+      `Do you want to update the year session to "${editableYear?.year}"?`
     )
     if (!confirmEdit) return
 
@@ -214,7 +212,6 @@ export default function YearTagList() {
 
   return (
     <>
-      <ToastContainer />
       <Typography
         variant="h6"
         color="text.secondary"

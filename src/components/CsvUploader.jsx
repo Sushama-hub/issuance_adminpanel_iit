@@ -1,21 +1,16 @@
 import React, { useRef, useState } from "react"
 import Papa from "papaparse"
 import axios from "axios"
-import { Alert, Box, Button, Snackbar, Typography } from "@mui/material"
+import { Box, Button, Typography } from "@mui/material"
 import CloudUploadIcon from "@mui/icons-material/CloudUpload"
 import FileDownloadIcon from "@mui/icons-material/FileDownload"
+import { showErrorToast, showSuccessToast } from "../utils/toastUtils"
 
 const CsvUploader = () => {
   const [csvData, setCsvData] = useState([])
   const [isFileSelected, setIsFileSelected] = useState(false)
-  const [snackbarData, setSnackbarData] = useState({
-    open: false,
-    message: "",
-    severity: "success", // can be "success", "error", "warning", "info"
-  })
 
   const fileInputRef = useRef(null)
-
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
   const handleFileChange = (e) => {
@@ -46,12 +41,9 @@ const CsvUploader = () => {
         }
       )
       if (response?.data?.success) {
-        setSnackbarData({
-          open: true,
-          // message: "Data uploaded successfully!",
-          message: response?.data?.message,
-          severity: "success",
-        })
+        showSuccessToast(
+          response?.data?.message || "Data uploaded successfully!"
+        )
         setCsvData([])
         setIsFileSelected(false)
         if (fileInputRef.current) {
@@ -60,14 +52,10 @@ const CsvUploader = () => {
       }
     } catch (error) {
       console.error("Error uploading data:", error)
-      // alert("Failed to upload data.");
-      setSnackbarData({
-        open: true,
-        message: " Error File Uploading. Please try again!",
-        severity: "error",
-      })
+      showErrorToast(" Error File Uploading. Please try again!")
     }
   }
+
   const handleDownloadSample = () => {
     const sampleData = [
       ["components", "specification", "quantity"],
@@ -146,22 +134,6 @@ const CsvUploader = () => {
           Upload files
         </Button>
       </Box>
-
-      {/* Snackbar for Success & Error Messages */}
-      <Snackbar
-        open={snackbarData.open}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarData({ ...snackbarData, open: false })}
-        anchorOrigin={{ vertical: "top", horizontal: "right" }}
-      >
-        <Alert
-          onClose={() => setSnackbarData({ ...snackbarData, open: false })}
-          severity={snackbarData.severity}
-          sx={{ width: "100%" }}
-        >
-          {snackbarData.message}
-        </Alert>
-      </Snackbar>
     </Box>
   )
 }

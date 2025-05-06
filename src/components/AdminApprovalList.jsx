@@ -6,11 +6,11 @@ import { showErrorToast, showSuccessToast } from "../utils/toastUtils"
 export default function AdminApproval() {
   const [users, setUsers] = useState([])
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+  const token = localStorage.getItem("token")
 
   const fetchUsers = async () => {
     try {
-      const token = localStorage.getItem("token")
-      const response = await axios.get(`${baseURL}/admin/pending-approvals`, {
+      const response = await axios.get(`${baseURL}/master/pending-approvals`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -29,8 +29,15 @@ export default function AdminApproval() {
     if (!confirm) return
 
     try {
-      const response = await axios.put(`${baseURL}/admin/approve/${userId}`)
-
+      const response = await axios.put(
+        `${baseURL}/master/approve/${userId}`,
+        {},
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "User successfully approved as admin!"
@@ -51,16 +58,19 @@ export default function AdminApproval() {
     if (!confirm) return
     try {
       const response = await axios.delete(
-        `${baseURL}/admin/deletePendingUser/${userId}`
+        `${baseURL}/master/deletePendingUser/${userId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       )
 
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "User deleted successfully!"
         )
-        setTimeout(() => {
-          window.location.reload()
-        }, 1500)
+        fetchUsers()
       }
     } catch (error) {
       console.error("Error deleting data:", error)

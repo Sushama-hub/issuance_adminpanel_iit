@@ -246,19 +246,39 @@ export default function MiniDrawer() {
               height="55px"
               style={{ marginRight: "8px" }}
             />
-            <Typography
-              variant="h6"
-              noWrap
-              component="div"
+            <Box
               sx={{
-                ml: 1,
-                fontWeight: "bold",
+                display: "flex",
+                flexDirection: "column",
+                justifyContent: "center",
+                alignItems: "center",
                 textTransform: "uppercase",
-                fontSize: "1.2rem",
               }}
             >
-              Department of Electrical Engineering, IIT Bhilai Durg
-            </Typography>
+              <Typography
+                variant="h6"
+                noWrap
+                component="div"
+                sx={{
+                  ml: 1,
+                  fontWeight: "bold",
+                  fontSize: "1.2rem",
+                }}
+              >
+                Department of Electrical Engineering
+              </Typography>
+              <Typography
+                noWrap
+                component="div"
+                sx={{
+                  fontWeight: 600,
+                  fontSize: "0.75rem",
+                  mt: 0.1,
+                }}
+              >
+                Indian Institute of Technology (IIT) Bhilai, Durg
+              </Typography>
+            </Box>
           </Box>
           {/* Right Side: User Info & Logout */}
           <Box

@@ -3,8 +3,10 @@ import Box from "@mui/material/Box"
 import { DataGrid, GridToolbar } from "@mui/x-data-grid"
 import axios from "axios"
 import { useEffect, useState } from "react"
-import { Typography, Switch } from "@mui/material"
+import { Typography, Switch, IconButton } from "@mui/material"
 import { AdminColumns } from "../config/tableConfig"
+import DeleteIcon from "@mui/icons-material/Delete"
+import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
 
 const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
@@ -14,7 +16,7 @@ export default function QuickFilteringGrid() {
   const fetchTableData = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await axios.get(`${baseURL}/admin/allAdmins`, {
+      const response = await axios.get(`${baseURL}/master/allAdmins`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -44,10 +46,11 @@ export default function QuickFilteringGrid() {
   const ToggleActiveCell = ({ params }) => {
     const handleToggle = async (event) => {
       const newValue = event.target.checked
+
       try {
         const token = localStorage.getItem("token")
         await axios.patch(
-          `${baseURL}/admin/update-active/${params.row._id}`,
+          `${baseURL}/master/update-active/${params.row._id}`,
           // { active: newValue },
           { active: params.row.active },
           {
@@ -70,6 +73,38 @@ export default function QuickFilteringGrid() {
     )
   }
 
+  const handleDelete = async (id) => {
+    const confirm = window.confirm(
+      "Are you sure you want to delete this admin?",
+      id
+    )
+    if (!confirm) return
+
+    try {
+      const token = localStorage.getItem("token")
+      const response = await axios.delete(
+        `${baseURL}/master/deleteAdmin/${id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      if (response?.data?.success === true) {
+        showSuccessToast(response?.data?.message || "Deleted successfully")
+        setTimeout(() => {
+          fetchTableData()
+        }, 1500)
+      }
+    } catch (error) {
+      console.error("Error deleting item", error)
+      showErrorToast("Error deleting inventory item. Please try again!")
+    }
+  }
+
+  const user = JSON.parse(localStorage.getItem("user"))
+
   return (
     <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
       <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>
@@ -89,7 +124,24 @@ export default function QuickFilteringGrid() {
                     />
                   ),
                 }
-              : col
+              : col.field === "actions"
+                ? {
+                    ...col,
+                    renderCell: (params) => (
+                      <Box sx={{ display: "flex", gap: 1 }}>
+                        {user && user?.role === "master" && (
+                          <IconButton
+                            color="error"
+                            onClick={() => handleDelete(params.row._id)}
+                            size="small"
+                          >
+                            <DeleteIcon fontSize="small" />
+                          </IconButton>
+                        )}
+                      </Box>
+                    ),
+                  }
+                : col
           )}
           disableColumnFilter
           disableColumnSelector

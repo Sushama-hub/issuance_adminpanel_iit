@@ -222,6 +222,7 @@ export default function YearTagList() {
         Click on a year below to view the Non Consumable Stock Table for that
         year.
       </Typography>
+
       <Box
         sx={{
           display: "flex",
@@ -232,22 +233,22 @@ export default function YearTagList() {
           boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
         }}
       >
-        <Stack
-          direction="row"
-          spacing={1}
-          sx={{
-            width: "80%",
-            height: "100%",
-            overflow: "",
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 1,
-          }}
-        >
-          {data?.map((item, index) => {
-            const isEmpty = yearDataMap[item.year] // true if empty
-            return (
-              <>
+        {data?.length > 0 ? (
+          <Stack
+            direction="row"
+            spacing={1}
+            sx={{
+              width: "80%",
+              height: "100%",
+              overflow: "",
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 1,
+            }}
+          >
+            {data?.map((item, index) => {
+              const isEmpty = yearDataMap[item.year] // true if empty
+              return (
                 <Box
                   key={index}
                   size="small"
@@ -282,10 +283,26 @@ export default function YearTagList() {
                     </>
                   )}
                 </Box>
-              </>
-            )
-          })}
-        </Stack>
+              )
+            })}
+          </Stack>
+        ) : (
+          <Box
+            sx={{
+              width: "80%",
+              height: "auto",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              fontSize: 14,
+              fontWeight: 500,
+              color: "#555",
+            }}
+          >
+            Please add a session year to get started.
+          </Box>
+        )}
 
         {editClick ? (
           <Box

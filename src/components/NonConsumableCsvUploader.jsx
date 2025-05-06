@@ -1,7 +1,7 @@
-import React, { useRef, useState } from "react"
+import React, { useEffect, useRef, useState } from "react"
 import Papa from "papaparse"
 import axios from "axios"
-import { Box, Button, Typography } from "@mui/material"
+import { Autocomplete, Box, Button, TextField, Typography } from "@mui/material"
 import CloudUploadIcon from "@mui/icons-material/CloudUpload"
 import FileDownloadIcon from "@mui/icons-material/FileDownload"
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
@@ -9,6 +9,8 @@ import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
 const NonConsumableCsvUploader = () => {
   const [csvData, setCsvData] = useState([])
   const [isFileSelected, setIsFileSelected] = useState(false)
+  const [selectedYear, setSelectedYear] = useState("")
+  const [data, setData] = useState([])
 
   const fileInputRef = useRef(null)
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
@@ -121,6 +123,26 @@ const NonConsumableCsvUploader = () => {
     document.body.removeChild(link)
   }
 
+  const fetchData = async () => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await axios.get(`${baseURL}/year/yearFetch`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+
+      setData(response?.data?.years || [])
+    } catch (error) {
+      console.error("Error fetching year list:", error)
+      showErrorToast("Failed to fetch year list!")
+    }
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [])
+
   return (
     <Box sx={{ padding: 2 }}>
       <Typography
@@ -144,6 +166,20 @@ const NonConsumableCsvUploader = () => {
       </Typography>
 
       <Box mb={2} sx={{ display: "flex", justifyContent: "center", gap: 2 }}>
+        <Autocomplete
+          disablePortal
+          size="small"
+          options={data.map((item) => item?.year)}
+          value={selectedYear}
+          onChange={(event, newValue) => {
+            console.log("Selected Year:", newValue)
+            setSelectedYear(newValue)
+          }}
+          renderInput={(params) => (
+            <TextField {...params} label="Session Year" required />
+          )}
+          sx={{ width: 250 }}
+        />
         <Button
           variant="outlined"
           startIcon={<FileDownloadIcon />}
@@ -171,6 +207,7 @@ const NonConsumableCsvUploader = () => {
           }}
           onFocus={(e) => (e.target.style.borderColor = "#1976d2")}
           onBlur={(e) => (e.target.style.borderColor = "#ccc")}
+          disabled={!selectedYear}
         />
         <Button
           variant="contained"

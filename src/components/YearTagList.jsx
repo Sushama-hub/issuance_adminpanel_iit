@@ -133,6 +133,7 @@ export default function YearTagList() {
         fetchData()
         setNewYear("")
         setOpen(false)
+        window.location.reload()
       }
     } catch (error) {
       console.error("Error Submitting data:", error)

@@ -276,7 +276,7 @@ export default function MiniDrawer() {
                   mt: 0.1,
                 }}
               >
-                Indian Institute of Technology (IIT) Bhilai, Durg
+                Indian Institute of Technology (IIT) Bhilai, Durg C.G.
               </Typography>
             </Box>
           </Box>
@@ -286,7 +286,7 @@ export default function MiniDrawer() {
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              width: "15%",
+              width: "18%",
             }}
           >
             <Box

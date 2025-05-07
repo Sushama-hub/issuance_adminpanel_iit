@@ -219,6 +219,14 @@ export const NonConsumableColumns = [
     width: 55,
   },
   {
+    field: "actions",
+    headerName: "Actions",
+    flex: 0,
+    sortable: false,
+    filterable: false,
+    width: 80,
+  },
+  {
     field: "ledgerNo",
     headerName: "Ledger No",
     flex: 0,
@@ -418,6 +426,14 @@ export const AdminColumns = [
     editable: false,
     width: 100,
     // renderCell: (params) => <ToggleActiveCell params={params} />,
+  },
+  {
+    field: "actions",
+    headerName: "Actions",
+    flex: 0,
+    sortable: false,
+    filterable: false,
+    width: 70,
   },
   // {
   //   field: "createdAt",

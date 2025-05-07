@@ -10,24 +10,20 @@ import { useNavigate } from "react-router-dom"
 import { navigateToRoleBasedPath } from "../utils/roleNavigator"
 import { InventoryColumns } from "../config/tableConfig"
 import { showErrorToast, showSuccessToast } from "../utils/toastUtils"
+import { inventoryConfig } from "../config/inventoryConfig"
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([])
   const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [editRow, setEditRow] = useState(null)
-  const [editValues, setEditValues] = useState({
-    componentName: "",
-    specification: "",
-    quantity: "",
-  })
+  const [selectedEditRow, setSelectedEditRow] = useState(null)
 
   const navigate = useNavigate()
-  const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
   const fetchTableData = async () => {
     const token = localStorage.getItem("token")
     try {
-      const response = await axios.get(`${baseUrl}/inventory`, {
+      const response = await axios.get(`${baseURL}/inventory`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -59,12 +55,7 @@ export default function QuickFilteringGrid() {
 
   // Handle Edit (Open Dialog)
   const handleEdit = (row) => {
-    setEditRow(row)
-    setEditValues({
-      componentName: row.componentName,
-      specification: row.specification,
-      quantity: row.quantity,
-    })
+    setSelectedEditRow(row)
     setEditDialogOpen(true)
   }
 
@@ -75,7 +66,7 @@ export default function QuickFilteringGrid() {
 
     try {
       const token = localStorage.getItem("token")
-      const response = await axios.delete(`${baseUrl}/inventory/${id}`, {
+      const response = await axios.delete(`${baseURL}/inventory/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -90,6 +81,33 @@ export default function QuickFilteringGrid() {
     } catch (error) {
       console.error("Error deleting item", error)
       showErrorToast("Error deleting inventory item. Please try again!")
+    }
+  }
+
+  const handleDialogSubmit = async () => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await axios.put(
+        `${baseURL}/inventory/${selectedEditRow._id}`,
+        selectedEditRow,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
+      if (response?.data?.success) {
+        showSuccessToast(
+          response?.data?.message || "Inventory item updated successfully!"
+        )
+        setEditDialogOpen(false)
+        setSelectedEditRow(null)
+        fetchTableData() // Refresh Table data
+      }
+    } catch (error) {
+      console.error("Error updating item", error)
+      showErrorToast("Something went wrong while updating!")
     }
   }
 
@@ -196,11 +214,11 @@ export default function QuickFilteringGrid() {
       <DialogBox
         editDialogOpen={editDialogOpen}
         setEditDialogOpen={setEditDialogOpen}
-        editRow={editRow}
-        setEditRow={setEditRow}
-        editValues={editValues}
-        setEditValues={setEditValues}
-        fetchTableData={fetchTableData}
+        selectedEditRow={selectedEditRow}
+        setSelectedEditRow={setSelectedEditRow}
+        fields={inventoryConfig}
+        onSubmit={handleDialogSubmit}
+        heading="Edit Inventory Item"
       />
     </>
   )

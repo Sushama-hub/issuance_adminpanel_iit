@@ -3,18 +3,24 @@ import Box from "@mui/material/Box"
 import { DataGrid, GridToolbar } from "@mui/x-data-grid"
 import axios from "axios"
 import { useEffect, useState } from "react"
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
 import IconButton from "@mui/material/IconButton"
-import Menu from "@mui/material/Menu"
-import MenuItem from "@mui/material/MenuItem"
 import { Button, Typography } from "@mui/material"
 import { useLocation, useNavigate } from "react-router-dom"
 import { NonConsumableColumns } from "../config/tableConfig"
+import DeleteIcon from "@mui/icons-material/Delete"
+import EditIcon from "@mui/icons-material/Edit"
+import { showErrorToast, showSuccessToast } from "../utils/toastUtils"
+import DialogBox from "./DialogBox"
+import { nonConsumableConfig } from "../config/nonConsumableConfig"
+import { formatDateToDDMMYYYY } from "../utils/date"
 
 const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([])
+  const [editDialogOpen, setEditDialogOpen] = useState(false)
+  const [selectedEditRow, setSelectedEditRow] = useState(null)
+
   const location = useLocation()
   const navigate = useNavigate()
 
@@ -37,6 +43,7 @@ export default function QuickFilteringGrid() {
       const rowsWithId = response?.data?.data?.map((item, index) => ({
         ...item,
         id: index + 1,
+        finalSupplyDate: formatDateToDDMMYYYY(item.finalSupplyDate),
         createdAt: new Date(item.createdAt).toLocaleString(),
         // updatedAt: new Date(user.updatedAt).toLocaleString(),
       }))
@@ -60,113 +67,221 @@ export default function QuickFilteringGrid() {
       ? "/dashboard/master/non_consumable_form"
       : "/dashboard/admin/non_consumable_form"
 
-  return (
-    <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
-      {selectedYear ? (
-        <>
-          <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>
-            Non Consumable Stock Table{" "}
-            {selectedYear && (
-              <Typography
-                component="span"
-                variant="h5"
-                color="warning"
-                fontWeight="bold"
-              >
-                {selectedYear}
-              </Typography>
-            )}
-          </Typography>
+  const handleEdit = (row) => {
+    console.log("handle edit called", row)
+    setSelectedEditRow(row)
+    setEditDialogOpen(true)
+  }
 
-          {rows.length === 0 && (
-            <Box sx={{ display: "flex", gap: 1 }}>
-              <Typography variant="body1" color="text.secondary">
-                No data available for this financial year. Please first fill the
-                form for this year {selectedYear}. To view data, click the year
-                chip.
-              </Typography>
-              <Typography
-                component="a"
-                variant="body1"
-                color="primary.main"
-                fontWeight="bold"
+  // Handle Delete
+  const handleDelete = async (id) => {
+    const confirm = window.confirm(
+      "Are you sure you want to delete this stock?"
+    )
+    if (!confirm) return
+
+    console.log("delete id--", id)
+
+    // try {
+    //   const token = localStorage.getItem("token")
+    //   const response = await axios.delete(`${baseURL}/inventory/${id}`, {
+    //     headers: {
+    //       Authorization: `Bearer ${token}`,
+    //     },
+    //   })
+
+    //   if (response?.data?.success === true) {
+    //     showSuccessToast(response?.data?.message || "Deleted successfully")
+    //     setTimeout(() => {
+    //       fetchTableData()
+    //     }, 1500)
+    //   }
+    // } catch (error) {
+    //   console.error("Error deleting item", error)
+    //   showErrorToast("Error deleting inventory item. Please try again!")
+    // }
+  }
+
+  const handleDialogSubmit = async () => {
+    console.log("submit called")
+
+    // try {
+    //   const token = localStorage.getItem("token")
+    //   const response = await axios.put(
+    //     `${baseURL}/nonConsumableStock/${selectedEditRow._id}`,
+    //     selectedEditRow,
+    //     {
+    //       headers: {
+    //         Authorization: `Bearer ${token}`,
+    //       },
+    //     }
+    //   )
+
+    //   console.log("response dialog---", response?.data)
+
+    //   if (response?.data?.success) {
+    //     showSuccessToast(
+    //       response?.data?.message || "Item Updated successfully!"
+    //     )
+    //     setEditDialogOpen(false)
+    //     setSelectedEditRow(null)
+    //     fetchTableData(selectedYear) // Reload table with updated data
+    //   }
+    // } catch (error) {
+    //   console.error("Error updating item", error)
+    //   showErrorToast("Something went wrong while updating!")
+    // }
+  }
+
+  const user = JSON.parse(localStorage.getItem("user"))
+
+  return (
+    <>
+      <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
+        {selectedYear ? (
+          <>
+            <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>
+              Non Consumable Stock Table{" "}
+              {selectedYear && (
+                <Typography
+                  component="span"
+                  variant="h5"
+                  color="warning"
+                  fontWeight="bold"
+                >
+                  {selectedYear}
+                </Typography>
+              )}
+            </Typography>
+
+            {rows.length === 0 && (
+              <Box sx={{ display: "flex", gap: 1 }}>
+                <Typography variant="body1" color="text.secondary">
+                  No data available for this financial year. Please first fill
+                  the form for this year {selectedYear}. To view data, click the
+                  year chip.
+                </Typography>
+                <Typography
+                  component="a"
+                  variant="body1"
+                  color="primary.main"
+                  fontWeight="bold"
+                  sx={{
+                    cursor: "pointer",
+                    "&:hover": {
+                      textDecoration: "underline",
+                    },
+                  }}
+                  onClick={() => navigate(routeBase)}
+                >
+                  Add Data for This Year
+                </Typography>
+              </Box>
+            )}
+            <Box sx={{ width: "100%" }}>
+              <DataGrid
+                rows={rows}
+                // columns={NonConsumableColumns}
+                columns={NonConsumableColumns?.map((col) =>
+                  col.field === "actions"
+                    ? {
+                        ...col,
+                        renderCell: (params) => (
+                          <Box sx={{ display: "flex", gap: 1 }}>
+                            <IconButton
+                              color="primary"
+                              onClick={() => handleEdit(params.row)}
+                              size="small"
+                            >
+                              <EditIcon fontSize="small" />
+                            </IconButton>
+                            {user && user?.role === "master" && (
+                              <IconButton
+                                color="error"
+                                onClick={() => handleDelete(params.row._id)}
+                                size="small"
+                              >
+                                <DeleteIcon fontSize="small" />
+                              </IconButton>
+                            )}
+                          </Box>
+                        ),
+                      }
+                    : col
+                )}
+                disableColumnFilter
+                disableColumnSelector
+                disableDensitySelector
+                autoHeight
+                disableRowSelectionOnClick
+                disableColumnMenu
+                getRowHeight={() => "auto"}
                 sx={{
-                  cursor: "pointer",
-                  "&:hover": {
-                    textDecoration: "underline",
+                  "& .MuiDataGrid-cell:focus-within": {
+                    outline: "none",
                   },
                 }}
-                onClick={() => navigate(routeBase)}
-              >
-                Add Data for This Year
-              </Typography>
-            </Box>
-          )}
-          <Box sx={{ width: "100%" }}>
-            <DataGrid
-              rows={rows}
-              columns={NonConsumableColumns}
-              disableColumnFilter
-              disableColumnSelector
-              disableDensitySelector
-              autoHeight
-              disableRowSelectionOnClick
-              disableColumnMenu
-              getRowHeight={() => "auto"}
-              sx={{
-                "& .MuiDataGrid-cell:focus-within": {
-                  outline: "none",
-                },
-              }}
-              slots={{ toolbar: GridToolbar }}
-              slotProps={{
-                toolbar: {
-                  csvOptions: {
-                    disableToolbarButton: false,
-                    fileName: "Non Consumable Stock",
+                slots={{ toolbar: GridToolbar }}
+                slotProps={{
+                  toolbar: {
+                    csvOptions: {
+                      disableToolbarButton: false,
+                      fileName: "Non Consumable Stock",
+                    },
+                    printOptions: { disableToolbarButton: true },
+                    showQuickFilter: true,
+                    quickFilterProps: { debounceMs: 500 },
                   },
-                  printOptions: { disableToolbarButton: true },
-                  showQuickFilter: true,
-                  quickFilterProps: { debounceMs: 500 },
-                },
-              }}
-            />
-          </Box>
-        </>
-      ) : selectedYear === null ? (
-        <Box
-          sx={{
-            width: "100%",
-            minHeight: "83vh",
-            display: "flex",
-            flexDirection: "column",
-            justifyContent: "center",
-            alignItems: "center",
-            backgroundColor: "#f5f5f5",
-            textAlign: "center",
-            px: 2,
-          }}
-        >
-          <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>
-            No Year Selected
-          </Typography>
-          <Typography variant="body1" mb={3}>
-            Please select a year to view the Non Consumable Stock Table, or fill
-            the Non Consumable Form to add new data if needed.
-            {/* To view the Non Consumable Stock Table, please select a year.
-            Alternatively, you can fill the Non Consumable Form to add new data */}
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            onClick={() => navigate(routeBase)}
+                }}
+              />
+            </Box>
+          </>
+        ) : selectedYear === null ? (
+          <Box
+            sx={{
+              width: "100%",
+              minHeight: "83vh",
+              display: "flex",
+              flexDirection: "column",
+              justifyContent: "center",
+              alignItems: "center",
+              backgroundColor: "#f5f5f5",
+              textAlign: "center",
+              px: 2,
+            }}
           >
-            Go to Year Selection
-          </Button>
-        </Box>
-      ) : (
-        ""
-      )}
-    </Box>
+            <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>
+              No Year Selected
+            </Typography>
+            <Typography variant="body1" mb={3}>
+              Please select a year to view the Non Consumable Stock Table, or
+              fill the Non Consumable Form to add new data if needed.
+              {/* To view the Non Consumable Stock Table, please select a year.
+            Alternatively, you can fill the Non Consumable Form to add new data */}
+            </Typography>
+            <Button
+              variant="contained"
+              color="primary"
+              onClick={() => navigate(routeBase)}
+            >
+              Go to Year Selection
+            </Button>
+          </Box>
+        ) : (
+          ""
+        )}
+      </Box>
+
+      {/* Edit Dialog */}
+      <DialogBox
+        editDialogOpen={editDialogOpen}
+        setEditDialogOpen={setEditDialogOpen}
+        selectedEditRow={selectedEditRow}
+        setSelectedEditRow={setSelectedEditRow}
+        fields={nonConsumableConfig}
+        onSubmit={handleDialogSubmit}
+        heading="Edit Non Consumable Stock"
+      />
+    </>
   )
 }

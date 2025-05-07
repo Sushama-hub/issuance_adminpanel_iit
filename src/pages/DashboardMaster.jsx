@@ -80,7 +80,7 @@ export default function DashboardMaster() {
   const fetchPendingUsers = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await axios.get(`${baseURL}/admin/pending-approvals`, {
+      const response = await axios.get(`${baseURL}/master/pending-approvals`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

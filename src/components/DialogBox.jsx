@@ -1,5 +1,4 @@
 import * as React from "react"
-import axios from "axios"
 import {
   Dialog,
   DialogTitle,
@@ -8,118 +7,89 @@ import {
   DialogActions,
   Button,
 } from "@mui/material"
-import { useState } from "react"
-import {
-  showSuccessToast,
-  showErrorToast,
-  showInfoToast,
-} from "../utils/toastUtils"
+import { useState, useEffect } from "react"
+import { showInfoToast } from "../utils/toastUtils"
+import { formatDateToYYYYMMDD } from "../utils/date"
 
 export default function DialogBox({
   editDialogOpen,
   setEditDialogOpen,
-  editRow,
-  setEditRow,
-  editValues,
-  setEditValues,
-  fetchTableData,
+  selectedEditRow,
+  setSelectedEditRow,
+  fields,
+  onSubmit,
+  heading,
+  editValues, //editValues redundant
+  setEditValues, //setEditValues redundant
 }) {
   const [errors, setErrors] = useState({})
+  const [formData, setFormData] = useState(selectedEditRow || {})
+  const [isFormValid, setIsFormValid] = useState(false)
 
-  const baseUrl = import.meta.env.VITE_BACKEND_BASE_URL
-
-  //  Validate Single Field
-  const validateField = (name, value) => {
-    let error = ""
-
-    switch (name) {
-      case "componentName":
-        if (!value || value.trim() === "") {
-          error = "Component Name is required"
-        }
-        break
-
-      case "specification":
-        if (!value || value.trim() === "") {
-          error = "Specification is required"
-        }
-        break
-
-      case "quantity":
-        if (value === "" || value === null || Number(value) <= 0) {
-          error = "Quantity must be greater than zero"
-        }
-        break
-
-      default:
-        break
+  // Update formData when selectedEditRow changes
+  useEffect(() => {
+    if (selectedEditRow) {
+      setFormData(selectedEditRow)
     }
+  }, [selectedEditRow])
 
-    setErrors((prevErrors) => ({
-      ...prevErrors,
-      [name]: error,
-    }))
+  // Validate form data
+  const validateForm = (data) => {
+    const newErrors = {}
+    let isValid = true
+
+    fields.forEach((field) => {
+      const value = data[field.name]
+
+      // Check if field is empty
+      if (!value || value.toString().trim() === "") {
+        newErrors[field.name] = `${field.label} is required`
+        isValid = false
+      }
+
+      // Additional validation for quantity field if it exists
+      if (
+        field.name === "quantity" ||
+        field.name === "groundBalance" ||
+        field.name === "ledgerBalance"
+      ) {
+        const numValue = Number(value)
+        if (isNaN(numValue) || numValue <= 0) {
+          newErrors[field.name] = "Field must be greater than 0"
+          isValid = false
+        }
+      }
+    })
+
+    setErrors(newErrors)
+    return isValid
   }
 
-  //   Handle Input Change in Edit Dialog
   const handleInputChange = (e) => {
     const { name, value } = e.target
-    setEditValues((prev) => ({
-      ...prev,
-      [name]: value,
-    }))
+    const newFormData = { ...formData, [name]: value }
 
-    // Real-time validation as user types
-    validateField(name, value)
+    setFormData(newFormData)
+    setSelectedEditRow(newFormData)
+
+    // Validate form after each change
+    const isValid = validateForm(newFormData)
+    setIsFormValid(isValid)
   }
 
-  // Handle Edit Form Submit
   const handleEditSubmit = async () => {
-    try {
-      const token = localStorage.getItem("token")
-      const response = await axios.put(
-        `${baseUrl}/inventory/${editRow._id}`,
-        editValues,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-
-      if (response?.data?.success === true) {
-        showSuccessToast("Inventory item updated successfully!")
-        setEditDialogOpen(false)
-        setEditRow(null)
-        fetchTableData()
-      }
-    } catch (error) {
-      console.error("Error updating item", error)
-      showErrorToast("Something went wrong while updating!")
+    if (isFormValid) {
+      await onSubmit()
     }
-  }
-
-  const isDisabledButton = () => {
-    const { componentName, specification, quantity } = editValues
-    // Basic validations
-    if (
-      !componentName ||
-      componentName.trim() === "" ||
-      !specification ||
-      specification.trim() === "" ||
-      quantity === "" ||
-      quantity === null ||
-      Number(quantity) <= 0
-    ) {
-      return true // Disable button
-    }
-
-    return false // Enable button
   }
 
   const handleCancel = () => {
     setEditDialogOpen(false)
     showInfoToast("Edit cancelled")
+    setSelectedEditRow(null)
+    setFormData({})
+    setErrors({})
+    setIsFormValid(false)
   }
 
   return (
@@ -131,52 +101,47 @@ export default function DialogBox({
         maxWidth="sm"
       >
         <DialogTitle color="primary" fontWeight="bold" fontSize={20}>
-          Edit Inventory Item
+          {heading}
         </DialogTitle>
         <DialogContent>
-          {[
-            {
-              id: "componentName",
-              label: "Component Name",
-              name: "componentName",
-            },
-            {
-              id: "specification",
-              label: "Specification",
-              name: "specification",
-            },
-            {
-              id: "quantity",
-              label: "quantity",
-              name: "quantity",
-              type: "number",
-            },
-          ].map(({ id, label, name, type }, index) => (
+          {fields.map((field, index) => (
             <TextField
               key={index}
-              id={id}
-              label={label}
-              name={name}
-              type={type || "text"}
-              value={editValues[name]}
+              // id={id}
+              label={field.label}
+              name={field.name}
+              type={field.type || "text"}
+              // value={editValues[name]}
+              // value={selectedEditRow?.[field.name] || ""}
+              // value={
+              //   field.type === "date"
+              //     ? formatDateToYYYYMMDD(selectedEditRow?.[field.name])
+              //     : selectedEditRow?.[field.name] || ""
+              // }
+              value={
+                field.type === "date"
+                  ? formatDateToYYYYMMDD(formData?.[field.name])
+                  : formData?.[field.name] || ""
+              }
               onChange={handleInputChange}
               fullWidth
               variant="outlined"
-              autoFocus
+              // autoFocus
+              autoFocus={index === 0}
               required
               margin="dense"
-              error={Boolean(errors[name])} // specific error for each input
-              helperText={errors[name]} // specific helper text for each input
+              error={Boolean(errors[field.name])} // specific error for each input
+              helperText={errors[field.name]} // specific helper text for each input
             />
           ))}
         </DialogContent>
         <DialogActions>
-          {/* <Button onClick={() => setEditDialogOpen(false)}>Cancel</Button> */}
           <Button onClick={handleCancel}>Cancel</Button>
           <Button
             variant="contained"
             onClick={handleEditSubmit}
-            disabled={isDisabledButton()}
+            // disabled={isDisabledButton()}
+            disabled={!isFormValid}
           >
             Save
           </Button>

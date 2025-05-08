@@ -36,7 +36,7 @@ const NonConsumableCsvUploader = () => {
     try {
       const response = await axios.post(
         `${baseURL}/nonConsumableStock/upload-csv`,
-        { csvData },
+        { csvData, selectedYear },
         {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
@@ -49,6 +49,7 @@ const NonConsumableCsvUploader = () => {
         )
 
         setCsvData([])
+        setSelectedYear("")
         setIsFileSelected(false)
         if (fileInputRef.current) {
           fileInputRef.current.value = null // clear file input
@@ -126,11 +127,15 @@ const NonConsumableCsvUploader = () => {
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("token")
-      const response = await axios.get(`${baseURL}/year/yearFetch`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      // `${baseURL}/year/yearFetch`,
+      const response = await axios.get(
+        `${baseURL}/nonConsumableStock/getAllFinancialYears`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
 
       setData(response?.data?.years || [])
     } catch (error) {
@@ -179,6 +184,7 @@ const NonConsumableCsvUploader = () => {
             <TextField {...params} label="Session Year" required />
           )}
           sx={{ width: 250 }}
+          disabled={data.length === 0}
         />
         <Button
           variant="outlined"

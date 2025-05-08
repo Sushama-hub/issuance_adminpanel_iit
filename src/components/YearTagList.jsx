@@ -12,7 +12,11 @@ import { useState, useEffect } from "react"
 import AddIcon from "@mui/icons-material/Add"
 import { useNavigate } from "react-router-dom"
 import { Delete, DeleteTwoTone, Edit } from "@mui/icons-material"
-import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
+import {
+  showSuccessToast,
+  showErrorToast,
+  showWarningToast,
+} from "../utils/toastUtils"
 
 export default function YearTagList() {
   const [data, setData] = useState([])
@@ -32,20 +36,22 @@ export default function YearTagList() {
   const fetchData = async () => {
     try {
       const token = localStorage.getItem("token")
-      // `${baseURL}/nonConsumableStock/getAllFinancialYears`,
-      const response = await axios.get(`${baseURL}/year/yearFetch`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      // setData(response?.data?.data)
+      // `${baseURL}/year/yearFetch`,
+      const response = await axios.get(
+        `${baseURL}/nonConsumableStock/getAllFinancialYears`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
+
       setData(response?.data?.years)
-      response?.data?.years?.forEach((item) => {
+      response?.data?.years?.map((item) => {
         fetchTableData(item?.year)
       })
     } catch (error) {
       console.error("Error fetching year list:", error)
-      showErrorToast("Failed to fetch year list!")
     }
   }
 
@@ -110,7 +116,7 @@ export default function YearTagList() {
     // setOpen(false)
 
     if (alreadyExists) {
-      showErrorToast("Year already exists!")
+      showWarningToast("Year already exists!")
       return
     }
 
@@ -373,7 +379,7 @@ export default function YearTagList() {
                   size="small"
                   label="Add Year"
                   value={newYear}
-                  onChange={(e) => setNewYear(e.target.value)}
+                  onChange={(e) => setNewYear(e.target.value.trim())}
                   placeholder="eg:- 2024-2025"
                   sx={{
                     width: "80%",

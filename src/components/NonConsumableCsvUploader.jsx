@@ -54,6 +54,7 @@ const NonConsumableCsvUploader = () => {
         if (fileInputRef.current) {
           fileInputRef.current.value = null // clear file input
         }
+        window.location.reload()
       }
     } catch (error) {
       console.error("Error uploading data:", error)

@@ -20,6 +20,7 @@ export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([])
   const [editDialogOpen, setEditDialogOpen] = useState(false)
   const [selectedEditRow, setSelectedEditRow] = useState(null)
+  const [stockId, setStockId] = useState("")
 
   const location = useLocation()
   const navigate = useNavigate()
@@ -40,7 +41,7 @@ export default function QuickFilteringGrid() {
         }
       )
 
-      const rowsWithId = response?.data?.data?.map((item, index) => ({
+      const rowsWithId = response?.data?.yearData?.data?.map((item, index) => ({
         ...item,
         id: index + 1,
         finalSupplyDate: formatDateToDDMMYYYY(item.finalSupplyDate),
@@ -48,7 +49,8 @@ export default function QuickFilteringGrid() {
         // updatedAt: new Date(user.updatedAt).toLocaleString(),
       }))
 
-      setRows(rowsWithId)
+      setRows(rowsWithId || [])
+      setStockId(response?.data?.yearData?._id)
     } catch (error) {
       console.log("Error fetching data", error)
     }
@@ -74,32 +76,33 @@ export default function QuickFilteringGrid() {
   }
 
   // Handle Delete
-  const handleDelete = async (id) => {
+  const handleDelete = async (rowId, stockId) => {
     const confirm = window.confirm(
       "Are you sure you want to delete this stock?"
     )
     if (!confirm) return
 
-    console.log("delete id--", id)
+    console.log("delete id--", rowId, stockId)
 
-    // try {
-    //   const token = localStorage.getItem("token")
-    //   const response = await axios.delete(`${baseURL}/inventory/${id}`, {
-    //     headers: {
-    //       Authorization: `Bearer ${token}`,
-    //     },
-    //   })
+    try {
+      const token = localStorage.getItem("token")
+      const response = await axios.delete(
+        `${baseURL}/nonConsumableStock/deleteYearData/${stockId}/${rowId}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
 
-    //   if (response?.data?.success === true) {
-    //     showSuccessToast(response?.data?.message || "Deleted successfully")
-    //     setTimeout(() => {
-    //       fetchTableData()
-    //     }, 1500)
-    //   }
-    // } catch (error) {
-    //   console.error("Error deleting item", error)
-    //   showErrorToast("Error deleting inventory item. Please try again!")
-    // }
+      if (response?.data?.success) {
+        showSuccessToast(response?.data?.message || "Deleted successfully")
+        fetchTableData(selectedYear)
+      }
+    } catch (error) {
+      console.error("Error deleting item", error)
+      showErrorToast("Error deleting inventory item. Please try again!")
+    }
   }
 
   const handleDialogSubmit = async () => {
@@ -198,7 +201,9 @@ export default function QuickFilteringGrid() {
                             {user && user?.role === "master" && (
                               <IconButton
                                 color="error"
-                                onClick={() => handleDelete(params.row._id)}
+                                onClick={() =>
+                                  handleDelete(params.row._id, stockId)
+                                }
                                 size="small"
                               >
                                 <DeleteIcon fontSize="small" />

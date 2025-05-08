@@ -67,7 +67,8 @@ export default function YearTagList() {
           },
         }
       )
-      const hasData = response?.data?.data?.length > 0
+      // const hasData = response?.data?.data?.length > 0
+      const hasData = response?.data?.yearData?.data?.length > 0
 
       // store this info to track whether a year has data or not
       setYearDataMap((prev) => ({ ...prev, [year]: !hasData }))

@@ -145,6 +145,16 @@ export default function QuickFilteringGrid() {
                   }
                 : col
             )}
+            pageSizeOptions={[10, 25, 50, 100]} // Optional: dropdown options
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 10,
+                  page: 0,
+                },
+              },
+            }}
+            pagination
             disableColumnFilter
             disableColumnSelector
             disableDensitySelector
@@ -152,11 +162,12 @@ export default function QuickFilteringGrid() {
             disableRowSelectionOnClick
             disableColumnMenu
             getRowHeight={() => "auto"}
-            sx={{
-              "& .MuiDataGrid-cell:focus-within": {
-                outline: "none",
-              },
-            }}
+            // sx={{
+            //   "& .MuiDataGrid-cell:focus-within": {
+            //     outline: "none",
+            //   },
+            // }}
+            sx={dataGridStyles}
             slots={{ toolbar: GridToolbar }}
             slotProps={{
               toolbar: {
@@ -174,4 +185,33 @@ export default function QuickFilteringGrid() {
       </Box>
     </>
   )
+}
+
+const dataGridStyles = {
+  "& .MuiDataGrid-columnHeaderTitle": {
+    textOverflow: "clip",
+    whiteSpace: "break-spaces",
+    lineHeight: 1.15,
+  },
+  "& .MuiDataGrid-row": {
+    minHeight: "30px !important",
+  },
+  "& .MuiDataGrid-columnHeader:focus, .MuiDataGrid-cell:focus": {
+    outline: "none",
+  },
+  "& .MuiDataGrid-cell:focus": {
+    outline: "none",
+  },
+  "& .MuiDataGrid-cell:focus-within": {
+    outline: "none",
+  },
+  "& .MuiDataGrid-main": {
+    overflow: "unset",
+  },
+  "& .MuiDataGrid-columnHeaders": {
+    position: "sticky",
+    top: 63,
+    backgroundColor: "red",
+    zIndex: 1,
+  },
 }

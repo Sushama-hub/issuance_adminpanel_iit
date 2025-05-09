@@ -1,47 +1,14 @@
 import * as React from "react"
-import Box from "@mui/material/Box"
 import { DataGrid, GridToolbar } from "@mui/x-data-grid"
 import axios from "axios"
-import { useEffect, useState } from "react"
-import { Typography, Switch, IconButton } from "@mui/material"
+import { Box, Typography, Switch, IconButton } from "@mui/material"
 import { AdminColumns } from "../config/tableConfig"
 import DeleteIcon from "@mui/icons-material/Delete"
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
 
 const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
-export default function QuickFilteringGrid() {
-  const [rows, setRows] = useState([])
-
-  const fetchTableData = async () => {
-    try {
-      const token = localStorage.getItem("token")
-      const response = await axios.get(`${baseURL}/master/allAdmins`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      const rowsWithId = response?.data?.users
-        ?.map((user, index) => ({
-          ...user,
-          id: index + 1,
-          // createdAt: new Date(user.createdAt).toLocaleString(),
-          updatedAt: new Date(user.updatedAt).toLocaleString(),
-          updatedAtRaw: new Date(user.updatedAt), // raw date for sorting
-        }))
-        .sort((a, b) => b.updatedAtRaw - a.updatedAtRaw) // sort latest first
-
-      setRows(rowsWithId)
-    } catch (error) {
-      console.log("Error fetching data", error)
-    }
-  }
-
-  useEffect(() => {
-    fetchTableData()
-  }, [])
-
+export default function QuickFilteringGrid({ rows, fetchTableData }) {
   // Toggle active status component (inline)
   const ToggleActiveCell = ({ params }) => {
     const handleToggle = async (event) => {

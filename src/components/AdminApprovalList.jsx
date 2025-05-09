@@ -1,28 +1,18 @@
+import React from "react"
 import { Box, Button, Card, CardContent, Typography } from "@mui/material"
 import axios from "axios"
-import React, { useEffect, useState } from "react"
 import { showErrorToast, showSuccessToast } from "../utils/toastUtils"
 
-export default function AdminApproval() {
-  const [users, setUsers] = useState([])
+export default function AdminApprovalList({
+  users,
+  fetchUsers,
+  fetchTableData,
+}) {
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
   const token = localStorage.getItem("token")
 
-  const fetchUsers = async () => {
-    try {
-      const response = await axios.get(`${baseURL}/master/pending-approvals`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      setUsers(response?.data?.users || [])
-    } catch (error) {
-      console.error("Error fetching users:", error)
-    }
-  }
-
   const handleApproveUser = async (userId) => {
-    // console.log("handleApproveUser called", userId)
+    // console.log("handle ApproveUser called", userId)
     const confirm = window.confirm(
       "Are you sure you want to approve this user as admin?"
     )
@@ -42,9 +32,8 @@ export default function AdminApproval() {
         showSuccessToast(
           response?.data?.message || "User successfully approved as admin!"
         )
-        setTimeout(() => {
-          window.location.reload()
-        }, 1500)
+
+        fetchTableData()
       }
     } catch (error) {
       console.error("Error approving user:", error)
@@ -53,7 +42,7 @@ export default function AdminApproval() {
   }
 
   const handleRemoveUser = async (userId) => {
-    // console.log("handleApproveUser called", userId)
+    // console.log("handle Removed called", userId)
     const confirm = window.confirm("Are you sure, Do You Want To Denied User?")
     if (!confirm) return
     try {
@@ -77,10 +66,6 @@ export default function AdminApproval() {
       showErrorToast(`Failed to delete User. Please try again.`)
     }
   }
-
-  useEffect(() => {
-    fetchUsers()
-  }, [])
 
   return (
     <>

@@ -448,3 +448,48 @@ export const AdminColumns = [
     editable: false,
   },
 ]
+
+export const ReIssueLogColumns = [
+  {
+    field: "id",
+    headerName: "SNo.",
+    editable: false,
+    width: 55,
+  },
+  { field: "name", headerName: "Name", flex: 0, editable: false, width: 150 },
+  {
+    field: "email",
+    headerName: "Email",
+    flex: 0,
+    editable: false,
+    width: 200,
+  },
+  { field: "role", headerName: "Role", flex: 0, editable: false, width: 100 },
+  {
+    field: "current-status",
+    headerName: "Current Status",
+    flex: 0,
+    editable: false,
+    width: 150,
+  },
+  {
+    field: "updated-status",
+    headerName: "Updated Status",
+    flex: 0,
+    sortable: false,
+    filterable: false,
+    width: 150,
+  },
+  {
+    field: "createdAt",
+    headerName: "Created At",
+    flex: 1,
+    editable: false,
+  },
+  {
+    field: "updatedAt",
+    headerName: "Updated At",
+    flex: 1,
+    editable: false,
+  },
+]

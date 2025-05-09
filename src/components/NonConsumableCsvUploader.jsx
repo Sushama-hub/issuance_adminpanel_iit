@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react"
+import React, { useRef, useState } from "react"
 import Papa from "papaparse"
 import axios from "axios"
 import { Autocomplete, Box, Button, TextField, Typography } from "@mui/material"
@@ -6,11 +6,10 @@ import CloudUploadIcon from "@mui/icons-material/CloudUpload"
 import FileDownloadIcon from "@mui/icons-material/FileDownload"
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
 
-const NonConsumableCsvUploader = () => {
+const NonConsumableCsvUploader = ({ yearData, fetchYearData }) => {
   const [csvData, setCsvData] = useState([])
   const [isFileSelected, setIsFileSelected] = useState(false)
   const [selectedYear, setSelectedYear] = useState("")
-  const [data, setData] = useState([])
 
   const fileInputRef = useRef(null)
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
@@ -48,13 +47,13 @@ const NonConsumableCsvUploader = () => {
           response?.data?.message || "Data uploaded successfully!"
         )
 
+        fetchYearData()
         setCsvData([])
         setSelectedYear("")
         setIsFileSelected(false)
         if (fileInputRef.current) {
           fileInputRef.current.value = null // clear file input
         }
-        window.location.reload()
       }
     } catch (error) {
       console.error("Error uploading data:", error)
@@ -125,30 +124,6 @@ const NonConsumableCsvUploader = () => {
     document.body.removeChild(link)
   }
 
-  const fetchData = async () => {
-    try {
-      const token = localStorage.getItem("token")
-      // `${baseURL}/year/yearFetch`,
-      const response = await axios.get(
-        `${baseURL}/nonConsumableStock/getAllFinancialYears`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-
-      setData(response?.data?.years || [])
-    } catch (error) {
-      console.error("Error fetching year list:", error)
-      showErrorToast("Failed to fetch year list!")
-    }
-  }
-
-  useEffect(() => {
-    fetchData()
-  }, [])
-
   return (
     <Box sx={{ padding: 2 }}>
       <Typography
@@ -175,17 +150,17 @@ const NonConsumableCsvUploader = () => {
         <Autocomplete
           disablePortal
           size="small"
-          options={data.map((item) => item?.year)}
+          options={yearData.map((item) => item?.year)}
           value={selectedYear}
           onChange={(event, newValue) => {
             console.log("Selected Year:", newValue)
             setSelectedYear(newValue)
           }}
           renderInput={(params) => (
-            <TextField {...params} label="Session Year" required />
+            <TextField {...params} label="Add Year Data" required />
           )}
           sx={{ width: 250 }}
-          disabled={data.length === 0}
+          disabled={yearData.length === 0}
         />
         <Button
           variant="outlined"

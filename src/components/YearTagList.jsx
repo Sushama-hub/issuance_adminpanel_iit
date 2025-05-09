@@ -1,4 +1,4 @@
-import * as React from "react"
+import React, { useState } from "react"
 import {
   Box,
   Button,
@@ -8,7 +8,6 @@ import {
   Typography,
 } from "@mui/material"
 import axios from "axios"
-import { useState, useEffect } from "react"
 import AddIcon from "@mui/icons-material/Add"
 import { useNavigate } from "react-router-dom"
 import { Delete, DeleteTwoTone, Edit } from "@mui/icons-material"
@@ -18,11 +17,9 @@ import {
   showWarningToast,
 } from "../utils/toastUtils"
 
-export default function YearTagList() {
-  const [data, setData] = useState([])
+export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
   const [open, setOpen] = useState(false)
   const [newYear, setNewYear] = useState("")
-  const [yearDataMap, setYearDataMap] = useState({})
   const [editClick, setEditClick] = useState(false)
   const [editableYear, setEditableYear] = useState({
     id: "",
@@ -32,51 +29,6 @@ export default function YearTagList() {
   const navigate = useNavigate()
 
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
-
-  const fetchData = async () => {
-    try {
-      const token = localStorage.getItem("token")
-      // `${baseURL}/year/yearFetch`,
-      const response = await axios.get(
-        `${baseURL}/nonConsumableStock/getAllFinancialYears`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-
-      setData(response?.data?.years)
-      response?.data?.years?.map((item) => {
-        fetchTableData(item?.year)
-      })
-    } catch (error) {
-      console.error("Error fetching year list:", error)
-    }
-  }
-
-  const fetchTableData = async (year) => {
-    if (!year) return
-    try {
-      const token = localStorage.getItem("token")
-      const response = await axios.get(
-        `${baseURL}/nonConsumableStock/nonConsumableStockFilter/${year}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
-      // const hasData = response?.data?.data?.length > 0
-      const hasData = response?.data?.yearData?.data?.length > 0
-
-      // store this info to track whether a year has data or not
-      setYearDataMap((prev) => ({ ...prev, [year]: !hasData }))
-    } catch (error) {
-      console.error("Error fetching table data", error)
-      showErrorToast(`Failed to fetch data for year: ${year}`)
-    }
-  }
 
   const handleClick = (year) => {
     // console.info("You clicked the Chip.", year)
@@ -94,7 +46,7 @@ export default function YearTagList() {
 
   const handleSubmitYear = async () => {
     // Check if the year already exists in the array of objects
-    const alreadyExists = data?.some((item) => item?.year === newYear)
+    const alreadyExists = yearData?.some((item) => item?.year === newYear)
 
     // //---------------- 1.---------Add to local data as manually
     // if (newYear && !alreadyExists) {
@@ -137,10 +89,9 @@ export default function YearTagList() {
         showSuccessToast(
           response?.data?.message || "Session year added successfully!"
         )
-        fetchData()
+        fetchYearData()
         setNewYear("")
         setOpen(false)
-        window.location.reload()
       }
     } catch (error) {
       console.error("Error Submitting data:", error)
@@ -166,7 +117,7 @@ export default function YearTagList() {
         showSuccessToast(
           response?.data?.message || "Year Deleted successfully!"
         )
-        fetchData()
+        fetchYearData()
       }
     } catch (error) {
       console.error("Error deleting data:", error)
@@ -205,7 +156,7 @@ export default function YearTagList() {
           response?.data?.message || "Year updated successfully!"
         )
         setEditClick(false)
-        fetchData()
+        fetchYearData()
         setEditableYear({ id: "", year: "" })
       }
     } catch (error) {
@@ -213,10 +164,6 @@ export default function YearTagList() {
       showErrorToast(`Failed to update year ${editableYear}. Please try again.`)
     }
   }
-
-  useEffect(() => {
-    fetchData()
-  }, [])
 
   return (
     <>
@@ -241,7 +188,7 @@ export default function YearTagList() {
           boxShadow: "0 4px 10px rgba(0, 0, 0, 0.1)",
         }}
       >
-        {data?.length > 0 ? (
+        {yearData?.length > 0 ? (
           <Stack
             direction="row"
             spacing={1}
@@ -254,7 +201,7 @@ export default function YearTagList() {
               gap: 1,
             }}
           >
-            {data?.map((item, index) => {
+            {yearData?.map((item, index) => {
               const isEmpty = yearDataMap[item.year] // true if empty
               return (
                 <Box

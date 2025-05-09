@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from "react-router-dom"
 import { NonConsumableColumns } from "../config/tableConfig"
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
+import AddIcon from "@mui/icons-material/Add"
 import { showErrorToast, showSuccessToast } from "../utils/toastUtils"
 import EditDialogBox from "./dialog/EditDialogBox"
 import { nonConsumableConfig } from "../config/nonConsumableConfig"
@@ -42,8 +43,6 @@ export default function QuickFilteringGrid() {
         ...item,
         id: index + 1,
         finalSupplyDate: formatDateToDDMMYYYY(item.finalSupplyDate),
-        createdAt: new Date(item.createdAt).toLocaleString(),
-        // updatedAt: new Date(user.updatedAt).toLocaleString(),
       }))
 
       setRows(rowsWithId || [])
@@ -67,7 +66,7 @@ export default function QuickFilteringGrid() {
       : "/dashboard/admin/non_consumable_form"
 
   const handleEdit = (row) => {
-    console.log("handle edit called", row)
+    // console.log("handle edit called", row)
     setSelectedEditRow(row)
     setEditDialogOpen(true)
   }
@@ -79,12 +78,10 @@ export default function QuickFilteringGrid() {
     )
     if (!confirm) return
 
-    console.log("delete id--", rowId, stockId)
-
     try {
       const token = localStorage.getItem("token")
       const response = await axios.delete(
-        `${baseURL}/nonConsumableStock/deleteYearData/${stockId}/${rowId}`,
+        `${baseURL}/nonConsumableStock/deleteStockData/${stockId}/${rowId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -103,34 +100,30 @@ export default function QuickFilteringGrid() {
   }
 
   const handleDialogSubmit = async () => {
-    console.log("submit called")
+    try {
+      const token = localStorage.getItem("token")
+      const response = await axios.put(
+        `${baseURL}/nonConsumableStock/editStockData/${stockId}/${selectedEditRow?._id}`,
+        selectedEditRow,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
 
-    // try {
-    //   const token = localStorage.getItem("token")
-    //   const response = await axios.put(
-    //     `${baseURL}/nonConsumableStock/${selectedEditRow._id}`,
-    //     selectedEditRow,
-    //     {
-    //       headers: {
-    //         Authorization: `Bearer ${token}`,
-    //       },
-    //     }
-    //   )
-
-    //   console.log("response dialog---", response?.data)
-
-    //   if (response?.data?.success) {
-    //     showSuccessToast(
-    //       response?.data?.message || "Item Updated successfully!"
-    //     )
-    //     setEditDialogOpen(false)
-    //     setSelectedEditRow(null)
-    //     fetchTableData(selectedYear) // Reload table with updated data
-    //   }
-    // } catch (error) {
-    //   console.error("Error updating item", error)
-    //   showErrorToast("Something went wrong while updating!")
-    // }
+      if (response?.data?.success) {
+        showSuccessToast(
+          response?.data?.message || "Item Updated successfully!"
+        )
+        setEditDialogOpen(false)
+        setSelectedEditRow(null)
+        fetchTableData(selectedYear) // Reload table with updated data
+      }
+    } catch (error) {
+      console.error("Error updating item", error)
+      showErrorToast("Something went wrong while updating!")
+    }
   }
 
   const user = JSON.parse(localStorage.getItem("user"))
@@ -140,19 +133,32 @@ export default function QuickFilteringGrid() {
       <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
         {selectedYear ? (
           <>
-            <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>
-              Non Consumable Stock Table{" "}
-              {selectedYear && (
-                <Typography
-                  component="span"
-                  variant="h5"
-                  color="warning"
-                  fontWeight="bold"
-                >
-                  {selectedYear}
-                </Typography>
-              )}
-            </Typography>
+            <Box
+              sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}
+            >
+              <Typography variant="h5" color="primary" fontWeight="bold">
+                Non Consumable Stock Table{" "}
+                {selectedYear && (
+                  <Typography
+                    component="span"
+                    variant="h5"
+                    color="warning"
+                    fontWeight="bold"
+                  >
+                    {selectedYear}
+                  </Typography>
+                )}
+              </Typography>
+              <Button
+                variant="outlined"
+                onClick={() => navigate(routeBase)}
+                size="small"
+                startIcon={<AddIcon />}
+                sx={{ fontWeight: "bold", border: "2px solid" }}
+              >
+                Add New Year Data
+              </Button>
+            </Box>
 
             {rows.length === 0 && (
               <Box sx={{ display: "flex", gap: 1 }}>

@@ -108,7 +108,7 @@ const StatusPieChart = ({ graphData }) => {
   return (
     <Box sx={{ width: "100%", height: 330, p: 3 }}>
       <Typography variant="h6" gutterBottom>
-        Status Distribution
+        Overall Status Distribution
       </Typography>
       <Box sx={{ width: "100%", height: 300 }}>
         {data[0].value > 0 ? (

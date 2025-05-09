@@ -380,13 +380,6 @@ export const NonConsumableColumns = [
     editable: false,
     width: 170,
   },
-  {
-    field: "createdAt",
-    headerName: "Created At",
-    flex: 0,
-    editable: false,
-    width: 120,
-  },
 ]
 
 export const AdminColumns = [

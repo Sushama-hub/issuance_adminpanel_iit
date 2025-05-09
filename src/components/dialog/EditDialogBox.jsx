@@ -8,10 +8,10 @@ import {
   Button,
 } from "@mui/material"
 import { useState, useEffect } from "react"
-import { showInfoToast } from "../utils/toastUtils"
-import { formatDateToYYYYMMDD } from "../utils/date"
+import { showInfoToast } from "../../utils/toastUtils"
+import { formatDateToYYYYMMDD } from "../../utils/date"
 
-export default function DialogBox({
+export default function EditDialogBox({
   editDialogOpen,
   setEditDialogOpen,
   selectedEditRow,

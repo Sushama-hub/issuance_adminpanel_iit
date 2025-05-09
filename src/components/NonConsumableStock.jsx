@@ -10,7 +10,7 @@ import { NonConsumableColumns } from "../config/tableConfig"
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
 import { showErrorToast, showSuccessToast } from "../utils/toastUtils"
-import DialogBox from "./DialogBox"
+import EditDialogBox from "./dialog/EditDialogBox"
 import { nonConsumableConfig } from "../config/nonConsumableConfig"
 import { formatDateToDDMMYYYY } from "../utils/date"
 
@@ -278,7 +278,7 @@ export default function QuickFilteringGrid() {
       </Box>
 
       {/* Edit Dialog */}
-      <DialogBox
+      <EditDialogBox
         editDialogOpen={editDialogOpen}
         setEditDialogOpen={setEditDialogOpen}
         selectedEditRow={selectedEditRow}

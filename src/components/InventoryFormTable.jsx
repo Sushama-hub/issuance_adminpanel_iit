@@ -5,7 +5,7 @@ import { useEffect, useState } from "react"
 import { Box, Typography, IconButton, Button } from "@mui/material"
 import DeleteIcon from "@mui/icons-material/Delete"
 import EditIcon from "@mui/icons-material/Edit"
-import DialogBox from "./DialogBox"
+import EditDialogBox from "./dialog/EditDialogBox"
 import { useNavigate } from "react-router-dom"
 import { navigateToRoleBasedPath } from "../utils/roleNavigator"
 import { InventoryColumns } from "../config/tableConfig"
@@ -211,7 +211,7 @@ export default function QuickFilteringGrid() {
       </Box>
 
       {/* Edit Dialog */}
-      <DialogBox
+      <EditDialogBox
         editDialogOpen={editDialogOpen}
         setEditDialogOpen={setEditDialogOpen}
         selectedEditRow={selectedEditRow}

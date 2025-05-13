@@ -126,7 +126,8 @@ const MonthWiseBarChart = ({ graphData }) => {
   const data = processData()
 
   return (
-    <Box sx={{ width: "100%", height: 325, padding: 3 }}>
+    <Box sx={{ width: "100%", height: "100%", p: 3 }}>
+      {/* <Box sx={{ width: "100%", height: 325, padding: 3 }}> */}
       <Box
         sx={{
           display: "flex",
@@ -135,7 +136,9 @@ const MonthWiseBarChart = ({ graphData }) => {
           mb: 2,
         }}
       >
-        <Typography variant="h6">Monthly Issuance Statistics</Typography>
+        <Typography variant="h6" color="primary" fontWeight="bold" gutterBottom>
+          Monthly Issuance Statistics
+        </Typography>
 
         <FormControl sx={{ minWidth: 120 }} size="small">
           <InputLabel id="year-select-label">Select Year</InputLabel>

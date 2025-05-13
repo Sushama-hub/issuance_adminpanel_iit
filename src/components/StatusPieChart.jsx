@@ -106,8 +106,9 @@ const StatusPieChart = ({ graphData }) => {
   }
 
   return (
-    <Box sx={{ width: "100%", height: 330, p: 3 }}>
-      <Typography variant="h6" gutterBottom>
+    <Box sx={{ width: "100%", height: "100%", p: 3 }}>
+      {/* <Box sx={{ width: "100%", height: 330, p: 3 }}> */}
+      <Typography variant="h6" color="primary" fontWeight="bold" gutterBottom>
         Overall Status Distribution
       </Typography>
       <Box sx={{ width: "100%", height: 300 }}>

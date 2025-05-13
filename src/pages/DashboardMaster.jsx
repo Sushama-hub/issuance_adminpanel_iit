@@ -12,6 +12,8 @@ import {
 import MonthWiseBarChart from "../components/MonthWiseBarChart"
 import StatusPieChart from "../components/StatusPieChart"
 import AdminApprovalButton from "../components/AdminApprovalButton"
+import InventorySummary from "../components/InventorySummary"
+import ReIssueLogDialog from "../components/dialog/ReIssueLogDialog"
 
 export default function DashboardMaster() {
   const [data, setData] = useState({
@@ -143,15 +145,32 @@ export default function DashboardMaster() {
 
       <AdminApprovalButton pendingUsers={pendingUsers} />
 
-      {/* Charts Section */}
+      {/* Inventory Summary Section */}
       <Grid container spacing={3} sx={{ mt: 2 }}>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <InventorySummary />
+          </Card>
+        </Grid>
+
+        {/* Charts Section */}
         <Grid item xs={12} md={8}>
-          <Card sx={{ padding: 4 }}>
+          <Card>
+            {/* <Card sx={{ padding: 4 }}> */}
             <MonthWiseBarChart graphData={allIssuanceData} />
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+      </Grid>
+      {/* Charts Section */}
+      <Grid container spacing={3} sx={{ mt: 2 }}>
+        {/* <Grid item xs={12} md={8}>
           <Card sx={{ padding: 4 }}>
+            <MonthWiseBarChart graphData={allIssuanceData} />
+          </Card>
+        </Grid> */}
+        <Grid item xs={12}>
+          <Card>
+            {/* <Card sx={{ padding: 4 }}> */}
             <StatusPieChart graphData={allIssuanceData} />
           </Card>
         </Grid>

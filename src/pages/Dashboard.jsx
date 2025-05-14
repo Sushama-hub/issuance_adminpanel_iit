@@ -26,6 +26,7 @@ export default function DashboardMaster() {
   const [pendingUsers, setPendingUsers] = useState([])
 
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+  const user = JSON.parse(localStorage.getItem("user"))
 
   const fetchIssuanceData = async () => {
     try {
@@ -89,8 +90,8 @@ export default function DashboardMaster() {
   useEffect(() => {
     fetchIssuanceData()
     fetchInventoryData()
-    fetchPendingUsers()
-  }, [baseURL])
+    if (user?.role === "master") fetchPendingUsers()
+  }, [baseURL, user])
 
   return (
     <Box

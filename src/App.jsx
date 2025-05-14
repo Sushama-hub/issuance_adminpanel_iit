@@ -1,6 +1,5 @@
 import { Routes, Route, Navigate } from "react-router-dom"
-import DashboardAdmin from "./pages/DashboardAdmin"
-import DashboardMaster from "./pages/DashboardMaster"
+import Dashboard from "./pages/Dashboard"
 import IssuedTable from "./components/IssuedTable"
 import ReturnedAndConsumedTable from "./components/ReturnedAndConsumedTable"
 import InventoryForm from "./components/InventoryForm"
@@ -98,7 +97,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<DashboardMaster />} />
+          <Route index element={<Dashboard />} />
           <Route path="issued_records" element={<IssuedTable />} />
           <Route
             path="returned_consumed"
@@ -120,7 +119,7 @@ function App() {
             </ProtectedRoute>
           }
         >
-          <Route index element={<DashboardAdmin />} />
+          <Route index element={<Dashboard />} />
           <Route path="issued_records" element={<IssuedTable />} />
           <Route
             path="returned_consumed"

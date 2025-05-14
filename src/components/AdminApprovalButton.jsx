@@ -6,9 +6,11 @@ import { useNavigate } from "react-router-dom"
 export default function AdminApprovalButton({ pendingUsers }) {
   const navigate = useNavigate()
 
+  const user = JSON.parse(localStorage.getItem("user"))
+
   return (
     <>
-      {pendingUsers?.length > 0 && (
+      {user?.role === "master" && pendingUsers?.length > 0 && (
         <Box sx={{ display: "flex", gap: 3, mt: 4 }}>
           <Badge
             badgeContent={pendingUsers?.length}

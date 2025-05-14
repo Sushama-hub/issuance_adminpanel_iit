@@ -157,51 +157,53 @@ const MonthWiseBarChart = ({ graphData }) => {
         </FormControl>
       </Box>
 
-      {data.length > 0 ? (
-        <ResponsiveContainer>
-          <BarChart
-            data={data}
-            margin={{
-              top: 20,
-              right: 30,
-              left: 20,
-              bottom: 5,
+      <Box sx={{ height: 275 }}>
+        {data.length > 0 ? (
+          <ResponsiveContainer>
+            <BarChart
+              data={data}
+              margin={{
+                top: 20,
+                right: 30,
+                left: 20,
+                bottom: 5,
+              }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="month" />
+              <YAxis />
+              <Tooltip />
+              <Legend />
+              <Bar dataKey="issued" stackId="a" fill="#3f51b5" name="Issued" />
+              <Bar
+                dataKey="returned"
+                stackId="a"
+                fill="#43A047"
+                name="Returned"
+              />
+              <Bar
+                dataKey="consumed"
+                stackId="a"
+                fill="#FB8C00"
+                name="Consumed"
+              />
+            </BarChart>
+          </ResponsiveContainer>
+        ) : (
+          <Box
+            sx={{
+              height: "calc(100% - 50px)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="month" />
-            <YAxis />
-            <Tooltip />
-            <Legend />
-            <Bar dataKey="issued" stackId="a" fill="#3f51b5" name="Issued" />
-            <Bar
-              dataKey="returned"
-              stackId="a"
-              fill="#43A047"
-              name="Returned"
-            />
-            <Bar
-              dataKey="consumed"
-              stackId="a"
-              fill="#FB8C00"
-              name="Consumed"
-            />
-          </BarChart>
-        </ResponsiveContainer>
-      ) : (
-        <Box
-          sx={{
-            height: "calc(100% - 50px)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          <Typography variant="body1" color="text.secondary">
-            No data available for {selectedYear}
-          </Typography>
-        </Box>
-      )}
+            <Typography variant="body1" color="text.secondary">
+              No data available for {selectedYear}
+            </Typography>
+          </Box>
+        )}
+      </Box>
     </Box>
   )
 }

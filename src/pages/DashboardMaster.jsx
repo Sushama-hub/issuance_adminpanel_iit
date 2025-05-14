@@ -1,4 +1,4 @@
-import { Grid, Card, CardContent, Typography, Box } from "@mui/material"
+import { Grid, Card, CardContent, Typography, Box, Alert } from "@mui/material"
 
 import { Link } from "react-router-dom"
 import { useState, useEffect } from "react"
@@ -27,57 +27,51 @@ export default function DashboardMaster() {
 
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
 
-  useEffect(() => {
-    const fetchIssuanceData = async () => {
-      try {
-        const response = await axios.get(`${baseURL}/user/get-user`)
-        const allFetchedData = response?.data?.data || []
-        setAllIssuanceData(allFetchedData)
+  const fetchIssuanceData = async () => {
+    try {
+      const response = await axios.get(`${baseURL}/user/get-user`)
+      const allFetchedData = response?.data?.data || []
+      setAllIssuanceData(allFetchedData)
 
-        const totalIssuedCount = allFetchedData.length
-        const currentlyIssuedCount = allFetchedData.filter(
-          (item) => item.status === "Issued"
-        ).length
+      const totalIssuedCount = allFetchedData.length
+      const currentlyIssuedCount = allFetchedData.filter(
+        (item) => item.status === "Issued"
+      ).length
 
-        const returnedOrConsumedCount = allFetchedData.filter(
-          (item) => item.status === "Returned" || item.status === "Consumed"
-        ).length
+      const returnedOrConsumedCount = allFetchedData.filter(
+        (item) => item.status === "Returned" || item.status === "Consumed"
+      ).length
 
-        setData((prevData) => ({
-          ...prevData,
-          currentlyIssued: currentlyIssuedCount,
-          returnedOrConsumed: returnedOrConsumedCount,
-          totalIssuedComponents: totalIssuedCount,
-        }))
-      } catch (error) {
-        console.error("Error fetching issuance data:", error)
-      }
+      setData((prevData) => ({
+        ...prevData,
+        currentlyIssued: currentlyIssuedCount,
+        returnedOrConsumed: returnedOrConsumedCount,
+        totalIssuedComponents: totalIssuedCount,
+      }))
+    } catch (error) {
+      console.error("Error fetching issuance data:", error)
     }
+  }
 
-    const fetchInventoryData = async () => {
-      try {
-        const token = localStorage.getItem("token")
-        const response = await axios.get(`${baseURL}/inventory`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          withCredentials: true,
-        })
-        const inventoryData = response?.data?.data || []
+  const fetchInventoryData = async () => {
+    try {
+      const token = localStorage.getItem("token")
+      const response = await axios.get(`${baseURL}/inventory`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        withCredentials: true,
+      })
+      const inventoryData = response?.data?.data || []
 
-        setData((prevData) => ({
-          ...prevData,
-          totalInventory: inventoryData.length,
-        }))
-      } catch (error) {
-        console.error("Error fetching inventory data:", error)
-      }
+      setData((prevData) => ({
+        ...prevData,
+        totalInventory: inventoryData.length,
+      }))
+    } catch (error) {
+      console.error("Error fetching inventory data:", error)
     }
-
-    fetchIssuanceData()
-    fetchInventoryData()
-    fetchPendingUsers()
-  }, [baseURL])
+  }
 
   const fetchPendingUsers = async () => {
     try {
@@ -92,6 +86,11 @@ export default function DashboardMaster() {
       console.error("Error fetching users:", error)
     }
   }
+  useEffect(() => {
+    fetchIssuanceData()
+    fetchInventoryData()
+    fetchPendingUsers()
+  }, [baseURL])
 
   return (
     <Box
@@ -147,17 +146,22 @@ export default function DashboardMaster() {
 
       {/* Inventory Summary Section */}
       <Grid container spacing={3} sx={{ mt: 2 }}>
-        <Grid item xs={12} md={4}>
+        {/* <Grid item xs={12} md={4}>
           <Card>
             <InventorySummary />
           </Card>
-        </Grid>
+        </Grid> */}
 
         {/* Charts Section */}
         <Grid item xs={12} md={8}>
           <Card>
             {/* <Card sx={{ padding: 4 }}> */}
             <MonthWiseBarChart graphData={allIssuanceData} />
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card>
+            <InventorySummary />
           </Card>
         </Grid>
       </Grid>
@@ -168,10 +172,32 @@ export default function DashboardMaster() {
             <MonthWiseBarChart graphData={allIssuanceData} />
           </Card>
         </Grid> */}
-        <Grid item xs={12}>
+        <Grid item xs={12} md={8}>
           <Card>
             {/* <Card sx={{ padding: 4 }}> */}
             <StatusPieChart graphData={allIssuanceData} />
+          </Card>
+        </Grid>
+        <Grid item xs={12} md={4}>
+          <Card
+            sx={{
+              padding: 3,
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+              justifyContent: "center",
+            }}
+          >
+            <Typography
+              variant="h6"
+              color="primary"
+              fontWeight="bold"
+              gutterBottom
+            >
+              Re-issue Log Details
+            </Typography>
+
+            <ReIssueLogDialog />
           </Card>
         </Grid>
       </Grid>

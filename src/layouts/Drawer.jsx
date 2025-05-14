@@ -16,7 +16,7 @@ import {
 import MuiDrawer from "@mui/material/Drawer"
 import MuiAppBar from "@mui/material/AppBar"
 import MenuIcon from "@mui/icons-material/Menu"
-import { sidebarConfig } from "../config/sidebarConfig"
+import { getSidebarConfig } from "../config/sidebarConfig"
 import { useNavigate, useLocation } from "react-router-dom"
 import { useState, useEffect } from "react"
 import LogoutIcon from "@mui/icons-material/Logout"
@@ -140,6 +140,9 @@ export default function MiniDrawer() {
       setUser(storedUser)
     }
   }, [])
+
+  // Get sidebar config based on current user role
+  const sidebarConfig = getSidebarConfig(user?.role)
 
   useEffect(() => {
     const updateHeight = () => {
@@ -303,9 +306,9 @@ export default function MiniDrawer() {
                   textTransform: "capitalize",
                 }}
               >
-                {user.name}
+                {user?.name}
               </Typography>
-              <Typography variant="caption">{user.email}</Typography>
+              <Typography variant="caption">{user?.email}</Typography>
               <Typography
                 variant="caption"
                 sx={{
@@ -313,7 +316,7 @@ export default function MiniDrawer() {
                   textAlign: "center",
                 }}
               >
-                Role: {user.role}
+                Role: {user?.role}
               </Typography>
             </Box>
 

@@ -8,6 +8,7 @@ import { IssuedColumns } from "../config/tableConfig"
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
 
 const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+const token = localStorage.getItem("token")
 
 const EditableStatusCell = ({ params, refreshData }) => {
   const [anchorEl, setAnchorEl] = useState(null)
@@ -27,6 +28,11 @@ const EditableStatusCell = ({ params, refreshData }) => {
           `${baseURL}/user/update-status/${params.row._id}`,
           {
             status: status,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
         )
 

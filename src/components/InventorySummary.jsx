@@ -146,29 +146,6 @@ const InventoryComponentCard = () => {
                   />
                 </ListItem>
               ))}
-              {selectedComponent?.specifications.map((spec, index) => (
-                <ListItem
-                  key={index}
-                  sx={{
-                    "&:hover": {
-                      backgroundColor: "#f5f5f5",
-                    },
-                  }}
-                >
-                  <ListItemText
-                    primary={
-                      <Typography variant="body2" fontWeight="medium">
-                        {spec.specification}
-                      </Typography>
-                    }
-                    secondary={
-                      <Typography variant="body2" color="text.secondary">
-                        Quantity: {spec.quantity}
-                      </Typography>
-                    }
-                  />
-                </ListItem>
-              ))}
             </List>
           </Box>
         </Box>

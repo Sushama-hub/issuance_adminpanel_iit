@@ -9,6 +9,7 @@ import { showErrorToast, showSuccessToast } from "../utils/toastUtils"
 import ReIssueLogDialog from "./dialog/ReIssueLogDialog"
 
 const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+const token = localStorage.getItem("token")
 const EditableStatusCell = ({ params, refreshData }) => {
   const [anchorEl, setAnchorEl] = useState(null)
   const open = Boolean(anchorEl)
@@ -22,13 +23,17 @@ const EditableStatusCell = ({ params, refreshData }) => {
         `Do you want to update the status "${params.value}" to "${status}" ?`
       )
       if (!confirmEdit) return
-      console.log("params.row._id===", params.row._id, status)
 
       try {
         const response = await axios.put(
           `${baseURL}/user/update-status/${params.row._id}`,
           {
             status: status,
+          },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           }
         )
         if (response?.data?.success) {

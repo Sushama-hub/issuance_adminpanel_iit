@@ -24,9 +24,10 @@ export default function DashboardMaster() {
   });
   const [allIssuanceData, setAllIssuanceData] = useState([]);
   const [pendingUsers, setPendingUsers] = useState([]);
+  const [user] = useState(() => JSON.parse(localStorage.getItem("user")));
 
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
-  const user = JSON.parse(localStorage.getItem("user"));
+  // const user = JSON.parse(localStorage.getItem("user"))
 
   const fetchIssuanceData = async () => {
     try {
@@ -92,7 +93,7 @@ export default function DashboardMaster() {
     fetchIssuanceData();
     fetchInventoryData();
     if (user?.role === "master") fetchPendingUsers();
-  }, [baseURL, user]);
+  }, []);
 
   return (
     <Box

@@ -1,7 +1,7 @@
-import * as React from "react"
+import * as React from "react";
 
-import CloseIcon from "@mui/icons-material/Close"
-import ReIssueLogTable from "../ReIssueLogTable"
+import CloseIcon from "@mui/icons-material/Close";
+import ReIssueLogTable from "../ReIssueLogTable";
 import {
   AppBar,
   Box,
@@ -11,22 +11,22 @@ import {
   Slide,
   Toolbar,
   Typography,
-} from "@mui/material"
+} from "@mui/material";
 
 const Transition = React.forwardRef(function Transition(props, ref) {
-  return <Slide direction="up" ref={ref} {...props} />
-})
+  return <Slide direction="up" ref={ref} {...props} />;
+});
 
 export default function ReIssueLogDialog() {
-  const [open, setOpen] = React.useState(false)
+  const [open, setOpen] = React.useState(false);
 
   const handleClickOpen = () => {
-    setOpen(true)
-  }
+    setOpen(true);
+  };
 
   const handleClose = () => {
-    setOpen(false)
-  }
+    setOpen(false);
+  };
 
   return (
     <React.Fragment>
@@ -67,5 +67,5 @@ export default function ReIssueLogDialog() {
         </Box>
       </Dialog>
     </React.Fragment>
-  )
+  );
 }

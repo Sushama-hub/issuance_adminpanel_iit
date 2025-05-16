@@ -1,4 +1,4 @@
-import * as React from "react"
+import * as React from "react";
 import {
   Dialog,
   DialogTitle,
@@ -6,10 +6,10 @@ import {
   TextField,
   DialogActions,
   Button,
-} from "@mui/material"
-import { useState, useEffect } from "react"
-import { showInfoToast } from "../../utils/toastUtils"
-import { formatDateToYYYYMMDD } from "../../utils/date"
+} from "@mui/material";
+import { useState, useEffect } from "react";
+import { showInfoToast } from "../../utils/toastUtils";
+import { formatDateToYYYYMMDD } from "../../utils/date";
 
 export default function EditDialogBox({
   editDialogOpen,
@@ -22,29 +22,29 @@ export default function EditDialogBox({
   editValues, //editValues redundant
   setEditValues, //setEditValues redundant
 }) {
-  const [errors, setErrors] = useState({})
-  const [formData, setFormData] = useState(selectedEditRow || {})
-  const [isFormValid, setIsFormValid] = useState(false)
+  const [errors, setErrors] = useState({});
+  const [formData, setFormData] = useState(selectedEditRow || {});
+  const [isFormValid, setIsFormValid] = useState(false);
 
   // Update formData when selectedEditRow changes
   useEffect(() => {
     if (selectedEditRow) {
-      setFormData(selectedEditRow)
+      setFormData(selectedEditRow);
     }
-  }, [selectedEditRow])
+  }, [selectedEditRow]);
 
   // Validate form data
   const validateForm = (data) => {
-    const newErrors = {}
-    let isValid = true
+    const newErrors = {};
+    let isValid = true;
 
     fields.forEach((field) => {
-      const value = data[field.name]
+      const value = data[field.name];
 
       // Check if field is empty
       if (!value || value.toString().trim() === "") {
-        newErrors[field.name] = `${field.label} is required`
-        isValid = false
+        newErrors[field.name] = `${field.label} is required`;
+        isValid = false;
       }
 
       // Additional validation for quantity field if it exists
@@ -53,44 +53,44 @@ export default function EditDialogBox({
         field.name === "groundBalance" ||
         field.name === "ledgerBalance"
       ) {
-        const numValue = Number(value)
+        const numValue = Number(value);
         if (isNaN(numValue) || numValue <= 0) {
-          newErrors[field.name] = "Field must be greater than 0"
-          isValid = false
+          newErrors[field.name] = "Field must be greater than 0";
+          isValid = false;
         }
       }
-    })
+    });
 
-    setErrors(newErrors)
-    return isValid
-  }
+    setErrors(newErrors);
+    return isValid;
+  };
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target
-    const newFormData = { ...formData, [name]: value }
+    const { name, value } = e.target;
+    const newFormData = { ...formData, [name]: value };
 
-    setFormData(newFormData)
-    setSelectedEditRow(newFormData)
+    setFormData(newFormData);
+    setSelectedEditRow(newFormData);
 
     // Validate form after each change
-    const isValid = validateForm(newFormData)
-    setIsFormValid(isValid)
-  }
+    const isValid = validateForm(newFormData);
+    setIsFormValid(isValid);
+  };
 
   const handleEditSubmit = async () => {
     if (isFormValid) {
-      await onSubmit()
+      await onSubmit();
     }
-  }
+  };
 
   const handleCancel = () => {
-    setEditDialogOpen(false)
-    showInfoToast("Edit cancelled")
-    setSelectedEditRow(null)
-    setFormData({})
-    setErrors({})
-    setIsFormValid(false)
-  }
+    setEditDialogOpen(false);
+    showInfoToast("Edit cancelled");
+    setSelectedEditRow(null);
+    setFormData({});
+    setErrors({});
+    setIsFormValid(false);
+  };
 
   return (
     <>
@@ -148,5 +148,5 @@ export default function EditDialogBox({
         </DialogActions>
       </Dialog>
     </>
-  )
+  );
 }

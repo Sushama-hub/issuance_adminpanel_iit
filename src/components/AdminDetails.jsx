@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from "react"
-import { Box } from "@mui/material"
-import AdminApprovalList from "./AdminApprovalList"
-import ApprovedAdminTable from "./ApprovedAdminTable"
-import axios from "axios"
+import React, { useEffect, useState } from "react";
+import { Box } from "@mui/material";
+import AdminApprovalList from "./AdminApprovalList";
+import ApprovedAdminTable from "./ApprovedAdminTable";
+import axios from "axios";
 
 export default function AdminDetails() {
-  const [users, setUsers] = useState([])
-  const [rows, setRows] = useState([])
+  const [users, setUsers] = useState([]);
+  const [rows, setRows] = useState([]);
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
-  const token = localStorage.getItem("token")
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+  const token = localStorage.getItem("token");
 
   const fetchUsers = async () => {
     try {
@@ -17,21 +17,21 @@ export default function AdminDetails() {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-      setUsers(response?.data?.users || [])
+      });
+      setUsers(response?.data?.users || []);
     } catch (error) {
-      console.error("Error fetching users:", error)
+      console.error("Error fetching users:", error);
     }
-  }
+  };
 
   const fetchTableData = async () => {
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const response = await axios.get(`${baseURL}/master/allAdmins`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
 
       const rowsWithId = response?.data?.users?.map((user, index) => ({
         ...user,
@@ -39,19 +39,19 @@ export default function AdminDetails() {
         // createdAt: new Date(user.createdAt).toLocaleString(),
         updatedAt: new Date(user.updatedAt).toLocaleString(),
         updatedAtRaw: new Date(user.updatedAt), // raw date for sorting
-      }))
+      }));
       // .sort((a, b) => b.updatedAtRaw - a.updatedAtRaw) // sort latest first
 
-      setRows(rowsWithId)
+      setRows(rowsWithId);
     } catch (error) {
-      console.log("Error fetching data", error)
+      console.log("Error fetching data", error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchUsers()
-    fetchTableData()
-  }, [])
+    fetchUsers();
+    fetchTableData();
+  }, []);
 
   return (
     <Box
@@ -70,5 +70,5 @@ export default function AdminDetails() {
       />
       <ApprovedAdminTable rows={rows} fetchTableData={fetchTableData} />
     </Box>
-  )
+  );
 }

@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState } from "react";
 import {
   Box,
   Button,
@@ -6,47 +6,47 @@ import {
   Stack,
   TextField,
   Typography,
-} from "@mui/material"
-import axios from "axios"
-import AddIcon from "@mui/icons-material/Add"
-import { useNavigate } from "react-router-dom"
-import { Delete, DeleteTwoTone, Edit } from "@mui/icons-material"
+} from "@mui/material";
+import axios from "axios";
+import AddIcon from "@mui/icons-material/Add";
+import { useNavigate } from "react-router-dom";
+import { Delete, DeleteTwoTone, Edit } from "@mui/icons-material";
 import {
   showSuccessToast,
   showErrorToast,
   showWarningToast,
-} from "../utils/toastUtils"
+} from "../utils/toastUtils";
 
 export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
-  const [open, setOpen] = useState(false)
-  const [newYear, setNewYear] = useState("")
-  const [editClick, setEditClick] = useState(false)
+  const [open, setOpen] = useState(false);
+  const [newYear, setNewYear] = useState("");
+  const [editClick, setEditClick] = useState(false);
   const [editableYear, setEditableYear] = useState({
     id: "",
     year: "",
-  })
+  });
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   const handleClick = (year) => {
     // console.info("You clicked the Chip.", year)
 
-    const storedUser = JSON.parse(localStorage.getItem("user"))
+    const storedUser = JSON.parse(localStorage.getItem("user"));
 
     const routeBase =
       storedUser?.role === "master"
         ? "/dashboard/master/non_consumable_stock"
-        : "/dashboard/admin/non_consumable_stock"
+        : "/dashboard/admin/non_consumable_stock";
 
     // pass year as route param or query param
-    navigate(`${routeBase}?year=${year}`)
-  }
+    navigate(`${routeBase}?year=${year}`);
+  };
 
   const handleSubmitYear = async () => {
     // Check if the year already exists in the array of objects
-    const alreadyExists = yearData?.some((item) => item?.year === newYear)
+    const alreadyExists = yearData?.some((item) => item?.year === newYear);
 
     // //---------------- 1.---------Add to local data as manually
     // if (newYear && !alreadyExists) {
@@ -69,12 +69,12 @@ export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
     // setOpen(false)
 
     if (alreadyExists) {
-      showWarningToast("Year already exists!")
-      return
+      showWarningToast("Year already exists!");
+      return;
     }
 
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const response = await axios.post(
         `${baseURL}/year/create`,
         { year: newYear },
@@ -83,65 +83,65 @@ export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
+      );
 
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "Session year added successfully!"
-        )
-        fetchYearData()
-        setNewYear("")
-        setOpen(false)
+        );
+        fetchYearData();
+        setNewYear("");
+        setOpen(false);
       }
     } catch (error) {
-      console.error("Error Submitting data:", error)
-      showErrorToast("Failed to add year. Please try again.")
+      console.error("Error Submitting data:", error);
+      showErrorToast("Failed to add year. Please try again.");
     }
-  }
+  };
 
   const handleDeleteClick = async (id, year) => {
     // console.info("You clicked the DELETE icon.", id, year)
     const confirmDelete = window.confirm(
       `Do you want to delete the year session "${year}"?`
-    )
-    if (!confirmDelete) return
+    );
+    if (!confirmDelete) return;
 
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const response = await axios.delete(`${baseURL}/year/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "Year Deleted successfully!"
-        )
-        fetchYearData()
+        );
+        fetchYearData();
       }
     } catch (error) {
-      console.error("Error deleting data:", error)
-      showErrorToast(`Failed to delete year ${year}. Please try again.`)
+      console.error("Error deleting data:", error);
+      showErrorToast(`Failed to delete year ${year}. Please try again.`);
     }
-  }
+  };
 
   const handleEditClick = async (id, year) => {
     // console.info("You clicked the EDIT icon.", id, year)
 
     // setEditableYear((prev) => ({ ...prev, id: id, year: year }))
-    setEditableYear({ id, year })
-    setEditClick(true)
-  }
+    setEditableYear({ id, year });
+    setEditClick(true);
+  };
 
   const handleEditYear = async () => {
     // console.info("You submit  EDIT year.", editableYear)
     const confirmEdit = window.confirm(
       `Do you want to update the year session to "${editableYear?.year}"?`
-    )
-    if (!confirmEdit) return
+    );
+    if (!confirmEdit) return;
 
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const response = await axios.patch(
         `${baseURL}/year/${editableYear?.id}`,
         { year: editableYear?.year },
@@ -150,20 +150,22 @@ export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
+      );
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "Year updated successfully!"
-        )
-        setEditClick(false)
-        fetchYearData()
-        setEditableYear({ id: "", year: "" })
+        );
+        setEditClick(false);
+        fetchYearData();
+        setEditableYear({ id: "", year: "" });
       }
     } catch (error) {
-      console.error("Error submitting data:", error)
-      showErrorToast(`Failed to update year ${editableYear}. Please try again.`)
+      console.error("Error submitting data:", error);
+      showErrorToast(
+        `Failed to update year ${editableYear}. Please try again.`
+      );
     }
-  }
+  };
 
   return (
     <>
@@ -202,7 +204,7 @@ export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
             }}
           >
             {yearData?.map((item, index) => {
-              const isEmpty = yearDataMap[item.year] // true if empty
+              const isEmpty = yearDataMap[item.year]; // true if empty
               return (
                 <Box
                   key={index}
@@ -238,7 +240,7 @@ export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
                     </>
                   )}
                 </Box>
-              )
+              );
             })}
           </Stack>
         ) : (
@@ -351,5 +353,5 @@ export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
         )}
       </Box>
     </>
-  )
+  );
 }

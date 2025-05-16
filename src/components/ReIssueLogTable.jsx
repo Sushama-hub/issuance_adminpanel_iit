@@ -1,34 +1,34 @@
-import * as React from "react"
-import { DataGrid, GridToolbar } from "@mui/x-data-grid"
-import axios from "axios"
-import { useEffect, useState } from "react"
-import { Box, Typography } from "@mui/material"
-import { ReIssueLogColumns } from "../config/tableConfig"
+import * as React from "react";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { Box, Typography } from "@mui/material";
+import { ReIssueLogColumns } from "../config/tableConfig";
 
-const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 export default function QuickFilteringGrid() {
-  const [rows, setRows] = useState([])
+  const [rows, setRows] = useState([]);
 
   const fetchTableData = async () => {
     try {
-      const response = await axios.get(`${baseURL}/user/reissue-logs`)
+      const response = await axios.get(`${baseURL}/user/reissue-logs`);
 
       const rowsWithId = response?.data?.data?.map((user, index) => ({
         ...user,
         id: index + 1,
         createdAt: new Date(user.createdAt).toLocaleString(),
-      }))
+      }));
 
-      setRows(rowsWithId || [])
+      setRows(rowsWithId || []);
     } catch (error) {
-      console.log("Error fetching data", error)
+      console.log("Error fetching data", error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchTableData()
-  }, [])
+    fetchTableData();
+  }, []);
 
   return (
     <Box sx={{ width: "100%", p: 0 }}>
@@ -85,7 +85,7 @@ export default function QuickFilteringGrid() {
         />
       </Box>
     </Box>
-  )
+  );
 }
 
 const dataGridStyles = {
@@ -115,4 +115,4 @@ const dataGridStyles = {
     backgroundColor: "red",
     zIndex: 1,
   },
-}
+};

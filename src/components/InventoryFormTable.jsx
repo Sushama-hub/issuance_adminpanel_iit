@@ -1,34 +1,34 @@
-import * as React from "react"
-import { DataGrid, GridToolbar } from "@mui/x-data-grid"
-import axios from "axios"
-import { useEffect, useState } from "react"
-import { Box, Typography, IconButton, Button } from "@mui/material"
-import DeleteIcon from "@mui/icons-material/Delete"
-import EditIcon from "@mui/icons-material/Edit"
-import AddIcon from "@mui/icons-material/Add"
-import EditDialogBox from "./dialog/EditDialogBox"
-import { useNavigate } from "react-router-dom"
-import { navigateToRoleBasedPath } from "../utils/roleNavigator"
-import { InventoryColumns } from "../config/tableConfig"
-import { showErrorToast, showSuccessToast } from "../utils/toastUtils"
-import { inventoryConfig } from "../config/inventoryConfig"
+import * as React from "react";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import { Box, Typography, IconButton, Button } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
+import EditDialogBox from "./dialog/EditDialogBox";
+import { useNavigate } from "react-router-dom";
+import { navigateToRoleBasedPath } from "../utils/roleNavigator";
+import { InventoryColumns } from "../config/tableConfig";
+import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
+import { inventoryConfig } from "../config/inventoryConfig";
 
 export default function QuickFilteringGrid() {
-  const [rows, setRows] = useState([])
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [selectedEditRow, setSelectedEditRow] = useState(null)
+  const [rows, setRows] = useState([]);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedEditRow, setSelectedEditRow] = useState(null);
 
-  const navigate = useNavigate()
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+  const navigate = useNavigate();
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   const fetchTableData = async () => {
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
     try {
       const response = await axios.get(`${baseURL}/inventory`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
 
       // Parse and set data
       const dataWithId = response?.data?.data?.map((item, index) => {
@@ -38,56 +38,58 @@ export default function QuickFilteringGrid() {
           ...item,
           createdAt: new Date(item.createdAt).toLocaleString(),
           updatedAt: new Date(item.updatedAt).toLocaleString(),
-        }
-      })
+        };
+      });
 
-      setRows(dataWithId)
+      setRows(dataWithId);
     } catch (error) {
-      console.log("Error fetching data", error.response?.data || error.message)
+      console.log("Error fetching data", error.response?.data || error.message);
     }
-  }
+  };
 
   useEffect(() => {
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token");
     if (token) {
-      fetchTableData()
+      fetchTableData();
     }
-  }, [])
+  }, []);
 
   // Handle Edit (Open Dialog)
   const handleEdit = (row) => {
-    setSelectedEditRow(row)
-    setEditDialogOpen(true)
-  }
+    setSelectedEditRow(row);
+    setEditDialogOpen(true);
+  };
 
   // Handle Delete
   const handleDelete = async (id) => {
-    const confirm = window.confirm("Are you sure you want to delete this item?")
-    if (!confirm) return
+    const confirm = window.confirm(
+      "Are you sure you want to delete this item?"
+    );
+    if (!confirm) return;
 
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const response = await axios.delete(`${baseURL}/inventory/${id}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
+      });
 
       if (response?.data?.success === true) {
-        showSuccessToast(response?.data?.message || "Deleted successfully")
+        showSuccessToast(response?.data?.message || "Deleted successfully");
         setTimeout(() => {
-          fetchTableData()
-        }, 1500)
+          fetchTableData();
+        }, 1500);
       }
     } catch (error) {
-      console.error("Error deleting item", error)
-      showErrorToast("Error deleting inventory item. Please try again!")
+      console.error("Error deleting item", error);
+      showErrorToast("Error deleting inventory item. Please try again!");
     }
-  }
+  };
 
   const handleDialogSubmit = async () => {
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const response = await axios.put(
         `${baseURL}/inventory/${selectedEditRow._id}`,
         selectedEditRow,
@@ -96,23 +98,23 @@ export default function QuickFilteringGrid() {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
+      );
 
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "Inventory item updated successfully!"
-        )
-        setEditDialogOpen(false)
-        setSelectedEditRow(null)
-        fetchTableData() // Refresh Table data
+        );
+        setEditDialogOpen(false);
+        setSelectedEditRow(null);
+        fetchTableData(); // Refresh Table data
       }
     } catch (error) {
-      console.error("Error updating item", error)
-      showErrorToast("Something went wrong while updating!")
+      console.error("Error updating item", error);
+      showErrorToast("Something went wrong while updating!");
     }
-  }
+  };
 
-  const user = JSON.parse(localStorage.getItem("user"))
+  const user = JSON.parse(localStorage.getItem("user"));
 
   return (
     <>
@@ -207,7 +209,7 @@ export default function QuickFilteringGrid() {
         heading="Edit Inventory Item"
       />
     </>
-  )
+  );
 }
 
 const dataGridStyles = {
@@ -237,4 +239,4 @@ const dataGridStyles = {
     backgroundColor: "red",
     zIndex: 1,
   },
-}
+};

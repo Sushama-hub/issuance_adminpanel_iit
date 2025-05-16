@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+import React, { useEffect, useState } from "react";
 import {
   Typography,
   Autocomplete,
@@ -7,37 +7,37 @@ import {
   ListItem,
   ListItemText,
   Box,
-} from "@mui/material"
-import axios from "axios"
+} from "@mui/material";
+import axios from "axios";
 
 const InventoryComponentCard = () => {
-  const [componentsList, setComponentsList] = useState([])
-  const [selectedType, setSelectedType] = useState(null)
+  const [componentsList, setComponentsList] = useState([]);
+  const [selectedType, setSelectedType] = useState(null);
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   const fetchComponentData = async () => {
     try {
-      const response = await axios.get(`${baseURL}/inventory/components`)
+      const response = await axios.get(`${baseURL}/inventory/components`);
 
       if (response?.data?.success) {
-        setComponentsList(response.data.components || [])
-        setSelectedType(response.data.components[0]?.componentName) // default
+        setComponentsList(response.data.components || []);
+        setSelectedType(response.data.components[0]?.componentName); // default
       }
     } catch (error) {
-      console.error("Error fetching components:", error)
+      console.error("Error fetching components:", error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchComponentData()
-  }, [])
+    fetchComponentData();
+  }, []);
 
-  const componentNames = componentsList.map((item) => item.componentName)
+  const componentNames = componentsList.map((item) => item.componentName);
 
   const selectedComponent = componentsList.find(
     (item) => item.componentName === selectedType
-  )
+  );
 
   return (
     <Box sx={{ width: "100%", height: "100%" }}>
@@ -151,7 +151,7 @@ const InventoryComponentCard = () => {
         </Box>
       </Box>
     </Box>
-  )
-}
+  );
+};
 
-export default InventoryComponentCard
+export default InventoryComponentCard;

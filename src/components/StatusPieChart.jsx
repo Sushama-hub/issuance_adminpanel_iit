@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 import {
   PieChart,
   Pie,
@@ -6,15 +6,15 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from "recharts"
-import { Typography, Box } from "@mui/material"
+} from "recharts";
+import { Typography, Box } from "@mui/material";
 
 // const COLORS = ["#8884d8", "#82ca9d", "#ffc658"];
-const COLORS = ["#3f51b5", "#43A047", "#FB8C00"]
+const COLORS = ["#3f51b5", "#43A047", "#FB8C00"];
 
 // Add this new custom legend renderer component after the COLORS constant
 const CustomLegend = (props) => {
-  const { payload } = props
+  const { payload } = props;
 
   return (
     <div
@@ -49,8 +49,8 @@ const CustomLegend = (props) => {
         </div>
       ))}
     </div>
-  )
-}
+  );
+};
 
 const StatusPieChart = ({ graphData }) => {
   // Process the data to get status-wise counts and percentages
@@ -59,33 +59,33 @@ const StatusPieChart = ({ graphData }) => {
       issued: 0,
       returned: 0,
       consumed: 0,
-    }
+    };
 
     // Count total items for each status
     graphData.forEach((item) => {
-      statusCounts[item.status.toLowerCase()]++
-    })
+      statusCounts[item.status.toLowerCase()]++;
+    });
 
     // Calculate total count
     const total = Object.values(statusCounts).reduce(
       (sum, count) => sum + count,
       0
-    )
+    );
 
     // Convert to array with percentages
     return Object.entries(statusCounts).map(([name, value]) => ({
       name: name.charAt(0).toUpperCase() + name.slice(1),
       value,
       percentage: total > 0 ? ((value / total) * 100).toFixed(1) : 0,
-    }))
-  }
+    }));
+  };
 
-  const data = processData()
+  const data = processData();
 
   // Custom tooltip content
   const CustomTooltip = ({ active, payload }) => {
     if (active && payload && payload.length) {
-      const data = payload[0].payload
+      const data = payload[0].payload;
       return (
         <div
           style={{
@@ -100,10 +100,10 @@ const StatusPieChart = ({ graphData }) => {
           <p style={{ margin: "0" }}>Count: {data.value}</p>
           <p style={{ margin: "0" }}>Percentage: {data.percentage}%</p>
         </div>
-      )
+      );
     }
-    return null
-  }
+    return null;
+  };
 
   return (
     <Box sx={{ width: "100%", height: "100%", p: 3 }}>
@@ -159,7 +159,7 @@ const StatusPieChart = ({ graphData }) => {
         )}
       </Box>
     </Box>
-  )
-}
+  );
+};
 
-export default StatusPieChart
+export default StatusPieChart;

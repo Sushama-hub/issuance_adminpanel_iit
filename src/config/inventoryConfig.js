@@ -15,4 +15,4 @@ export const inventoryConfig = [
     name: "quantity",
     type: "number",
   },
-]
+];

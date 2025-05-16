@@ -1,22 +1,22 @@
-import { Box, Button, Card, CardContent, Typography } from "@mui/material"
-import { Edit, ContentCopy } from "@mui/icons-material"
-import React, { useState } from "react"
+import { Box, Button, Card, CardContent, Typography } from "@mui/material";
+import { Edit, ContentCopy } from "@mui/icons-material";
+import React, { useState } from "react";
 
 export default function UserIssuanceFom({ isDrawerOpen }) {
-  const [copied, setCopied] = useState(false)
+  const [copied, setCopied] = useState(false);
 
-  const userFormURL = `${window.location.origin}/user_form`
+  const userFormURL = `${window.location.origin}/user_form`;
   const handleCopyLink = async () => {
     try {
-      await navigator.clipboard.writeText(userFormURL)
-      setCopied(true)
+      await navigator.clipboard.writeText(userFormURL);
+      setCopied(true);
 
       // Change text back after 2 seconds
-      setTimeout(() => setCopied(false), 2000)
+      setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      console.error("Failed to copy: ", err)
+      console.error("Failed to copy: ", err);
     }
-  }
+  };
 
   return (
     <>
@@ -147,5 +147,5 @@ export default function UserIssuanceFom({ isDrawerOpen }) {
         </Card>
       </Box>
     </>
-  )
+  );
 }

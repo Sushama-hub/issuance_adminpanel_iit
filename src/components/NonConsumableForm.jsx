@@ -1,19 +1,19 @@
-import React, { useEffect, useState } from "react"
-import { Card, Typography, Box, Grid } from "@mui/material"
-import NonConsumableCsvUploader from "./NonConsumableCsvUploader"
-import YearTagList from "./YearTagList"
-import axios from "axios"
-import { showErrorToast } from "../utils/toastUtils"
+import React, { useEffect, useState } from "react";
+import { Card, Typography, Box, Grid } from "@mui/material";
+import NonConsumableCsvUploader from "./NonConsumableCsvUploader";
+import YearTagList from "./YearTagList";
+import axios from "axios";
+import { showErrorToast } from "../utils/toastUtils";
 
 const NonConsumableForm = () => {
-  const [yearData, setYearData] = useState([])
-  const [yearDataMap, setYearDataMap] = useState({})
+  const [yearData, setYearData] = useState([]);
+  const [yearDataMap, setYearDataMap] = useState({});
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   const fetchYearData = async () => {
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       // `${baseURL}/year/yearFetch`,
       const response = await axios.get(
         `${baseURL}/nonConsumableStock/getAllFinancialYears`,
@@ -22,21 +22,21 @@ const NonConsumableForm = () => {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
+      );
 
-      setYearData(response?.data?.years || [])
+      setYearData(response?.data?.years || []);
       response?.data?.years?.map((item) => {
-        fetchTableData(item?.year)
-      })
+        fetchTableData(item?.year);
+      });
     } catch (error) {
-      console.error("Error fetching year list:", error)
+      console.error("Error fetching year list:", error);
     }
-  }
+  };
 
   const fetchTableData = async (year) => {
-    if (!year) return
+    if (!year) return;
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const response = await axios.get(
         `${baseURL}/nonConsumableStock/nonConsumableStockFilter/${year}`,
         {
@@ -44,20 +44,20 @@ const NonConsumableForm = () => {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
+      );
       // const hasData = response?.data?.data?.length > 0
-      const hasData = response?.data?.yearData?.data?.length > 0
+      const hasData = response?.data?.yearData?.data?.length > 0;
 
       // store this info to track whether a year has data or not
-      setYearDataMap((prev) => ({ ...prev, [year]: !hasData }))
+      setYearDataMap((prev) => ({ ...prev, [year]: !hasData }));
     } catch (error) {
-      console.error("Error fetching table data", error)
-      showErrorToast(`Failed to fetch data for year: ${year}`)
+      console.error("Error fetching table data", error);
+      showErrorToast(`Failed to fetch data for year: ${year}`);
     }
-  }
+  };
   useEffect(() => {
-    fetchYearData()
-  }, [])
+    fetchYearData();
+  }, []);
 
   return (
     <>
@@ -99,7 +99,7 @@ const NonConsumableForm = () => {
         />
       </Box>
     </>
-  )
-}
+  );
+};
 
-export default NonConsumableForm
+export default NonConsumableForm;

@@ -1,28 +1,28 @@
-import * as React from "react"
-import { DataGrid, GridToolbar } from "@mui/x-data-grid"
-import axios from "axios"
-import { useEffect, useState } from "react"
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown"
-import { Box, IconButton, Menu, MenuItem, Typography } from "@mui/material"
-import { ReturnedAndConsumedColumns } from "../config/tableConfig"
-import { showErrorToast, showSuccessToast } from "../utils/toastUtils"
-import ReIssueLogDialog from "./dialog/ReIssueLogDialog"
+import * as React from "react";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import axios from "axios";
+import { useEffect, useState } from "react";
+import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
+import { Box, IconButton, Menu, MenuItem, Typography } from "@mui/material";
+import { ReturnedAndConsumedColumns } from "../config/tableConfig";
+import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
+import ReIssueLogDialog from "./dialog/ReIssueLogDialog";
 
-const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
-const token = localStorage.getItem("token")
+const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+const token = localStorage.getItem("token");
 const EditableStatusCell = ({ params, refreshData }) => {
-  const [anchorEl, setAnchorEl] = useState(null)
-  const open = Boolean(anchorEl)
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
   const handleClick = (event) => {
-    setAnchorEl(event.currentTarget)
-  }
+    setAnchorEl(event.currentTarget);
+  };
   const handleClose = async (status) => {
-    setAnchorEl(null)
+    setAnchorEl(null);
     if (status && status !== params.value) {
       const confirmEdit = window.confirm(
         `Do you want to update the status "${params.value}" to "${status}" ?`
-      )
-      if (!confirmEdit) return
+      );
+      if (!confirmEdit) return;
 
       try {
         const response = await axios.put(
@@ -35,20 +35,20 @@ const EditableStatusCell = ({ params, refreshData }) => {
               Authorization: `Bearer ${token}`,
             },
           }
-        )
+        );
         if (response?.data?.success) {
           showSuccessToast(
             response?.data?.message || "Status updated successfully!"
-          )
+          );
           // refresh the table
-          refreshData()
+          refreshData();
         }
       } catch (error) {
-        console.error("Error updating status", error)
-        showErrorToast(`Failed to update status. Please try again.`)
+        console.error("Error updating status", error);
+        showErrorToast(`Failed to update status. Please try again.`);
       }
     }
-  }
+  };
 
   return (
     <Box sx={{ display: "flex", alignItems: "center" }}>
@@ -64,48 +64,48 @@ const EditableStatusCell = ({ params, refreshData }) => {
         ))}
       </Menu>
     </Box>
-  )
-}
+  );
+};
 
 export default function QuickFilteringGrid() {
-  const [rows, setRows] = useState([])
+  const [rows, setRows] = useState([]);
 
   const fetchTableData = async () => {
     try {
-      const response = await axios.get(`${baseURL}/user/get-user`)
+      const response = await axios.get(`${baseURL}/user/get-user`);
 
       const rawData = response?.data?.data?.filter(
         (item) => item.status === "Returned" || item.status === "Consumed"
-      )
+      );
 
       const groupedData = rawData.reduce((acc, user) => {
-        const existingUser = acc.find((item) => item._id === user._id)
+        const existingUser = acc.find((item) => item._id === user._id);
 
         const componentNames = user.components
           .map((comp) => comp.componentName)
-          .join(", ")
+          .join(", ");
         const specifications = user.components
           .map((comp) => comp.specification)
-          .join(", ")
+          .join(", ");
         const quantities = user.components
           .map((comp) => comp.quantity)
-          .join(", ")
+          .join(", ");
 
-        const createdDate = new Date(user.createdAt)
-        const updatedDate = new Date(user.updatedAt)
+        const createdDate = new Date(user.createdAt);
+        const updatedDate = new Date(user.updatedAt);
 
         const formattedCreatedAt = `${createdDate.getDate()}/${
           createdDate.getMonth() + 1
-        }/${createdDate.getFullYear()}, ${createdDate.toLocaleTimeString()}`
+        }/${createdDate.getFullYear()}, ${createdDate.toLocaleTimeString()}`;
 
         const formattedUpdatedAt = `${updatedDate.getDate()}/${
           updatedDate.getMonth() + 1
-        }/${updatedDate.getFullYear()}, ${updatedDate.toLocaleTimeString()}`
+        }/${updatedDate.getFullYear()}, ${updatedDate.toLocaleTimeString()}`;
 
         if (existingUser) {
-          existingUser.components += `, ${componentNames}`
-          existingUser.specification += `, ${specifications}`
-          existingUser.quantity += `, ${quantities}`
+          existingUser.components += `, ${componentNames}`;
+          existingUser.specification += `, ${specifications}`;
+          existingUser.quantity += `, ${quantities}`;
         } else {
           acc.push({
             _id: user._id,
@@ -124,26 +124,26 @@ export default function QuickFilteringGrid() {
             createdAt: formattedCreatedAt,
             updatedAt: formattedUpdatedAt,
             updatedAtTimestamp: updatedDate.getTime(),
-          })
+          });
         }
 
-        return acc
-      }, [])
+        return acc;
+      }, []);
 
       // Sort data by latest updatedAt timestamp
       const sortedData = groupedData
         .sort((a, b) => b.updatedAtTimestamp - a.updatedAtTimestamp)
-        .map((item, index) => ({ ...item, id: index + 1 }))
+        .map((item, index) => ({ ...item, id: index + 1 }));
 
-      setRows(sortedData)
+      setRows(sortedData);
     } catch (error) {
-      console.log("Error fetching data", error)
+      console.log("Error fetching data", error);
     }
-  }
+  };
 
   useEffect(() => {
-    fetchTableData()
-  }, [])
+    fetchTableData();
+  }, []);
 
   return (
     <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
@@ -208,7 +208,7 @@ export default function QuickFilteringGrid() {
         />
       </Box>
     </Box>
-  )
+  );
 }
 
 const dataGridStyles = {
@@ -238,4 +238,4 @@ const dataGridStyles = {
     backgroundColor: "red",
     zIndex: 1,
   },
-}
+};

@@ -624,16 +624,18 @@ export default function IssuanceForm() {
                   <Grid item xs={6} sm={6}>
                     <Autocomplete
                       disablePortal
-                      options={formData.category === "staff" ? STAFFS : IIT_BRANCHES}
+                      options={
+                        formData.category === "staff" ? STAFFS : IIT_BRANCHES
+                      }
                       getOptionLabel={(option) => option.label}
-                      value={formData.category === "staff" ?
-                        STAFFS.find(
-                          (branch) => branch.value === formData.branch
-                        ) || null
-                         :
-                        IIT_BRANCHES.find(
-                          (branch) => branch.value === formData.branch
-                        ) || null
+                      value={
+                        formData.category === "staff"
+                          ? STAFFS.find(
+                              (branch) => branch.value === formData.branch
+                            ) || null
+                          : IIT_BRANCHES.find(
+                              (branch) => branch.value === formData.branch
+                            ) || null
                       }
                       onChange={(event, newValue) => {
                         setFormData((prev) => ({
@@ -643,7 +645,15 @@ export default function IssuanceForm() {
                       }}
                       disabled={!isLoggedIn}
                       renderInput={(params) => (
-                        <TextField {...params} label={formData.category === "staff" ? "Staff Type" :"Branch"} required />
+                        <TextField
+                          {...params}
+                          label={
+                            formData.category === "staff"
+                              ? "Staff Type"
+                              : "Branch"
+                          }
+                          required
+                        />
                       )}
                     />
                   </Grid>

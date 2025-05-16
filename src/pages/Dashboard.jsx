@@ -1,19 +1,19 @@
-import { Grid, Card, CardContent, Typography, Box, Alert } from "@mui/material"
+import { Grid, Card, CardContent, Typography, Box, Alert } from "@mui/material";
 
-import { Link } from "react-router-dom"
-import { useState, useEffect } from "react"
-import axios from "axios"
+import { Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import {
   Inventory,
   AssignmentTurnedIn,
   Storage,
   ListAlt,
-} from "@mui/icons-material"
-import MonthWiseBarChart from "../components/MonthWiseBarChart"
-import StatusPieChart from "../components/StatusPieChart"
-import AdminApprovalButton from "../components/AdminApprovalButton"
-import InventorySummary from "../components/InventorySummary"
-import ReIssueLogDialog from "../components/dialog/ReIssueLogDialog"
+} from "@mui/icons-material";
+import MonthWiseBarChart from "../components/MonthWiseBarChart";
+import StatusPieChart from "../components/StatusPieChart";
+import AdminApprovalButton from "../components/AdminApprovalButton";
+import InventorySummary from "../components/InventorySummary";
+import ReIssueLogDialog from "../components/dialog/ReIssueLogDialog";
 
 export default function DashboardMaster() {
   const [data, setData] = useState({
@@ -21,77 +21,78 @@ export default function DashboardMaster() {
     returnedOrConsumed: 0,
     totalInventory: 0,
     totalIssuedComponents: 0,
-  })
-  const [allIssuanceData, setAllIssuanceData] = useState([])
-  const [pendingUsers, setPendingUsers] = useState([])
+  });
+  const [allIssuanceData, setAllIssuanceData] = useState([]);
+  const [pendingUsers, setPendingUsers] = useState([]);
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
-  const user = JSON.parse(localStorage.getItem("user"))
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const fetchIssuanceData = async () => {
     try {
-      const response = await axios.get(`${baseURL}/user/get-user`)
-      const allFetchedData = response?.data?.data || []
-      setAllIssuanceData(allFetchedData)
+      const response = await axios.get(`${baseURL}/user/get-user`);
+      const allFetchedData = response?.data?.data || [];
+      setAllIssuanceData(allFetchedData);
 
-      const totalIssuedCount = allFetchedData.length
+      const totalIssuedCount = allFetchedData.length;
       const currentlyIssuedCount = allFetchedData.filter(
         (item) => item.status === "Issued"
-      ).length
+      ).length;
 
       const returnedOrConsumedCount = allFetchedData.filter(
         (item) => item.status === "Returned" || item.status === "Consumed"
-      ).length
+      ).length;
 
       setData((prevData) => ({
         ...prevData,
         currentlyIssued: currentlyIssuedCount,
         returnedOrConsumed: returnedOrConsumedCount,
         totalIssuedComponents: totalIssuedCount,
-      }))
+      }));
     } catch (error) {
-      console.error("Error fetching issuance data:", error)
+      console.error("Error fetching issuance data:", error);
     }
-  }
+  };
 
   const fetchInventoryData = async () => {
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const response = await axios.get(`${baseURL}/inventory`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
         withCredentials: true,
-      })
-      const inventoryData = response?.data?.data || []
+      });
+      const inventoryData = response?.data?.data || [];
 
       setData((prevData) => ({
         ...prevData,
         totalInventory: inventoryData.length,
-      }))
+      }));
     } catch (error) {
-      console.error("Error fetching inventory data:", error)
+      console.error("Error fetching inventory data:", error);
     }
-  }
+  };
 
   const fetchPendingUsers = async () => {
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const response = await axios.get(`${baseURL}/master/pending-approvals`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-      setPendingUsers(response?.data?.users)
+      });
+      setPendingUsers(response?.data?.users);
     } catch (error) {
-      console.error("Error fetching users:", error)
+      console.error("Error fetching users:", error);
     }
-  }
+  };
+
   useEffect(() => {
-    fetchIssuanceData()
-    fetchInventoryData()
-    if (user?.role === "master") fetchPendingUsers()
-  }, [baseURL, user])
+    fetchIssuanceData();
+    fetchInventoryData();
+    if (user?.role === "master") fetchPendingUsers();
+  }, [baseURL, user]);
 
   return (
     <Box
@@ -203,11 +204,11 @@ export default function DashboardMaster() {
         </Grid>
       </Grid>
     </Box>
-  )
+  );
 }
 
 function StatCard({ title, value, icon, color, link }) {
-  const path = location.pathname + `${link}`
+  const path = location.pathname + `${link}`;
   return (
     <Grid item xs={12} sm={6} md={3}>
       {link ? (
@@ -228,7 +229,7 @@ function StatCard({ title, value, icon, color, link }) {
         />
       )}
     </Grid>
-  )
+  );
 }
 
 function StatCardContent({ title, value, icon, color }) {
@@ -293,5 +294,5 @@ function StatCardContent({ title, value, icon, color }) {
         </Box>
       </CardContent>
     </Card>
-  )
+  );
 }

@@ -29,4 +29,4 @@ export const nonConsumableConfig = [
   { name: "finalSupplyDate", label: "Final Supply Date", type: "date" },
   { name: "assetHead", label: "Asset Head", type: "text" },
   { name: "billInvoiceNoDate", label: "Bill/Invoice No/Date", type: "text" },
-]
+];

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react"
+import React, { useState, useEffect, useMemo } from "react";
 import {
   BarChart,
   Bar,
@@ -8,7 +8,7 @@ import {
   Tooltip,
   Legend,
   ResponsiveContainer,
-} from "recharts"
+} from "recharts";
 import {
   Typography,
   FormControl,
@@ -16,59 +16,59 @@ import {
   Select,
   MenuItem,
   Box,
-} from "@mui/material"
+} from "@mui/material";
 
 const MonthWiseBarChart = ({ graphData }) => {
-  const currentDate = new Date()
-  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear())
+  const currentDate = new Date();
+  const [selectedYear, setSelectedYear] = useState(currentDate.getFullYear());
 
   const { availableYears, yearMonthMap } = useMemo(() => {
     if (!Array.isArray(graphData)) {
-      return { availableYears: [], yearMonthMap: {} }
+      return { availableYears: [], yearMonthMap: {} };
     }
 
-    const years = new Set()
-    const monthMap = {}
+    const years = new Set();
+    const monthMap = {};
 
     // Sort data by createdAt to get the latest date for each year
     const sortedData = [...graphData].sort(
       (a, b) => new Date(b.createdAt) - new Date(a.createdAt)
-    )
+    );
 
     sortedData.forEach((item) => {
       if (item?.createdAt) {
-        const date = new Date(item.createdAt)
-        const year = date.getFullYear()
-        const month = date.getMonth() // 0-11
+        const date = new Date(item.createdAt);
+        const year = date.getFullYear();
+        const month = date.getMonth(); // 0-11
 
-        years.add(year)
+        years.add(year);
 
         // Store the highest month number for each year
         if (monthMap[year] === undefined || month > monthMap[year]) {
-          monthMap[year] = month
+          monthMap[year] = month;
         }
       }
-    })
+    });
 
     return {
       availableYears: Array.from(years).sort((a, b) => b - a),
       yearMonthMap: monthMap,
-    }
-  }, [graphData])
+    };
+  }, [graphData]);
 
   useEffect(() => {
     if (availableYears.length > 0 && !availableYears.includes(selectedYear)) {
-      setSelectedYear(availableYears[0])
+      setSelectedYear(availableYears[0]);
     }
-  }, [availableYears, selectedYear])
+  }, [availableYears, selectedYear]);
 
   const handleYearChange = (event) => {
-    setSelectedYear(Number(event.target.value))
-  }
+    setSelectedYear(Number(event.target.value));
+  };
 
   // Process the data to get month-wise counts for selected year
   const processData = () => {
-    if (!Array.isArray(graphData)) return []
+    if (!Array.isArray(graphData)) return [];
 
     const months = [
       "Jan",
@@ -83,13 +83,13 @@ const MonthWiseBarChart = ({ graphData }) => {
       "Oct",
       "Nov",
       "Dec",
-    ]
+    ];
 
     // Get the last month for the selected year
-    const lastMonthForYear = yearMonthMap[selectedYear] ?? -1
-    if (lastMonthForYear === -1) return []
+    const lastMonthForYear = yearMonthMap[selectedYear] ?? -1;
+    if (lastMonthForYear === -1) return [];
 
-    const monthCounts = {}
+    const monthCounts = {};
     // Only initialize months up to the last month with data for the selected year
     for (let i = 0; i <= lastMonthForYear; i++) {
       monthCounts[months[i]] = {
@@ -97,33 +97,33 @@ const MonthWiseBarChart = ({ graphData }) => {
         issued: 0,
         returned: 0,
         consumed: 0,
-      }
+      };
     }
 
     graphData.forEach((item) => {
       if (item?.createdAt && item?.status) {
-        const date = new Date(item.createdAt)
-        const year = date.getFullYear()
-        const month = date.toLocaleString("default", { month: "short" })
+        const date = new Date(item.createdAt);
+        const year = date.getFullYear();
+        const month = date.toLocaleString("default", { month: "short" });
 
         if (year === selectedYear && monthCounts[month]) {
-          const status = item.status.toLowerCase()
+          const status = item.status.toLowerCase();
           if (
             status === "issued" ||
             status === "returned" ||
             status === "consumed"
           ) {
-            monthCounts[month][status]++
+            monthCounts[month][status]++;
           }
         }
       }
-    })
+    });
 
     // Convert to array and maintain month order
-    return Object.values(monthCounts)
-  }
+    return Object.values(monthCounts);
+  };
 
-  const data = processData()
+  const data = processData();
 
   return (
     <Box sx={{ width: "100%", height: "100%", p: 3 }}>
@@ -205,7 +205,7 @@ const MonthWiseBarChart = ({ graphData }) => {
         )}
       </Box>
     </Box>
-  )
-}
+  );
+};
 
-export default MonthWiseBarChart
+export default MonthWiseBarChart;

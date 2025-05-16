@@ -1,20 +1,20 @@
-import React from "react"
-import { auth, provider } from "../firebase"
-import { signInWithPopup } from "firebase/auth"
-import { Box, Button } from "@mui/material"
+import React from "react";
+import { auth, provider } from "../firebase";
+import { signInWithPopup } from "firebase/auth";
+import { Box, Button } from "@mui/material";
 
 export default function GoogleLoginButton({ onSuccess }) {
   const handleGoogleLogin = async () => {
     try {
-      const result = await signInWithPopup(auth, provider)
-      const user = result.user
+      const result = await signInWithPopup(auth, provider);
+      const user = result.user;
 
-      if (onSuccess) onSuccess(user)
+      if (onSuccess) onSuccess(user);
     } catch (error) {
-      console.error("Google Login Error:", error)
-      alert("Google Sign-in failed. Please try again.")
+      console.error("Google Login Error:", error);
+      alert("Google Sign-in failed. Please try again.");
     }
-  }
+  };
 
   return (
     <Button
@@ -38,5 +38,5 @@ export default function GoogleLoginButton({ onSuccess }) {
       />
       Sign in with Google
     </Button>
-  )
+  );
 }

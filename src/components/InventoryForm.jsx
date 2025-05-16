@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 import {
   TextField,
   Button,
@@ -8,75 +8,75 @@ import {
   Box,
   Divider,
   Grid,
-} from "@mui/material"
-import axios from "axios"
-import { useNavigate } from "react-router-dom"
-import CsvUploader from "./CsvUploader"
-import moment from "moment"
-import { navigateToRoleBasedPath } from "../utils/roleNavigator"
-import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
+} from "@mui/material";
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import CsvUploader from "./CsvUploader";
+import moment from "moment";
+import { navigateToRoleBasedPath } from "../utils/roleNavigator";
+import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
 
 const ComponentForm = () => {
   const [formData, setFormData] = useState({
     componentName: "",
     specification: "",
     quantity: "",
-  })
-  const [loading, setLoading] = useState(false)
-  const [lastEntry, setLastEntry] = useState(null)
+  });
+  const [loading, setLoading] = useState(false);
+  const [lastEntry, setLastEntry] = useState(null);
 
-  const navigate = useNavigate()
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+  const navigate = useNavigate();
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   // Handle input changes
   const handleChange = (e) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value })
-  }
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
+    e.preventDefault();
+    setLoading(true);
 
     try {
       const response = await axios.post(`${baseURL}/inventory`, formData, {
         headers: { "Content-Type": "application/json" },
         withCredentials: true,
-      })
+      });
 
       if (response?.data?.success === true) {
-        const newEntry = response?.data?.data
+        const newEntry = response?.data?.data;
 
         // Save last entry in state and localStorage
-        setLastEntry(newEntry)
-        localStorage.setItem("lastInventoryEntry", JSON.stringify(newEntry))
+        setLastEntry(newEntry);
+        localStorage.setItem("lastInventoryEntry", JSON.stringify(newEntry));
 
         showSuccessToast(
           response?.data?.message || "Inventory entry submitted successfully!"
-        )
+        );
         setTimeout(() => {
           setFormData({
             ...formData,
             componentName: "",
             specification: "",
             quantity: "",
-          })
-          setLoading(false)
-        }, 1500)
+          });
+          setLoading(false);
+        }, 1500);
       }
     } catch (error) {
-      console.error("Error submitting form:", error)
-      showErrorToast(" Error submitting inventory. Please try again!")
-      setLoading(false)
+      console.error("Error submitting form:", error);
+      showErrorToast(" Error submitting inventory. Please try again!");
+      setLoading(false);
     }
-  }
+  };
 
   // Load last entry from localStorage on mount
   useEffect(() => {
-    const storedEntry = localStorage.getItem("lastInventoryEntry")
+    const storedEntry = localStorage.getItem("lastInventoryEntry");
     if (storedEntry) {
-      setLastEntry(JSON.parse(storedEntry))
+      setLastEntry(JSON.parse(storedEntry));
     }
-  }, [])
+  }, []);
 
   return (
     <>
@@ -297,7 +297,7 @@ const ComponentForm = () => {
         </Grid>
       </Box>
     </>
-  )
-}
+  );
+};
 
-export default ComponentForm
+export default ComponentForm;

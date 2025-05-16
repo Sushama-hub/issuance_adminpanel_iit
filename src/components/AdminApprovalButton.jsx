@@ -1,12 +1,12 @@
-import { Alert, Badge, Box, Button } from "@mui/material"
-import React from "react"
-import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount"
-import { useNavigate } from "react-router-dom"
+import { Alert, Badge, Box, Button } from "@mui/material";
+import React from "react";
+import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
+import { useNavigate } from "react-router-dom";
 
 export default function AdminApprovalButton({ pendingUsers }) {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const user = JSON.parse(localStorage.getItem("user"))
+  const user = JSON.parse(localStorage.getItem("user"));
 
   return (
     <>
@@ -62,5 +62,5 @@ export default function AdminApprovalButton({ pendingUsers }) {
         </Box>
       )}
     </>
-  )
+  );
 }

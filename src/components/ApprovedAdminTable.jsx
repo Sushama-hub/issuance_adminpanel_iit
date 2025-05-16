@@ -1,21 +1,21 @@
-import * as React from "react"
-import { DataGrid, GridToolbar } from "@mui/x-data-grid"
-import axios from "axios"
-import { Box, Typography, Switch, IconButton } from "@mui/material"
-import { AdminColumns } from "../config/tableConfig"
-import DeleteIcon from "@mui/icons-material/Delete"
-import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
+import * as React from "react";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import axios from "axios";
+import { Box, Typography, Switch, IconButton } from "@mui/material";
+import { AdminColumns } from "../config/tableConfig";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
 
-const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 export default function QuickFilteringGrid({ rows, fetchTableData }) {
   // Toggle active status component (inline)
   const ToggleActiveCell = ({ params }) => {
     const handleToggle = async (event) => {
-      const newValue = event.target.checked
+      const newValue = event.target.checked;
 
       try {
-        const token = localStorage.getItem("token")
+        const token = localStorage.getItem("token");
         await axios.patch(
           `${baseURL}/master/update-active/${params.row._id}`,
           // { active: newValue },
@@ -25,30 +25,30 @@ export default function QuickFilteringGrid({ rows, fetchTableData }) {
               Authorization: `Bearer ${token}`,
             },
           }
-        )
-        fetchTableData()
+        );
+        fetchTableData();
       } catch (error) {
-        console.error("Error updating active status:", error)
+        console.error("Error updating active status:", error);
       }
-    }
+    };
     return (
       <Switch
         checked={params.row.active}
         onChange={handleToggle}
         color="success"
       />
-    )
-  }
+    );
+  };
 
   const handleDelete = async (id) => {
     const confirm = window.confirm(
       "Are you sure you want to delete this admin?",
       id
-    )
-    if (!confirm) return
+    );
+    if (!confirm) return;
 
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const response = await axios.delete(
         `${baseURL}/master/deleteAdmin/${id}`,
         {
@@ -56,21 +56,21 @@ export default function QuickFilteringGrid({ rows, fetchTableData }) {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
+      );
 
       if (response?.data?.success === true) {
-        showSuccessToast(response?.data?.message || "Deleted successfully")
+        showSuccessToast(response?.data?.message || "Deleted successfully");
         setTimeout(() => {
-          fetchTableData()
-        }, 1500)
+          fetchTableData();
+        }, 1500);
       }
     } catch (error) {
-      console.error("Error deleting item", error)
-      showErrorToast("Error deleting inventory item. Please try again!")
+      console.error("Error deleting item", error);
+      showErrorToast("Error deleting inventory item. Please try again!");
     }
-  }
+  };
 
-  const user = JSON.parse(localStorage.getItem("user"))
+  const user = JSON.parse(localStorage.getItem("user"));
 
   return (
     <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
@@ -148,7 +148,7 @@ export default function QuickFilteringGrid({ rows, fetchTableData }) {
         />
       </Box>
     </Box>
-  )
+  );
 }
 
 const dataGridStyles = {
@@ -178,4 +178,4 @@ const dataGridStyles = {
     backgroundColor: "red",
     zIndex: 1,
   },
-}
+};

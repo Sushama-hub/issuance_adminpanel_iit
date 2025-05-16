@@ -1,35 +1,35 @@
-import React, { useEffect, useState } from "react"
-import { DataGrid, GridToolbar } from "@mui/x-data-grid"
-import axios from "axios"
-import { Box, Button, IconButton, Typography } from "@mui/material"
-import { useLocation, useNavigate } from "react-router-dom"
-import { NonConsumableColumns } from "../config/tableConfig"
-import DeleteIcon from "@mui/icons-material/Delete"
-import EditIcon from "@mui/icons-material/Edit"
-import AddIcon from "@mui/icons-material/Add"
-import { showErrorToast, showSuccessToast } from "../utils/toastUtils"
-import EditDialogBox from "./dialog/EditDialogBox"
-import { nonConsumableConfig } from "../config/nonConsumableConfig"
-import { formatDateToDDMMYYYY } from "../utils/date"
+import React, { useEffect, useState } from "react";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
+import axios from "axios";
+import { Box, Button, IconButton, Typography } from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
+import { NonConsumableColumns } from "../config/tableConfig";
+import DeleteIcon from "@mui/icons-material/Delete";
+import EditIcon from "@mui/icons-material/Edit";
+import AddIcon from "@mui/icons-material/Add";
+import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
+import EditDialogBox from "./dialog/EditDialogBox";
+import { nonConsumableConfig } from "../config/nonConsumableConfig";
+import { formatDateToDDMMYYYY } from "../utils/date";
 
-const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
 export default function QuickFilteringGrid() {
-  const [rows, setRows] = useState([])
-  const [editDialogOpen, setEditDialogOpen] = useState(false)
-  const [selectedEditRow, setSelectedEditRow] = useState(null)
-  const [stockId, setStockId] = useState("")
+  const [rows, setRows] = useState([]);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [selectedEditRow, setSelectedEditRow] = useState(null);
+  const [stockId, setStockId] = useState("");
 
-  const location = useLocation()
-  const navigate = useNavigate()
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  const queryParams = new URLSearchParams(location.search)
-  const selectedYear = queryParams.get("year")
+  const queryParams = new URLSearchParams(location.search);
+  const selectedYear = queryParams.get("year");
 
   const fetchTableData = async (year) => {
-    if (!year) return // exit if year is not selected
+    if (!year) return; // exit if year is not selected
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const response = await axios.get(
         `${baseURL}/nonConsumableStock/nonConsumableStockFilter/${year}`,
         {
@@ -37,49 +37,49 @@ export default function QuickFilteringGrid() {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
+      );
 
       const rowsWithId = response?.data?.yearData?.data?.map((item, index) => ({
         ...item,
         id: index + 1,
         finalSupplyDate: formatDateToDDMMYYYY(item.finalSupplyDate),
-      }))
+      }));
 
-      setRows(rowsWithId || [])
-      setStockId(response?.data?.yearData?._id)
+      setRows(rowsWithId || []);
+      setStockId(response?.data?.yearData?._id);
     } catch (error) {
-      console.log("Error fetching data", error)
+      console.log("Error fetching data", error);
     }
-  }
+  };
 
   useEffect(() => {
     if (selectedYear) {
-      fetchTableData(selectedYear)
+      fetchTableData(selectedYear);
     }
-  }, [selectedYear])
+  }, [selectedYear]);
 
-  const storedUser = JSON.parse(localStorage.getItem("user"))
+  const storedUser = JSON.parse(localStorage.getItem("user"));
 
   const routeBase =
     storedUser?.role === "master"
       ? "/dashboard/master/non_consumable_form"
-      : "/dashboard/admin/non_consumable_form"
+      : "/dashboard/admin/non_consumable_form";
 
   const handleEdit = (row) => {
     // console.log("handle edit called", row)
-    setSelectedEditRow(row)
-    setEditDialogOpen(true)
-  }
+    setSelectedEditRow(row);
+    setEditDialogOpen(true);
+  };
 
   // Handle Delete
   const handleDelete = async (rowId, stockId) => {
     const confirm = window.confirm(
       "Are you sure you want to delete this stock?"
-    )
-    if (!confirm) return
+    );
+    if (!confirm) return;
 
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const response = await axios.delete(
         `${baseURL}/nonConsumableStock/deleteStockData/${stockId}/${rowId}`,
         {
@@ -87,21 +87,21 @@ export default function QuickFilteringGrid() {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
+      );
 
       if (response?.data?.success) {
-        showSuccessToast(response?.data?.message || "Deleted successfully")
-        fetchTableData(selectedYear)
+        showSuccessToast(response?.data?.message || "Deleted successfully");
+        fetchTableData(selectedYear);
       }
     } catch (error) {
-      console.error("Error deleting item", error)
-      showErrorToast("Error deleting inventory item. Please try again!")
+      console.error("Error deleting item", error);
+      showErrorToast("Error deleting inventory item. Please try again!");
     }
-  }
+  };
 
   const handleDialogSubmit = async () => {
     try {
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       const response = await axios.put(
         `${baseURL}/nonConsumableStock/editStockData/${stockId}/${selectedEditRow?._id}`,
         selectedEditRow,
@@ -110,23 +110,23 @@ export default function QuickFilteringGrid() {
             Authorization: `Bearer ${token}`,
           },
         }
-      )
+      );
 
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "Item Updated successfully!"
-        )
-        setEditDialogOpen(false)
-        setSelectedEditRow(null)
-        fetchTableData(selectedYear) // Reload table with updated data
+        );
+        setEditDialogOpen(false);
+        setSelectedEditRow(null);
+        fetchTableData(selectedYear); // Reload table with updated data
       }
     } catch (error) {
-      console.error("Error updating item", error)
-      showErrorToast("Something went wrong while updating!")
+      console.error("Error updating item", error);
+      showErrorToast("Something went wrong while updating!");
     }
-  }
+  };
 
-  const user = JSON.parse(localStorage.getItem("user"))
+  const user = JSON.parse(localStorage.getItem("user"));
 
   return (
     <>
@@ -302,7 +302,7 @@ export default function QuickFilteringGrid() {
         heading="Edit Non Consumable Stock"
       />
     </>
-  )
+  );
 }
 
 const dataGridStyles = {
@@ -332,4 +332,4 @@ const dataGridStyles = {
     backgroundColor: "red",
     zIndex: 1,
   },
-}
+};

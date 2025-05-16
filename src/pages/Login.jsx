@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import React, { useState } from "react";
 import {
   Container,
   TextField,
@@ -10,32 +10,32 @@ import {
   IconButton,
   Link,
   Grid,
-} from "@mui/material"
-import { Visibility, VisibilityOff } from "@mui/icons-material"
-import { useNavigate } from "react-router-dom"
-import axios from "axios"
+} from "@mui/material";
+import { Visibility, VisibilityOff } from "@mui/icons-material";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import {
   showSuccessToast,
   showErrorToast,
   showWarningToast,
-} from "../utils/toastUtils"
-
+} from "../utils/toastUtils";
+import Login2 from "../assets/images/login2.jpg";
 const LoginPage = () => {
-  const [email, setEmail] = useState("")
-  const [password, setPassword] = useState("")
-  const [showPassword, setShowPassword] = useState(false)
-  const navigate = useNavigate()
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
-  const handleClickShowPassword = () => setShowPassword(!showPassword)
+  const handleClickShowPassword = () => setShowPassword(!showPassword);
 
   const handleMouseDownPassword = (event) => {
-    event.preventDefault()
-  }
+    event.preventDefault();
+  };
 
   const handleLogin = async (event) => {
-    event.preventDefault()
+    event.preventDefault();
 
     try {
       const { data } = await axios.post(
@@ -45,20 +45,20 @@ const LoginPage = () => {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
         }
-      )
+      );
 
       if (data?.success) {
-        const token = data?.token
-        const user = data?.user
-        const expiresIn = 3600 * 1000 // 1 hour
+        const token = data?.token;
+        const user = data?.user;
+        const expiresIn = 3600 * 1000; // 1 hour
         // const expiresIn = 10 * 1000 // 10 seconds
-        const expiresAt = new Date().getTime() + expiresIn
+        const expiresAt = new Date().getTime() + expiresIn;
 
-        localStorage.setItem("token", token)
-        localStorage.setItem("user", JSON.stringify(user))
-        localStorage.setItem("expiresAt", expiresAt.toString())
+        localStorage.setItem("token", token);
+        localStorage.setItem("user", JSON.stringify(user));
+        localStorage.setItem("expiresAt", expiresAt.toString());
 
-        const userRole = data?.user?.role
+        const userRole = data?.user?.role;
 
         // Redirect based on role
         // setTimeout(() => {
@@ -71,41 +71,41 @@ const LoginPage = () => {
         //   }
         // }, 1500)
         if (userRole === "master") {
-          showSuccessToast(data?.message || "Login successful! Redirecting...")
+          showSuccessToast(data?.message || "Login successful! Redirecting...");
           setTimeout(() => {
-            navigate("/dashboard/master")
-          }, 1500)
+            navigate("/dashboard/master");
+          }, 1500);
         } else if (userRole === "admin") {
-          showSuccessToast(data?.message || "Login successful! Redirecting...")
+          showSuccessToast(data?.message || "Login successful! Redirecting...");
           setTimeout(() => {
-            navigate("/dashboard/admin")
-          }, 1500)
+            navigate("/dashboard/admin");
+          }, 1500);
         } else {
           // Handle case for "user" role - show error
           showWarningToast(
             data?.message ||
               "Access denied. Only admins and masters are allowed."
-          )
-          localStorage.removeItem("token")
-          localStorage.removeItem("user")
-          localStorage.removeItem("expiresAt")
+          );
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("expiresAt");
         }
 
         // Auto logout after token expiry
         setTimeout(() => {
-          localStorage.removeItem("token")
-          localStorage.removeItem("user")
-          localStorage.removeItem("expiresAt")
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          localStorage.removeItem("expiresAt");
 
-          showWarningToast("Session expired. Please log in again.")
-          navigate("/login")
-        }, expiresIn)
+          showWarningToast("Session expired. Please log in again.");
+          navigate("/login");
+        }, expiresIn);
       }
     } catch (error) {
-      console.error("Error:", error?.response?.data?.message)
-      showErrorToast("Login failed. Please try again.")
+      console.error("Error:", error?.response?.data?.message);
+      showErrorToast("Login failed. Please try again.");
     }
-  }
+  };
   return (
     <Box
       sx={{
@@ -130,7 +130,8 @@ const LoginPage = () => {
               }}
             >
               <img
-                src="/src/assets/images/login2.jpg"
+                // src="/src/assets/images/login2.jpg"
+                src={Login2}
                 alt="login"
                 style={{
                   width: "100%",
@@ -239,8 +240,8 @@ const LoginPage = () => {
         </Grid>
       </Container>
     </Box>
-  )
-}
+  );
+};
 
 const textFieldStyles = {
   textAlign: "left",
@@ -272,6 +273,6 @@ const textFieldStyles = {
     borderRadius: "10px",
     transition: "background-color 5000s ease-in-out 0s",
   },
-}
+};
 
-export default LoginPage
+export default LoginPage;

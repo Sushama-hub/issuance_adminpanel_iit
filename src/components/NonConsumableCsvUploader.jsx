@@ -1,37 +1,43 @@
-import React, { useRef, useState } from "react"
-import Papa from "papaparse"
-import axios from "axios"
-import { Autocomplete, Box, Button, TextField, Typography } from "@mui/material"
-import CloudUploadIcon from "@mui/icons-material/CloudUpload"
-import FileDownloadIcon from "@mui/icons-material/FileDownload"
-import { showSuccessToast, showErrorToast } from "../utils/toastUtils"
+import React, { useRef, useState } from "react";
+import Papa from "papaparse";
+import axios from "axios";
+import {
+  Autocomplete,
+  Box,
+  Button,
+  TextField,
+  Typography,
+} from "@mui/material";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import FileDownloadIcon from "@mui/icons-material/FileDownload";
+import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
 
 const NonConsumableCsvUploader = ({ yearData, fetchYearData }) => {
-  const [csvData, setCsvData] = useState([])
-  const [isFileSelected, setIsFileSelected] = useState(false)
-  const [selectedYear, setSelectedYear] = useState("")
+  const [csvData, setCsvData] = useState([]);
+  const [isFileSelected, setIsFileSelected] = useState(false);
+  const [selectedYear, setSelectedYear] = useState("");
 
-  const fileInputRef = useRef(null)
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
+  const fileInputRef = useRef(null);
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   const handleFileChange = (e) => {
-    const file = e.target.files[0]
+    const file = e.target.files[0];
 
     if (file) {
-      setIsFileSelected(true)
+      setIsFileSelected(true);
       Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
         complete: function (results) {
           // console.log("Parsed Results: ", results?.data)
-          setCsvData(results?.data)
+          setCsvData(results?.data);
         },
-      })
+      });
     }
-  }
+  };
 
   const handleUploadFile = async () => {
-    if (!csvData.length) return
+    if (!csvData.length) return;
     try {
       const response = await axios.post(
         `${baseURL}/nonConsumableStock/upload-csv`,
@@ -40,26 +46,26 @@ const NonConsumableCsvUploader = ({ yearData, fetchYearData }) => {
           headers: { "Content-Type": "application/json" },
           withCredentials: true,
         }
-      )
+      );
 
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "Data uploaded successfully!"
-        )
+        );
 
-        fetchYearData()
-        setCsvData([])
-        setSelectedYear("")
-        setIsFileSelected(false)
+        fetchYearData();
+        setCsvData([]);
+        setSelectedYear("");
+        setIsFileSelected(false);
         if (fileInputRef.current) {
-          fileInputRef.current.value = null // clear file input
+          fileInputRef.current.value = null; // clear file input
         }
       }
     } catch (error) {
-      console.error("Error uploading data:", error)
-      showErrorToast(" Error File Uploading. Please try again!")
+      console.error("Error uploading data:", error);
+      showErrorToast(" Error File Uploading. Please try again!");
     }
-  }
+  };
 
   const handleDownloadSample = () => {
     const sampleData = [
@@ -111,18 +117,18 @@ const NonConsumableCsvUploader = ({ yearData, fetchYearData }) => {
         "Electronics",
         "INV/789/2024",
       ],
-    ]
+    ];
     const csvContent =
       "data:text/csv;charset=utf-8," +
-      sampleData.map((e) => e.join(",")).join("\n")
-    const encodedUri = encodeURI(csvContent)
-    const link = document.createElement("a")
-    link.setAttribute("href", encodedUri)
-    link.setAttribute("download", "non_consumable_sample_format.csv")
-    document.body.appendChild(link)
-    link.click()
-    document.body.removeChild(link)
-  }
+      sampleData.map((e) => e.join(",")).join("\n");
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement("a");
+    link.setAttribute("href", encodedUri);
+    link.setAttribute("download", "non_consumable_sample_format.csv");
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   return (
     <Box sx={{ padding: 2 }}>
@@ -153,8 +159,8 @@ const NonConsumableCsvUploader = ({ yearData, fetchYearData }) => {
           options={yearData.map((item) => item?.year)}
           value={selectedYear}
           onChange={(event, newValue) => {
-            console.log("Selected Year:", newValue)
-            setSelectedYear(newValue)
+            console.log("Selected Year:", newValue);
+            setSelectedYear(newValue);
           }}
           renderInput={(params) => (
             <TextField {...params} label="Add Year Data" required />
@@ -201,7 +207,7 @@ const NonConsumableCsvUploader = ({ yearData, fetchYearData }) => {
         </Button>
       </Box>
     </Box>
-  )
-}
+  );
+};
 
-export default NonConsumableCsvUploader
+export default NonConsumableCsvUploader;

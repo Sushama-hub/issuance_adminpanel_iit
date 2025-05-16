@@ -1,67 +1,68 @@
-import { Routes, Route, Navigate } from "react-router-dom"
-import Dashboard from "./pages/Dashboard"
-import IssuedTable from "./components/IssuedTable"
-import ReturnedAndConsumedTable from "./components/ReturnedAndConsumedTable"
-import InventoryForm from "./components/InventoryForm"
-import InventoryFormTable from "./components/InventoryFormTable"
-import Login from "./pages/Login"
-import Register from "./pages/Register"
-import UserForm from "./components/UserForm"
-import MiniDrawer from "./layouts/Drawer"
-import NonConsumableForm from "./components/NonConsumableForm"
-import NonConsumableStock from "./components/NonConsumableStock"
-import AdminDetails from "./components/AdminDetails"
-import { ToastContainer } from "react-toastify"
-import "react-toastify/dist/ReactToastify.css"
+import { Routes, Route, Navigate } from "react-router-dom";
+import Dashboard from "./pages/Dashboard";
+import IssuedTable from "./components/IssuedTable";
+import ReturnedAndConsumedTable from "./components/ReturnedAndConsumedTable";
+import InventoryForm from "./components/InventoryForm";
+import InventoryFormTable from "./components/InventoryFormTable";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import UserForm from "./components/UserForm";
+import MiniDrawer from "./layouts/Drawer";
+import NonConsumableForm from "./components/NonConsumableForm";
+import NonConsumableStock from "./components/NonConsumableStock";
+import AdminDetails from "./components/AdminDetails";
+import { ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const getUserFromStorage = () => {
-  const user = localStorage.getItem("user")
-  const expiresAt = localStorage.getItem("expiresAt")
-  if (!user || !expiresAt) return null
+  const user = localStorage.getItem("user");
+  const expiresAt = localStorage.getItem("expiresAt");
+  if (!user || !expiresAt) return null;
 
-  const isExpired = new Date().getTime() > parseInt(expiresAt, 10)
+  const isExpired = new Date().getTime() > parseInt(expiresAt, 10);
   if (isExpired) {
-    localStorage.clear()
-    return null
+    localStorage.clear();
+    return null;
   }
 
-  return JSON.parse(user)
-}
+  return JSON.parse(user);
+};
 
 const hasTokenExpired = () => {
-  const expiresAt = localStorage.getItem("expiresAt")
-  return !expiresAt || new Date().getTime() > parseInt(expiresAt, 10)
-}
+  const expiresAt = localStorage.getItem("expiresAt");
+  return !expiresAt || new Date().getTime() > parseInt(expiresAt, 10);
+};
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
-  const token = localStorage.getItem("token")
-  const user = getUserFromStorage()
+  const token = localStorage.getItem("token");
+  const user = getUserFromStorage();
 
   if (!token || !user || hasTokenExpired()) {
-    localStorage.clear()
-    return <Navigate to="/login" replace />
+    localStorage.clear();
+    return <Navigate to="/login" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/unauthorized" replace />
+    return <Navigate to="/unauthorized" replace />;
   }
 
-  return children
-}
+  return children;
+};
 
 const AuthRedirect = ({ children }) => {
-  const token = localStorage.getItem("token")
-  const user = getUserFromStorage()
+  const token = localStorage.getItem("token");
+  const user = getUserFromStorage();
 
   if (token && user && !hasTokenExpired()) {
     if (user.role === "master")
-      return <Navigate to="/dashboard/master" replace />
-    if (user.role === "admin") return <Navigate to="/dashboard/admin" replace />
-    return <Navigate to="/unauthorized" replace />
+      return <Navigate to="/dashboard/master" replace />;
+    if (user.role === "admin")
+      return <Navigate to="/dashboard/admin" replace />;
+    return <Navigate to="/unauthorized" replace />;
   }
 
-  return children
-}
+  return children;
+};
 
 function App() {
   return (
@@ -134,7 +135,7 @@ function App() {
         <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;

@@ -78,7 +78,7 @@ export const IssuedColumns = [
     editable: false,
     width: 120,
   },
-]
+];
 
 export const ReturnedAndConsumedColumns = [
   {
@@ -159,7 +159,7 @@ export const ReturnedAndConsumedColumns = [
     editable: false,
     width: 120,
   },
-]
+];
 
 export const InventoryColumns = [
   {
@@ -209,7 +209,7 @@ export const InventoryColumns = [
     //   </Box>
     // ),
   },
-]
+];
 
 export const NonConsumableColumns = [
   {
@@ -380,7 +380,7 @@ export const NonConsumableColumns = [
     editable: false,
     width: 170,
   },
-]
+];
 
 export const AdminColumns = [
   {
@@ -440,7 +440,7 @@ export const AdminColumns = [
     flex: 1,
     editable: false,
   },
-]
+];
 
 export const ReIssueLogColumns = [
   {
@@ -491,4 +491,4 @@ export const ReIssueLogColumns = [
     flex: 1,
     editable: false,
   },
-]
+];

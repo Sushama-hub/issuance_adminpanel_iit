@@ -1,22 +1,22 @@
-import React from "react"
-import { Box, Button, Card, CardContent, Typography } from "@mui/material"
-import axios from "axios"
-import { showErrorToast, showSuccessToast } from "../utils/toastUtils"
+import React from "react";
+import { Box, Button, Card, CardContent, Typography } from "@mui/material";
+import axios from "axios";
+import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
 
 export default function AdminApprovalList({
   users,
   fetchUsers,
   fetchTableData,
 }) {
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL
-  const token = localStorage.getItem("token")
+  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+  const token = localStorage.getItem("token");
 
   const handleApproveUser = async (userId) => {
     // console.log("handle ApproveUser called", userId)
     const confirm = window.confirm(
       "Are you sure you want to approve this user as admin?"
-    )
-    if (!confirm) return
+    );
+    if (!confirm) return;
 
     try {
       const response = await axios.put(
@@ -27,24 +27,24 @@ export default function AdminApprovalList({
             Authorization: `Bearer ${token}`,
           },
         }
-      )
+      );
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "User successfully approved as admin!"
-        )
+        );
 
-        fetchTableData()
+        fetchTableData();
       }
     } catch (error) {
-      console.error("Error approving user:", error)
-      showErrorToast("Failed to approve user. Please try again.")
+      console.error("Error approving user:", error);
+      showErrorToast("Failed to approve user. Please try again.");
     }
-  }
+  };
 
   const handleRemoveUser = async (userId) => {
     // console.log("handle Removed called", userId)
-    const confirm = window.confirm("Are you sure, Do You Want To Denied User?")
-    if (!confirm) return
+    const confirm = window.confirm("Are you sure, Do You Want To Denied User?");
+    if (!confirm) return;
     try {
       const response = await axios.delete(
         `${baseURL}/master/deletePendingUser/${userId}`,
@@ -53,19 +53,19 @@ export default function AdminApprovalList({
             Authorization: `Bearer ${token}`,
           },
         }
-      )
+      );
 
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "User deleted successfully!"
-        )
-        fetchUsers()
+        );
+        fetchUsers();
       }
     } catch (error) {
-      console.error("Error deleting data:", error)
-      showErrorToast(`Failed to delete User. Please try again.`)
+      console.error("Error deleting data:", error);
+      showErrorToast(`Failed to delete User. Please try again.`);
     }
-  }
+  };
 
   return (
     <>
@@ -136,5 +136,5 @@ export default function AdminApprovalList({
         </>
       )}
     </>
-  )
+  );
 }

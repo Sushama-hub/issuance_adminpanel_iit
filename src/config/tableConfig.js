@@ -68,7 +68,7 @@ export const IssuedColumns = [
     field: "status",
     headerName: "Status",
     flex: 0,
-    editable: true,
+    editable: false,
     // renderCell: (params) => <EditableStatusCell params={params} />,
   },
   {

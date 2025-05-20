@@ -20,9 +20,7 @@ import {
 import { AddCircle, RemoveCircle } from "@mui/icons-material";
 import axios from "axios";
 import GoogleLoginButton from "./GoogleLoginButton";
-// import { auth } from "../firebase"
 import { initializeFirebase, firebaseSignOut, onAuthChange } from "../firebase";
-// import { onAuthStateChanged, signOut } from "firebase/auth"
 import {
   BATCH_YEARS,
   CATEGORIES,
@@ -59,39 +57,6 @@ export default function IssuanceForm() {
 
   const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
-  // Track login state
-  // useEffect(() => {
-  //   const unsubscribe = onAuthStateChanged(auth, (user) => {
-  //     if (user) {
-  //       setUserEmail(user.email)
-  //       setUserName(user.displayName)
-  //       setFormData((prev) => ({
-  //         ...prev,
-  //         email: user.email,
-  //         name: user.displayName,
-  //       }))
-  //       setIsLoggedIn(true)
-  //     } else {
-  //       setUserEmail("")
-  //       setUserName("")
-  //       setFormData({
-  //         email: "",
-  //         batch: "",
-  //         category: "",
-  //         idNumber: "",
-  //         name: "",
-  //         branch: "",
-  //         mobile: "",
-  //         components: [{ componentName: "", specification: "", quantity: "" }],
-  //         status: "Issued",
-  //       })
-  //       setIsLoggedIn(false)
-  //     }
-  //   })
-
-  //   return () => unsubscribe()
-  // }, [])
-  // Init Firebase + track auth state
   useEffect(() => {
     let unsubscribe;
     const init = async () => {
@@ -177,37 +142,25 @@ export default function IssuanceForm() {
     }
   };
 
-  // const handleLogout = async () => {
-  //   try {
-  //     await firebaseSignOut(auth)
-  //     setUser(null)
-  //     setUserEmail("")
-  //     setUserName("")
-  //     setIsLoggedIn(null)
-  //   } catch (error) {
-  //     console.error("Logout Error:", error)
-  //   }
-  // }
-  // ..............
-  useEffect(() => {
-    const fetchComponents = async () => {
-      try {
-        // const token = localStorage.getItem("token")
-        const response = await axios.get(
-          `${baseURL}/inventory/components`
-          //   {
-          //   headers: {
-          //     Authorization: `Bearer ${token}`,
-          //   },
-          // }
-        );
-        if (response?.data?.success) {
-          setComponentsList(response.data.components);
-        }
-      } catch (error) {
-        console.error("Error fetching components:", error);
+  const fetchComponents = async () => {
+    try {
+      // const token = localStorage.getItem("token")
+      const response = await axios.get(
+        `${baseURL}/inventory/components`
+        //   {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        // }
+      );
+      if (response?.data?.success) {
+        setComponentsList(response.data.components);
       }
-    };
+    } catch (error) {
+      console.error("Error fetching components:", error);
+    }
+  };
+  useEffect(() => {
     fetchComponents();
   }, [baseURL]);
 
@@ -227,7 +180,7 @@ export default function IssuanceForm() {
     );
 
     if (selectedComponent) {
-      let updatedQuantities = [...availableQuantities];
+      let updatedQuantities = [...(availableQuantities || [])];
       updatedQuantities[index] = selectedComponent.specifications;
       setAvailableQuantities(updatedQuantities);
     }
@@ -414,7 +367,8 @@ export default function IssuanceForm() {
             ],
             status: "Issued",
           });
-          setAvailableQuantities(0);
+          setAvailableQuantities([]);
+          fetchComponents();
 
           // Sign out user from Firebase
           firebaseSignOut()

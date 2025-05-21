@@ -73,12 +73,15 @@ export default function QuickFilteringGrid() {
     }
   };
 
+  // console.log("selectedEditRow", selectedEditRow);
+
   const handleDialogSubmit = async () => {
     try {
       const response = await apiRequest.put(
         `/inventory/${selectedEditRow._id}`,
         selectedEditRow
       );
+      // console.log("response---", response?.data);
 
       if (response?.data?.success) {
         showSuccessToast(

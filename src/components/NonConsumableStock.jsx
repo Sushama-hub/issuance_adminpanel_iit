@@ -30,6 +30,7 @@ export default function QuickFilteringGrid() {
       const response = await apiRequest.get(
         `/nonConsumableStock/nonConsumableStockFilter/${year}`
       );
+      // console.log("response,,,", response?.data);
 
       const rowsWithId = response?.data?.yearData?.data?.map((item, index) => ({
         ...item,
@@ -74,6 +75,7 @@ export default function QuickFilteringGrid() {
       const response = await apiRequest.delete(
         `/nonConsumableStock/deleteStockData/${stockId}/${rowId}`
       );
+      // console.log("delete response..", response?.data);
 
       if (response?.data?.success) {
         showSuccessToast(response?.data?.message || "Deleted successfully");
@@ -91,6 +93,7 @@ export default function QuickFilteringGrid() {
         `/nonConsumableStock/editStockData/${stockId}/${selectedEditRow?._id}`,
         selectedEditRow
       );
+      // console.log("edit response...", response?.data);
 
       if (response?.data?.success) {
         showSuccessToast(

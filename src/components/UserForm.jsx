@@ -332,6 +332,7 @@ export default function IssuanceForm() {
             "/inventory/update-quantity",
             inventoryUpdateData
           );
+          console.log("update inventory res,,,", response?.data);
         } catch (inventoryError) {
           console.error("Inventory update error:", inventoryError);
           alert("Error updating inventory! Please check logs.");

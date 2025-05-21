@@ -27,6 +27,7 @@ const EditableStatusCell = ({ params, refreshData }) => {
           `/user/update-status/${params.row._id}`,
           { status }
         );
+
         if (response?.data?.success) {
           showSuccessToast(
             response?.data?.message || "Status updated successfully!"

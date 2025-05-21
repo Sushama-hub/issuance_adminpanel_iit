@@ -40,6 +40,7 @@ export default function AdminApprovalList({
       const response = await apiRequest.delete(
         `/master/deletePendingUser/${userId}`
       );
+      // console.log("response delete....", response?.data);
 
       if (response?.data?.success) {
         showSuccessToast(

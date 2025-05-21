@@ -1,11 +1,11 @@
 // ------------ WITH AXIOS ---------------------
-// ✅ Step 1: Import axios
+// Step 1: Import axios
 import axios from "axios";
 
-// ✅ Step 2: Set your base URL from environment
+// Step 2: Set your base URL from environment
 const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
-// ✅ Step 3: Create an axios instance
+// Step 3: Create an axios instance
 const api = axios.create({
   baseURL, // your API base URL
   withCredentials: true, // 👈 this makes it default for all
@@ -14,7 +14,7 @@ const api = axios.create({
   },
 });
 
-// ✅ Step 4: Add a request interceptor to add token to headers automatically
+// Step 4: Add a request interceptor to add token to headers automatically
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token"); // get token from localStorage
   if (token) {
@@ -23,7 +23,7 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
-// ✅ Step 5: Export reusable methods for GET, POST, PUT, PATCH, DELETE
+// Step 5: Export reusable methods for GET, POST, PUT, PATCH, DELETE
 export const apiRequest = {
   get: (url, config = {}) => api.get(url, config),
   post: (url, data, config = {}) => api.post(url, data, config),

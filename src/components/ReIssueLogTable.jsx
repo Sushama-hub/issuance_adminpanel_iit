@@ -1,18 +1,16 @@
 import * as React from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 import { ReIssueLogColumns } from "../config/tableConfig";
-
-const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+import { apiRequest } from "../utils/api";
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([]);
 
   const fetchTableData = async () => {
     try {
-      const response = await axios.get(`${baseURL}/user/reissue-logs`);
+      const response = await apiRequest.get("/user/reissue-logs");
 
       const rowsWithId = response?.data?.data?.map((user, index) => ({
         ...user,

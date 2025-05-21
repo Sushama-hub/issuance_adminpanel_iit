@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import axios from "axios";
 import { Box, Button, IconButton, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import { NonConsumableColumns } from "../config/tableConfig";
@@ -11,8 +10,7 @@ import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
 import EditDialogBox from "./dialog/EditDialogBox";
 import { nonConsumableConfig } from "../config/nonConsumableConfig";
 import { formatDateToDDMMYYYY } from "../utils/date";
-
-const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+import { apiRequest } from "../utils/api";
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([]);
@@ -29,14 +27,8 @@ export default function QuickFilteringGrid() {
   const fetchTableData = async (year) => {
     if (!year) return; // exit if year is not selected
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `${baseURL}/nonConsumableStock/nonConsumableStockFilter/${year}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await apiRequest.get(
+        `/nonConsumableStock/nonConsumableStockFilter/${year}`
       );
 
       const rowsWithId = response?.data?.yearData?.data?.map((item, index) => ({
@@ -79,14 +71,8 @@ export default function QuickFilteringGrid() {
     if (!confirm) return;
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.delete(
-        `${baseURL}/nonConsumableStock/deleteStockData/${stockId}/${rowId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await apiRequest.delete(
+        `/nonConsumableStock/deleteStockData/${stockId}/${rowId}`
       );
 
       if (response?.data?.success) {
@@ -101,15 +87,9 @@ export default function QuickFilteringGrid() {
 
   const handleDialogSubmit = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.put(
-        `${baseURL}/nonConsumableStock/editStockData/${stockId}/${selectedEditRow?._id}`,
-        selectedEditRow,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await apiRequest.put(
+        `/nonConsumableStock/editStockData/${stockId}/${selectedEditRow?._id}`,
+        selectedEditRow
       );
 
       if (response?.data?.success) {

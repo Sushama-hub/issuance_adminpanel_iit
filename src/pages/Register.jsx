@@ -13,9 +13,9 @@ import {
   Grid,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
+import { apiRequest } from "../utils/api";
 
 const AdminRegisterPage = () => {
   const [formData, setFormData] = useState({
@@ -43,8 +43,6 @@ const AdminRegisterPage = () => {
   const [passwordError, setPasswordError] = useState("");
   const [mobileError, setMobileError] = useState("");
   const navigate = useNavigate();
-
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -86,10 +84,8 @@ const AdminRegisterPage = () => {
     }
 
     try {
-      const { data } = await axios.post(`${baseURL}/admin/register`, formData, {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      });
+      const { data } = await apiRequest.post("/admin/register", formData);
+
       if (data?.success) {
         showSuccessToast(
           data?.message || "Registration successful! Please proceed to login."

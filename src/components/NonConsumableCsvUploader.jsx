@@ -1,6 +1,5 @@
 import React, { useRef, useState } from "react";
 import Papa from "papaparse";
-import axios from "axios";
 import {
   Autocomplete,
   Box,
@@ -11,6 +10,7 @@ import {
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
+import { apiRequest } from "../utils/api";
 
 const NonConsumableCsvUploader = ({ yearData, fetchYearData }) => {
   const [csvData, setCsvData] = useState([]);
@@ -18,7 +18,6 @@ const NonConsumableCsvUploader = ({ yearData, fetchYearData }) => {
   const [selectedYear, setSelectedYear] = useState("");
 
   const fileInputRef = useRef(null);
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -39,14 +38,10 @@ const NonConsumableCsvUploader = ({ yearData, fetchYearData }) => {
   const handleUploadFile = async () => {
     if (!csvData.length) return;
     try {
-      const response = await axios.post(
-        `${baseURL}/nonConsumableStock/upload-csv`,
-        { csvData, selectedYear },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
+      const response = await apiRequest.post("/nonConsumableStock/upload-csv", {
+        csvData,
+        selectedYear,
+      });
 
       if (response?.data?.success) {
         showSuccessToast(

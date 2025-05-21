@@ -1,14 +1,11 @@
 import * as React from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { Box, Typography, IconButton, Menu, MenuItem } from "@mui/material";
 import { IssuedColumns } from "../config/tableConfig";
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
-
-const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
-const token = localStorage.getItem("token");
+import { apiRequest } from "../utils/api";
 
 const EditableStatusCell = ({ params, refreshData }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -24,16 +21,9 @@ const EditableStatusCell = ({ params, refreshData }) => {
       );
       if (!confirmEdit) return;
       try {
-        const response = await axios.put(
-          `${baseURL}/user/update-status/${params.row._id}`,
-          {
-            status: status,
-          },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
+        const response = await apiRequest.put(
+          `/user/update-status/${params.row._id}`,
+          { status }
         );
 
         if (response?.data?.success) {
@@ -73,7 +63,8 @@ export default function QuickFilteringGrid() {
 
   const fetchTableData = async () => {
     try {
-      const response = await axios.get(`${baseURL}/user/get-user`);
+      const response = await apiRequest.get("/user/get-user");
+
       const rawData = response?.data?.data?.filter(
         (item) => item.status === "Issued"
       );

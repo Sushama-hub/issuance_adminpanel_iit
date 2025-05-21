@@ -1,6 +1,5 @@
 import * as React from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import axios from "axios";
 import { useEffect, useState } from "react";
 import { Box, Typography, IconButton, Button } from "@mui/material";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -12,6 +11,7 @@ import { navigateToRoleBasedPath } from "../utils/roleNavigator";
 import { InventoryColumns } from "../config/tableConfig";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
 import { inventoryConfig } from "../config/inventoryConfig";
+import { apiRequest } from "../utils/api";
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([]);
@@ -19,16 +19,10 @@ export default function QuickFilteringGrid() {
   const [selectedEditRow, setSelectedEditRow] = useState(null);
 
   const navigate = useNavigate();
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   const fetchTableData = async () => {
-    const token = localStorage.getItem("token");
     try {
-      const response = await axios.get(`${baseURL}/inventory`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await apiRequest.get("/inventory");
 
       // Parse and set data
       const dataWithId = response?.data?.data?.map((item, index) => {
@@ -48,10 +42,7 @@ export default function QuickFilteringGrid() {
   };
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (token) {
-      fetchTableData();
-    }
+    fetchTableData();
   }, []);
 
   // Handle Edit (Open Dialog)
@@ -68,12 +59,7 @@ export default function QuickFilteringGrid() {
     if (!confirm) return;
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.delete(`${baseURL}/inventory/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await apiRequest.delete(`/inventory/${id}`);
 
       if (response?.data?.success === true) {
         showSuccessToast(response?.data?.message || "Deleted successfully");
@@ -89,15 +75,9 @@ export default function QuickFilteringGrid() {
 
   const handleDialogSubmit = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.put(
-        `${baseURL}/inventory/${selectedEditRow._id}`,
-        selectedEditRow,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await apiRequest.put(
+        `/inventory/${selectedEditRow._id}`,
+        selectedEditRow
       );
 
       if (response?.data?.success) {

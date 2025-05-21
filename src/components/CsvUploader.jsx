@@ -1,17 +1,16 @@
 import React, { useRef, useState } from "react";
 import Papa from "papaparse";
-import axios from "axios";
 import { Box, Button, Typography } from "@mui/material";
 import CloudUploadIcon from "@mui/icons-material/CloudUpload";
 import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
+import { apiRequest } from "../utils/api";
 
 const CsvUploader = () => {
   const [csvData, setCsvData] = useState([]);
   const [isFileSelected, setIsFileSelected] = useState(false);
 
   const fileInputRef = useRef(null);
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   const handleFileChange = (e) => {
     const file = e.target.files[0];
@@ -32,14 +31,8 @@ const CsvUploader = () => {
   const handleUploadFile = async () => {
     if (!csvData.length) return;
     try {
-      const response = await axios.post(
-        `${baseURL}/inventory/csv`,
-        { csvData },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
+      const response = await apiRequest.post("/inventory/csv", { csvData });
+
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "Data uploaded successfully!"

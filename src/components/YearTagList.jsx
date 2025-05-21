@@ -7,7 +7,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import axios from "axios";
 import AddIcon from "@mui/icons-material/Add";
 import { useNavigate } from "react-router-dom";
 import { Delete, DeleteTwoTone, Edit } from "@mui/icons-material";
@@ -16,6 +15,7 @@ import {
   showErrorToast,
   showWarningToast,
 } from "../utils/toastUtils";
+import { apiRequest } from "../utils/api";
 
 export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
   const [open, setOpen] = useState(false);
@@ -27,8 +27,6 @@ export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
   });
 
   const navigate = useNavigate();
-
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   const handleClick = (year) => {
     // console.info("You clicked the Chip.", year)
@@ -74,16 +72,7 @@ export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
     }
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.post(
-        `${baseURL}/year/create`,
-        { year: newYear },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await apiRequest.post("/year/create", { year: newYear });
 
       if (response?.data?.success) {
         showSuccessToast(
@@ -107,12 +96,8 @@ export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
     if (!confirmDelete) return;
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.delete(`${baseURL}/year/${id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await apiRequest.delete(`/year/${id}`);
+
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "Year Deleted successfully!"
@@ -141,16 +126,10 @@ export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
     if (!confirmEdit) return;
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.patch(
-        `${baseURL}/year/${editableYear?.id}`,
-        { year: editableYear?.year },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await apiRequest.patch(`/year/${editableYear?.id}`, {
+        year: editableYear?.year,
+      });
+
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "Year updated successfully!"

@@ -2,7 +2,6 @@ import { Grid, Card, CardContent, Typography, Box, Alert } from "@mui/material";
 
 import { Link } from "react-router-dom";
 import { useState, useEffect } from "react";
-import axios from "axios";
 import {
   Inventory,
   AssignmentTurnedIn,
@@ -14,6 +13,7 @@ import StatusPieChart from "../components/StatusPieChart";
 import AdminApprovalButton from "../components/AdminApprovalButton";
 import InventorySummary from "../components/InventorySummary";
 import ReIssueLogDialog from "../components/dialog/ReIssueLogDialog";
+import { apiRequest } from "../utils/api";
 
 export default function DashboardMaster() {
   const [data, setData] = useState({
@@ -26,12 +26,10 @@ export default function DashboardMaster() {
   const [pendingUsers, setPendingUsers] = useState([]);
   const [user] = useState(() => JSON.parse(localStorage.getItem("user")));
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
-  // const user = JSON.parse(localStorage.getItem("user"))
-
   const fetchIssuanceData = async () => {
     try {
-      const response = await axios.get(`${baseURL}/user/get-user`);
+      const response = await apiRequest.get("/user/get-user");
+
       const allFetchedData = response?.data?.data || [];
       setAllIssuanceData(allFetchedData);
 
@@ -57,13 +55,8 @@ export default function DashboardMaster() {
 
   const fetchInventoryData = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${baseURL}/inventory`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        withCredentials: true,
-      });
+      const response = await apiRequest.get("/inventory");
+
       const inventoryData = response?.data?.data || [];
 
       setData((prevData) => ({
@@ -77,13 +70,9 @@ export default function DashboardMaster() {
 
   const fetchPendingUsers = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${baseURL}/master/pending-approvals`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      setPendingUsers(response?.data?.users);
+      const response = await apiRequest.get("/master/pending-approvals");
+
+      setPendingUsers(response?.data?.users || []);
     } catch (error) {
       console.error("Error fetching users:", error);
     }

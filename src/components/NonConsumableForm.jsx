@@ -2,26 +2,17 @@ import React, { useEffect, useState } from "react";
 import { Card, Typography, Box, Grid } from "@mui/material";
 import NonConsumableCsvUploader from "./NonConsumableCsvUploader";
 import YearTagList from "./YearTagList";
-import axios from "axios";
 import { showErrorToast } from "../utils/toastUtils";
+import { apiRequest } from "../utils/api";
 
 const NonConsumableForm = () => {
   const [yearData, setYearData] = useState([]);
   const [yearDataMap, setYearDataMap] = useState({});
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
-
   const fetchYearData = async () => {
     try {
-      const token = localStorage.getItem("token");
-      // `${baseURL}/year/yearFetch`,
-      const response = await axios.get(
-        `${baseURL}/nonConsumableStock/getAllFinancialYears`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await apiRequest.get(
+        "/nonConsumableStock/getAllFinancialYears"
       );
 
       setYearData(response?.data?.years || []);
@@ -36,15 +27,10 @@ const NonConsumableForm = () => {
   const fetchTableData = async (year) => {
     if (!year) return;
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(
-        `${baseURL}/nonConsumableStock/nonConsumableStockFilter/${year}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await apiRequest.get(
+        `/nonConsumableStock/nonConsumableStockFilter/${year}`
       );
+
       // const hasData = response?.data?.data?.length > 0
       const hasData = response?.data?.yearData?.data?.length > 0;
 

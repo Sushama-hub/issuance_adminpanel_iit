@@ -1,16 +1,13 @@
 import React from "react";
 import { Box, Button, Card, CardContent, Typography } from "@mui/material";
-import axios from "axios";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
+import { apiRequest } from "../utils/api";
 
 export default function AdminApprovalList({
   users,
   fetchUsers,
   fetchTableData,
 }) {
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
-  const token = localStorage.getItem("token");
-
   const handleApproveUser = async (userId) => {
     // console.log("handle ApproveUser called", userId)
     const confirm = window.confirm(
@@ -19,20 +16,14 @@ export default function AdminApprovalList({
     if (!confirm) return;
 
     try {
-      const response = await axios.put(
-        `${baseURL}/master/approve/${userId}`,
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await apiRequest.put(`/master/approve/${userId}`, {});
+
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "User successfully approved as admin!"
         );
 
+        fetchUsers();
         fetchTableData();
       }
     } catch (error) {
@@ -46,13 +37,8 @@ export default function AdminApprovalList({
     const confirm = window.confirm("Are you sure, Do You Want To Denied User?");
     if (!confirm) return;
     try {
-      const response = await axios.delete(
-        `${baseURL}/master/deletePendingUser/${userId}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
+      const response = await apiRequest.delete(
+        `/master/deletePendingUser/${userId}`
       );
 
       if (response?.data?.success) {

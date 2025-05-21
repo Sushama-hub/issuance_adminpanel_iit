@@ -13,20 +13,18 @@ import {
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import axios from "axios";
 import {
   showSuccessToast,
   showErrorToast,
   showWarningToast,
 } from "../utils/toastUtils";
 import Login2 from "../assets/images/login2.jpg";
+import { apiRequest } from "../utils/api";
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const navigate = useNavigate();
-
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
 
@@ -38,14 +36,10 @@ const LoginPage = () => {
     event.preventDefault();
 
     try {
-      const { data } = await axios.post(
-        `${baseURL}/admin/login`,
-        { email, password },
-        {
-          headers: { "Content-Type": "application/json" },
-          withCredentials: true,
-        }
-      );
+      const { data } = await apiRequest.post("/admin/login", {
+        email,
+        password,
+      });
 
       if (data?.success) {
         const token = data?.token;

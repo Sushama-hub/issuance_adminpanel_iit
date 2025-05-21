@@ -18,7 +18,6 @@ import {
   Autocomplete,
 } from "@mui/material";
 import { AddCircle, RemoveCircle } from "@mui/icons-material";
-import axios from "axios";
 import GoogleLoginButton from "./GoogleLoginButton";
 import { initializeFirebase, firebaseSignOut, onAuthChange } from "../firebase";
 import {
@@ -28,6 +27,7 @@ import {
   LAB_NUMBERS,
   STAFFS,
 } from "../config/userformConfig";
+import { apiRequest } from "../utils/api";
 
 export default function IssuanceForm() {
   const [userEmail, setUserEmail] = useState("");
@@ -144,15 +144,8 @@ export default function IssuanceForm() {
 
   const fetchComponents = async () => {
     try {
-      // const token = localStorage.getItem("token")
-      const response = await axios.get(
-        `${baseURL}/inventory/components`
-        //   {
-        //   headers: {
-        //     Authorization: `Bearer ${token}`,
-        //   },
-        // }
-      );
+      const response = await apiRequest.get("/inventory/components");
+
       if (response?.data?.success) {
         setComponentsList(response.data.components);
       }
@@ -314,10 +307,7 @@ export default function IssuanceForm() {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${baseURL}/user/submit`, finalData, {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      });
+      const response = await apiRequest.post("/user/submit", finalData);
 
       if (response?.data?.success) {
         if (
@@ -338,13 +328,9 @@ export default function IssuanceForm() {
         }));
 
         try {
-          await axios.put(
-            `${baseURL}/inventory/update-quantity`,
-            inventoryUpdateData,
-            {
-              headers: { "Content-Type": "application/json" },
-              withCredentials: true,
-            }
+          await apiRequest.put(
+            "/inventory/update-quantity",
+            inventoryUpdateData
           );
         } catch (inventoryError) {
           console.error("Inventory update error:", inventoryError);
@@ -851,143 +837,3 @@ export default function IssuanceForm() {
     </>
   );
 }
-
-// import React, { useEffect, useState } from "react"
-// import {
-//   initializeFirebase,
-//   signInWithGoogle,
-//   firebaseSignOut,
-//   onAuthChange,
-// } from "../firebase"
-
-// const FormComponent = () => {
-//   const [user, setUser] = useState(null)
-//   const [isLoggedIn, setIsLoggedIn] = useState(false)
-//   const [userEmail, setUserEmail] = useState("")
-//   const [userName, setUserName] = useState("")
-//   const [formData, setFormData] = useState({
-//     email: "",
-//     batch: "",
-//     category: "",
-//     idNumber: "",
-//     name: "",
-//     branch: "",
-//     mobile: "",
-//     components: [{ componentName: "", specification: "", quantity: "" }],
-//     status: "Issued",
-//   })
-
-//   // Initialize Firebase + Auth State
-//   useEffect(() => {
-//     const init = async () => {
-//       await initializeFirebase()
-
-//       const unsubscribe = onAuthChange(async (user) => {
-//         if (user) {
-//           setUser(user)
-//           setUserEmail(user.email)
-//           setUserName(user.displayName)
-//           setFormData((prev) => ({
-//             ...prev,
-//             email: user.email,
-//             name: user.displayName,
-//           }))
-//           setIsLoggedIn(true)
-//         } else {
-//           setUser(null)
-//           setUserEmail("")
-//           setUserName("")
-//           setFormData({
-//             email: "",
-//             batch: "",
-//             category: "",
-//             idNumber: "",
-//             name: "",
-//             branch: "",
-//             mobile: "",
-//             components: [
-//               { componentName: "", specification: "", quantity: "" },
-//             ],
-//             status: "Issued",
-//           })
-//           setIsLoggedIn(false)
-//         }
-//       })
-
-//       return () => unsubscribe()
-//     }
-
-//     init()
-//   }, [])
-
-//   // 🔓 Login handler
-//   const handleLogin = async () => {
-//     await initializeFirebase()
-//     try {
-//       const result = await signInWithGoogle()
-//       const loggedUser = result.user
-
-//       if (!loggedUser.email.endsWith("@iitbhilai.ac.in")) {
-//         alert("Only IIT Bhilai emails allowed!")
-//         await firebaseSignOut()
-//         return
-//       }
-
-//       const token = await loggedUser.getIdToken()
-//       const response = await fetch(
-//         "http://localhost:5000/api/auth/firebase-login",
-//         {
-//           method: "POST",
-//           headers: { "Content-Type": "application/json" },
-//           body: JSON.stringify({ token }),
-//         }
-//       )
-
-//       const data = await response.json()
-
-//       if (data.success) {
-//         setUser(loggedUser)
-//         setIsLoggedIn(true)
-//         setUserEmail(loggedUser.email)
-//         setUserName(loggedUser.displayName)
-//       } else {
-//         alert("Login failed: " + data.message)
-//         await firebaseSignOut()
-//       }
-//     } catch (error) {
-//       console.error("Login error:", error)
-//     }
-//   }
-
-//   // 🔒 Logout
-//   const handleLogout = async () => {
-//     try {
-//       await firebaseSignOut()
-//       setUser(null)
-//       setUserEmail("")
-//       setUserName("")
-//       setIsLoggedIn(false)
-//     } catch (error) {
-//       console.error("Logout Error:", error)
-//     }
-//   }
-
-//   return (
-//     <div>
-//       {!isLoggedIn ? (
-//         <button onClick={handleLogin}>Sign in with Google</button>
-//       ) : (
-//         <>
-//           <p>
-//             Welcome, {userName} ({userEmail})
-//           </p>
-//           <button onClick={handleLogout}>Logout</button>
-//         </>
-//       )}
-
-//       {/* Form UI using formData here */}
-//     </div>
-//   )
-// }
-
-// export default FormComponent

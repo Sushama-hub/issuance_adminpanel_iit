@@ -2,22 +2,15 @@ import React, { useEffect, useState } from "react";
 import { Box } from "@mui/material";
 import AdminApprovalList from "./AdminApprovalList";
 import ApprovedAdminTable from "./ApprovedAdminTable";
-import axios from "axios";
+import { apiRequest } from "../utils/api";
 
 export default function AdminDetails() {
   const [users, setUsers] = useState([]);
   const [rows, setRows] = useState([]);
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
-  const token = localStorage.getItem("token");
-
   const fetchUsers = async () => {
     try {
-      const response = await axios.get(`${baseURL}/master/pending-approvals`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await apiRequest.get("/master/pending-approvals");
       setUsers(response?.data?.users || []);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -26,12 +19,7 @@ export default function AdminDetails() {
 
   const fetchTableData = async () => {
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${baseURL}/master/allAdmins`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await apiRequest.get("/master/allAdmins");
 
       const rowsWithId = response?.data?.users?.map((user, index) => ({
         ...user,

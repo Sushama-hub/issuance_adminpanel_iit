@@ -1,12 +1,10 @@
 import * as React from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import axios from "axios";
 import { Box, Typography, Switch, IconButton } from "@mui/material";
 import { AdminColumns } from "../config/tableConfig";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
-
-const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
+import { apiRequest } from "../utils/api";
 
 export default function QuickFilteringGrid({ rows, fetchTableData }) {
   // Toggle active status component (inline)
@@ -15,17 +13,10 @@ export default function QuickFilteringGrid({ rows, fetchTableData }) {
       const newValue = event.target.checked;
 
       try {
-        const token = localStorage.getItem("token");
-        await axios.patch(
-          `${baseURL}/master/update-active/${params.row._id}`,
-          // { active: newValue },
-          { active: params.row.active },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        await apiRequest.patch(`/master/update-active/${params.row._id}`, {
+          active: params.row.active,
+        });
+
         fetchTableData();
       } catch (error) {
         console.error("Error updating active status:", error);
@@ -48,15 +39,7 @@ export default function QuickFilteringGrid({ rows, fetchTableData }) {
     if (!confirm) return;
 
     try {
-      const token = localStorage.getItem("token");
-      const response = await axios.delete(
-        `${baseURL}/master/deleteAdmin/${id}`,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await apiRequest.delete(`/master/deleteAdmin/${id}`);
 
       if (response?.data?.success === true) {
         showSuccessToast(response?.data?.message || "Deleted successfully");

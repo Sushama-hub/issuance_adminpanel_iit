@@ -9,12 +9,12 @@ import {
   Divider,
   Grid,
 } from "@mui/material";
-import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import CsvUploader from "./CsvUploader";
 import moment from "moment";
 import { navigateToRoleBasedPath } from "../utils/roleNavigator";
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
+import { apiRequest } from "../utils/api";
 
 const ComponentForm = () => {
   const [formData, setFormData] = useState({
@@ -26,7 +26,6 @@ const ComponentForm = () => {
   const [lastEntry, setLastEntry] = useState(null);
 
   const navigate = useNavigate();
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   // Handle input changes
   const handleChange = (e) => {
@@ -38,10 +37,7 @@ const ComponentForm = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${baseURL}/inventory`, formData, {
-        headers: { "Content-Type": "application/json" },
-        withCredentials: true,
-      });
+      const response = await apiRequest.post("/inventory", formData);
 
       if (response?.data?.success === true) {
         const newEntry = response?.data?.data;

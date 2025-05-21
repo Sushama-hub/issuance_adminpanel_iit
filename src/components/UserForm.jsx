@@ -27,6 +27,7 @@ import {
   LAB_NUMBERS,
   STAFFS,
 } from "../config/userformConfig";
+import { showErrorToast, showWarningToast } from "../utils/toastUtils";
 import { apiRequest } from "../utils/api";
 
 export default function IssuanceForm() {
@@ -54,8 +55,6 @@ export default function IssuanceForm() {
   const [quantityErrors, setQuantityErrors] = useState({});
   const [user, setUser] = useState(null);
   const [otherLabNumber, setOtherLabNumber] = useState("");
-
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 
   useEffect(() => {
     let unsubscribe;
@@ -99,8 +98,10 @@ export default function IssuanceForm() {
 
   // Called by GoogleLoginButton on successful popup login
   const handleGoogleSuccess = async (loggedUser) => {
+    console.log("handleGoogleSuccess called...", loggedUser);
+
     if (!loggedUser.email.endsWith("@iitbhilai.ac.in")) {
-      alert("Only IIT Bhilai emails allowed!");
+      showErrorToast("Only IIT Bhilai emails allowed!");
       await firebaseSignOut();
       return;
     }
@@ -123,12 +124,12 @@ export default function IssuanceForm() {
         setUserEmail(loggedUser.email);
         setUserName(loggedUser.displayName);
       } else {
-        alert("Login failed: " + data.message);
+        showErrorToast("Login failed: " + data.message);
         await firebaseSignOut();
       }
     } catch (err) {
       console.error("Login flow error:", err);
-      alert("Something went wrong during login.");
+      showErrorToast("Something went wrong during login.");
     }
   };
   const handleLogout = async (e) => {
@@ -155,7 +156,7 @@ export default function IssuanceForm() {
   };
   useEffect(() => {
     fetchComponents();
-  }, [baseURL]);
+  }, []);
 
   // Handle component selection
   const handleComponentChange = (index, event, newValue) => {
@@ -300,7 +301,7 @@ export default function IssuanceForm() {
 
     // Check if any quantity error exists
     if (Object.keys(quantityErrors).length > 0) {
-      alert("Please fix the quantity errors before submitting.");
+      showWarningToast("Please fix the quantity errors before submitting.");
       return;
     }
 
@@ -315,7 +316,7 @@ export default function IssuanceForm() {
           formData.components.length === 0
         ) {
           console.error(" No components found in formData!");
-          alert("Please select at least one component.");
+          showWarningToast("Please select at least one component.");
           setLoading(false);
           return;
         }
@@ -335,7 +336,7 @@ export default function IssuanceForm() {
           console.log("update inventory res,,,", response?.data);
         } catch (inventoryError) {
           console.error("Inventory update error:", inventoryError);
-          alert("Error updating inventory! Please check logs.");
+          showErrorToast("Error updating inventory! Please check logs.");
         }
 
         setTimeout(() => {
@@ -369,7 +370,7 @@ export default function IssuanceForm() {
       }
     } catch (error) {
       console.error(" Error submitting form:", error);
-      alert("Something went wrong. Please try again.");
+      showErrorToast("Something went wrong. Please try again.");
       setLoading(false);
     }
   };

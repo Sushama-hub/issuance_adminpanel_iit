@@ -10,6 +10,7 @@ import {
 import { useState, useEffect } from "react";
 import { showInfoToast } from "../../utils/toastUtils";
 import { formatDateToYYYYMMDD } from "../../utils/date";
+import EditIcon from "@mui/icons-material/Edit";
 
 export default function EditDialogBox({
   editDialogOpen,
@@ -85,7 +86,7 @@ export default function EditDialogBox({
 
   const handleCancel = () => {
     setEditDialogOpen(false);
-    showInfoToast("Edit cancelled");
+    showInfoToast("Edit cancelled!");
     setSelectedEditRow(null);
     setFormData({});
     setErrors({});
@@ -100,7 +101,13 @@ export default function EditDialogBox({
         fullWidth
         maxWidth="sm"
       >
-        <DialogTitle color="primary" fontWeight="bold" fontSize={20}>
+        <DialogTitle
+          color="primary"
+          fontWeight="bold"
+          fontSize={20}
+          sx={{ display: "flex", alignItems: "center", gap: 1 }}
+        >
+          <EditIcon />
           {heading}
         </DialogTitle>
         <DialogContent>

@@ -12,11 +12,14 @@ import { InventoryColumns } from "../config/tableConfig";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
 import { inventoryConfig } from "../config/inventoryConfig";
 import { apiRequest } from "../utils/api";
+import ConfirmDialog from "./dialog/ConfirmDialog";
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([]);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedEditRow, setSelectedEditRow] = useState(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [actionData, setActionData] = useState(null);
 
   const navigate = useNavigate();
 
@@ -53,47 +56,47 @@ export default function QuickFilteringGrid() {
 
   // Handle Delete
   const handleDelete = async (id) => {
-    const confirm = window.confirm(
-      "Are you sure you want to delete this item?"
-    );
-    if (!confirm) return;
-
-    try {
-      const response = await apiRequest.delete(`/inventory/${id}`);
-
-      if (response?.data?.success === true) {
-        showSuccessToast(response?.data?.message || "Deleted successfully");
-        setTimeout(() => {
-          fetchTableData();
-        }, 1500);
-      }
-    } catch (error) {
-      console.error("Error deleting item", error);
-      showErrorToast("Error deleting inventory item. Please try again!");
-    }
+    setActionData(id);
+    setConfirmOpen(true);
   };
 
-  // console.log("selectedEditRow", selectedEditRow);
-
-  const handleDialogSubmit = async () => {
+  const handleEditDialogSubmit = async () => {
     try {
       const response = await apiRequest.put(
         `/inventory/${selectedEditRow._id}`,
         selectedEditRow
       );
-      // console.log("response---", response?.data);
 
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "Inventory item updated successfully!"
         );
-        setEditDialogOpen(false);
-        setSelectedEditRow(null);
-        fetchTableData(); // Refresh Table data
+
+        await fetchTableData(); // Refresh Table data
       }
     } catch (error) {
       console.error("Error updating item", error);
       showErrorToast("Something went wrong while updating!");
+    } finally {
+      setEditDialogOpen(false);
+      setSelectedEditRow(null);
+    }
+  };
+
+  const handleConfirmDialogSubmit = async (id) => {
+    try {
+      const response = await apiRequest.delete(`/inventory/${id}`);
+
+      if (response?.data?.success) {
+        showSuccessToast(response?.data?.message || "Deleted successfully");
+        await fetchTableData();
+      }
+    } catch (error) {
+      console.error("Error deleting item", error);
+      showErrorToast("Error deleting inventory item. Please try again!");
+    } finally {
+      setConfirmOpen(false);
+      setActionData(null);
     }
   };
 
@@ -188,8 +191,19 @@ export default function QuickFilteringGrid() {
         selectedEditRow={selectedEditRow}
         setSelectedEditRow={setSelectedEditRow}
         fields={inventoryConfig}
-        onSubmit={handleDialogSubmit}
+        onSubmit={handleEditDialogSubmit}
         heading="Edit Inventory Item"
+      />
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        title="Delete Inventory Item?"
+        text="Are you sure you want to delete this inventory item?"
+        open={confirmOpen}
+        setOpen={setConfirmOpen}
+        onSubmit={handleConfirmDialogSubmit}
+        actionData={actionData}
+        setActionData={setActionData}
       />
     </>
   );

@@ -21,7 +21,7 @@ const CsvUploader = () => {
         header: true,
         skipEmptyLines: true,
         complete: function (results) {
-          // console.log("Parsed Results: ", results?.data)
+          // console.log("Parsed Results: ", results?.data);
           setCsvData(results?.data);
         },
       });

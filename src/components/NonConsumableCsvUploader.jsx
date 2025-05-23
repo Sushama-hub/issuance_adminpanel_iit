@@ -154,7 +154,7 @@ const NonConsumableCsvUploader = ({ yearData, fetchYearData }) => {
           options={yearData.map((item) => item?.year)}
           value={selectedYear}
           onChange={(event, newValue) => {
-            console.log("Selected Year:", newValue);
+            // console.log("Selected Year:", newValue);
             setSelectedYear(newValue);
           }}
           renderInput={(params) => (

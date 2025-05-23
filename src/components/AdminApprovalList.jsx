@@ -2,55 +2,62 @@ import React from "react";
 import { Box, Button, Card, CardContent, Typography } from "@mui/material";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
 import { apiRequest } from "../utils/api";
+import ConfirmDialog from "./dialog/ConfirmDialog";
+import { useState } from "react";
 
 export default function AdminApprovalList({
   users,
   fetchUsers,
   fetchTableData,
 }) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [actionData, setActionData] = useState(null);
+  const [actionType, setActionType] = useState("");
+
   const handleApproveUser = async (userId) => {
-    // console.log("handle ApproveUser called", userId)
-    const confirm = window.confirm(
-      "Are you sure you want to approve this user as admin?"
-    );
-    if (!confirm) return;
-
-    try {
-      const response = await apiRequest.put(`/master/approve/${userId}`, {});
-
-      if (response?.data?.success) {
-        showSuccessToast(
-          response?.data?.message || "User successfully approved as admin!"
-        );
-
-        fetchUsers();
-        fetchTableData();
-      }
-    } catch (error) {
-      console.error("Error approving user:", error);
-      showErrorToast("Failed to approve user. Please try again.");
-    }
+    setActionData(userId);
+    setActionType("approve");
+    setConfirmOpen(true);
   };
 
   const handleRemoveUser = async (userId) => {
-    // console.log("handle Removed called", userId)
-    const confirm = window.confirm("Are you sure, Do You Want To Denied User?");
-    if (!confirm) return;
-    try {
-      const response = await apiRequest.delete(
-        `/master/deletePendingUser/${userId}`
-      );
-      // console.log("response delete....", response?.data);
+    setActionData(userId);
+    setActionType("delete");
+    setConfirmOpen(true);
+  };
 
-      if (response?.data?.success) {
-        showSuccessToast(
-          response?.data?.message || "User deleted successfully!"
+  const handleConfirmDialogSubmit = async (userId) => {
+    try {
+      if (actionType === "approve") {
+        const response = await apiRequest.put(`/master/approve/${userId}`, {});
+
+        if (response?.data?.success) {
+          showSuccessToast(
+            response?.data?.message || "User successfully approved as admin!"
+          );
+
+          await fetchUsers();
+          await fetchTableData();
+        }
+      } else if (actionType === "delete") {
+        const response = await apiRequest.delete(
+          `/master/deletePendingUser/${userId}`
         );
-        fetchUsers();
+
+        if (response?.data?.success) {
+          showSuccessToast(
+            response?.data?.message || "User deleted successfully!"
+          );
+          await fetchUsers();
+        }
       }
     } catch (error) {
-      console.error("Error deleting data:", error);
-      showErrorToast(`Failed to delete User. Please try again.`);
+      console.error("Error:", error);
+      showErrorToast(`Operation failed. Please try again.`);
+    } finally {
+      setConfirmOpen(false);
+      setActionData(null);
+      setActionType("");
     }
   };
 
@@ -90,10 +97,10 @@ export default function AdminApprovalList({
                 >
                   <Box>
                     <Typography variant="subtitle1" fontWeight="bold">
-                      {user.name}
+                      {user?.name}
                     </Typography>
                     <Typography variant="body2" color="text.secondary">
-                      {user.email}
+                      {user?.email}
                     </Typography>
                   </Box>
                   <Box sx={{ display: "flex", gap: 1 }}>
@@ -113,7 +120,7 @@ export default function AdminApprovalList({
                       onClick={() => handleRemoveUser(user?._id)}
                       sx={{ whiteSpace: "nowrap", mt: 2 }} //prevents line break inside button
                     >
-                      cancel
+                      Deny
                     </Button>
                   </Box>
                 </CardContent>
@@ -122,6 +129,21 @@ export default function AdminApprovalList({
           </Box>
         </>
       )}
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        title={actionType === "approve" ? "Approve as Admin?" : "Deny User?"}
+        text={
+          actionType === "approve"
+            ? "Are you sure you want to approve this user as admin?"
+            : "Are you sure you want to deny this user?"
+        }
+        open={confirmOpen}
+        setOpen={setConfirmOpen}
+        onSubmit={handleConfirmDialogSubmit}
+        actionData={actionData}
+        setActionData={setActionData}
+      />
     </>
   );
 }

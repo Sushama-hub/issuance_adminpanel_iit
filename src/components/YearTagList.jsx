@@ -16,6 +16,7 @@ import {
   showWarningToast,
 } from "../utils/toastUtils";
 import { apiRequest } from "../utils/api";
+import ConfirmDialog from "./dialog/ConfirmDialog";
 
 export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
   const [open, setOpen] = useState(false);
@@ -25,12 +26,12 @@ export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
     id: "",
     year: "",
   });
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [actionData, setActionData] = useState(null);
 
   const navigate = useNavigate();
 
   const handleClick = (year) => {
-    // console.info("You clicked the Chip.", year)
-
     const storedUser = JSON.parse(localStorage.getItem("user"));
 
     const routeBase =
@@ -78,53 +79,29 @@ export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
         showSuccessToast(
           response?.data?.message || "Session year added successfully!"
         );
-        fetchYearData();
-        setNewYear("");
-        setOpen(false);
+        await fetchYearData();
       }
     } catch (error) {
       console.error("Error Submitting data:", error);
       showErrorToast("Failed to add year. Please try again.");
+    } finally {
+      setNewYear("");
+      setOpen(false);
     }
   };
 
   const handleDeleteClick = async (id, year) => {
-    // console.info("You clicked the DELETE icon.", id, year)
-    const confirmDelete = window.confirm(
-      `Do you want to delete the year session "${year}"?`
-    );
-    if (!confirmDelete) return;
-
-    try {
-      const response = await apiRequest.delete(`/year/${id}`);
-
-      if (response?.data?.success) {
-        showSuccessToast(
-          response?.data?.message || "Year Deleted successfully!"
-        );
-        fetchYearData();
-      }
-    } catch (error) {
-      console.error("Error deleting data:", error);
-      showErrorToast(`Failed to delete year ${year}. Please try again.`);
-    }
+    setActionData({ id, year });
+    setConfirmOpen(true);
   };
 
   const handleEditClick = async (id, year) => {
-    // console.info("You clicked the EDIT icon.", id, year)
-
-    // setEditableYear((prev) => ({ ...prev, id: id, year: year }))
     setEditableYear({ id, year });
     setEditClick(true);
   };
 
   const handleEditYear = async () => {
     // console.info("You submit  EDIT year.", editableYear)
-    const confirmEdit = window.confirm(
-      `Do you want to update the year session to "${editableYear?.year}"?`
-    );
-    if (!confirmEdit) return;
-
     try {
       const response = await apiRequest.patch(`/year/${editableYear?.id}`, {
         year: editableYear?.year,
@@ -134,15 +111,37 @@ export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
         showSuccessToast(
           response?.data?.message || "Year updated successfully!"
         );
-        setEditClick(false);
-        fetchYearData();
-        setEditableYear({ id: "", year: "" });
+        await fetchYearData();
       }
     } catch (error) {
       console.error("Error submitting data:", error);
       showErrorToast(
         `Failed to update year ${editableYear}. Please try again.`
       );
+    } finally {
+      setEditClick(false);
+      setEditableYear({ id: "", year: "" });
+    }
+  };
+
+  const handleConfirmDialogSubmit = async (actionData) => {
+    try {
+      const response = await apiRequest.delete(`/year/${actionData?.id}`);
+
+      if (response?.data?.success) {
+        showSuccessToast(
+          response?.data?.message || "Year Deleted successfully!"
+        );
+        await fetchYearData();
+      }
+    } catch (error) {
+      console.error("Error deleting data:", error);
+      showErrorToast(
+        `Failed to delete year ${actionData?.year}. Please try again.`
+      );
+    } finally {
+      setConfirmOpen(false);
+      setActionData(null);
     }
   };
 
@@ -331,6 +330,17 @@ export default function YearTagList({ yearData, fetchYearData, yearDataMap }) {
           </Box>
         )}
       </Box>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        title="Delete Session?"
+        text={`Are you sure you want to delete the year session "${actionData?.year}"?`}
+        open={confirmOpen}
+        setOpen={setConfirmOpen}
+        onSubmit={handleConfirmDialogSubmit}
+        actionData={actionData}
+        setActionData={setActionData}
+      />
     </>
   );
 }

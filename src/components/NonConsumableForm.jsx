@@ -14,7 +14,6 @@ const NonConsumableForm = () => {
       const response = await apiRequest.get(
         "/nonConsumableStock/getAllFinancialYears"
       );
-      // console.log("response...", response?.data);
 
       setYearData(response?.data?.years || []);
       response?.data?.years?.map((item) => {

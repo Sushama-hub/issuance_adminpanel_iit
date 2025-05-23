@@ -11,11 +11,14 @@ import EditDialogBox from "./dialog/EditDialogBox";
 import { nonConsumableConfig } from "../config/nonConsumableConfig";
 import { formatDateToDDMMYYYY } from "../utils/date";
 import { apiRequest } from "../utils/api";
+import ConfirmDialog from "./dialog/ConfirmDialog";
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([]);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const [selectedEditRow, setSelectedEditRow] = useState(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [actionData, setActionData] = useState(null);
   const [stockId, setStockId] = useState("");
 
   const location = useLocation();
@@ -30,7 +33,6 @@ export default function QuickFilteringGrid() {
       const response = await apiRequest.get(
         `/nonConsumableStock/nonConsumableStockFilter/${year}`
       );
-      // console.log("response,,,", response?.data);
 
       const rowsWithId = response?.data?.yearData?.data?.map((item, index) => ({
         ...item,
@@ -41,7 +43,7 @@ export default function QuickFilteringGrid() {
       setRows(rowsWithId || []);
       setStockId(response?.data?.yearData?._id);
     } catch (error) {
-      console.log("Error fetching data", error);
+      console.error("Error fetching data", error);
     }
   };
 
@@ -59,53 +61,54 @@ export default function QuickFilteringGrid() {
       : "/dashboard/admin/non_consumable_form";
 
   const handleEdit = (row) => {
-    // console.log("handle edit called", row)
     setSelectedEditRow(row);
     setEditDialogOpen(true);
   };
 
   // Handle Delete
   const handleDelete = async (rowId, stockId) => {
-    const confirm = window.confirm(
-      "Are you sure you want to delete this stock?"
-    );
-    if (!confirm) return;
-
-    try {
-      const response = await apiRequest.delete(
-        `/nonConsumableStock/deleteStockData/${stockId}/${rowId}`
-      );
-      // console.log("delete response..", response?.data);
-
-      if (response?.data?.success) {
-        showSuccessToast(response?.data?.message || "Deleted successfully");
-        fetchTableData(selectedYear);
-      }
-    } catch (error) {
-      console.error("Error deleting item", error);
-      showErrorToast("Error deleting inventory item. Please try again!");
-    }
+    setActionData({ rowId, stockId });
+    setConfirmOpen(true);
   };
 
-  const handleDialogSubmit = async () => {
+  const handleEditDialogSubmit = async () => {
     try {
       const response = await apiRequest.put(
         `/nonConsumableStock/editStockData/${stockId}/${selectedEditRow?._id}`,
         selectedEditRow
       );
-      // console.log("edit response...", response?.data);
 
       if (response?.data?.success) {
         showSuccessToast(
           response?.data?.message || "Item Updated successfully!"
         );
-        setEditDialogOpen(false);
-        setSelectedEditRow(null);
-        fetchTableData(selectedYear); // Reload table with updated data
+        await fetchTableData(selectedYear); // Reload table with updated data
       }
     } catch (error) {
       console.error("Error updating item", error);
       showErrorToast("Something went wrong while updating!");
+    } finally {
+      setEditDialogOpen(false);
+      setSelectedEditRow(null);
+    }
+  };
+
+  const handleConfirmDialogSubmit = async (actionData) => {
+    try {
+      const response = await apiRequest.delete(
+        `/nonConsumableStock/deleteStockData/${actionData?.stockId}/${actionData?.rowId}`
+      );
+
+      if (response?.data?.success) {
+        showSuccessToast(response?.data?.message || "Deleted successfully");
+        await fetchTableData(selectedYear);
+      }
+    } catch (error) {
+      console.error("Error deleting item", error);
+      showErrorToast("Error deleting inventory item. Please try again!");
+    } finally {
+      setConfirmOpen(false);
+      setActionData(null);
     }
   };
 
@@ -281,8 +284,19 @@ export default function QuickFilteringGrid() {
         selectedEditRow={selectedEditRow}
         setSelectedEditRow={setSelectedEditRow}
         fields={nonConsumableConfig}
-        onSubmit={handleDialogSubmit}
+        onSubmit={handleEditDialogSubmit}
         heading="Edit Non Consumable Stock"
+      />
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        title="Delete Stock Item?"
+        text="Are you sure you want to delete this Stock item?"
+        open={confirmOpen}
+        setOpen={setConfirmOpen}
+        onSubmit={handleConfirmDialogSubmit}
+        actionData={actionData}
+        setActionData={setActionData}
       />
     </>
   );

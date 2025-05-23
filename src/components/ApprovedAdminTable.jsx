@@ -5,8 +5,13 @@ import { AdminColumns } from "../config/tableConfig";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
 import { apiRequest } from "../utils/api";
+import ConfirmDialog from "./dialog/ConfirmDialog";
+import { useState } from "react";
 
 export default function QuickFilteringGrid({ rows, fetchTableData }) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [actionData, setActionData] = useState(null);
+
   // Toggle active status component (inline)
   const ToggleActiveCell = ({ params }) => {
     const handleToggle = async (event) => {
@@ -32,24 +37,25 @@ export default function QuickFilteringGrid({ rows, fetchTableData }) {
   };
 
   const handleDelete = async (id) => {
-    const confirm = window.confirm(
-      "Are you sure you want to delete this admin?",
-      id
-    );
-    if (!confirm) return;
+    setActionData(id);
+    setConfirmOpen(true);
+  };
 
+  const handleConfirmDialogSubmit = async (id) => {
     try {
       const response = await apiRequest.delete(`/master/deleteAdmin/${id}`);
 
-      if (response?.data?.success === true) {
+      if (response?.data?.success) {
         showSuccessToast(response?.data?.message || "Deleted successfully");
-        setTimeout(() => {
-          fetchTableData();
-        }, 1500);
+        await fetchTableData();
       }
     } catch (error) {
       console.error("Error deleting item", error);
       showErrorToast("Error deleting inventory item. Please try again!");
+    } finally {
+      // Ensure cleanup happens even if there's an error
+      setConfirmOpen(false);
+      setActionData(null);
     }
   };
 
@@ -82,7 +88,12 @@ export default function QuickFilteringGrid({ rows, fetchTableData }) {
                         {user && user?.role === "master" && (
                           <IconButton
                             color="error"
-                            onClick={() => handleDelete(params.row._id)}
+                            // onClick={() => handleDelete(params.row._id)}
+                            onClick={() => {
+                              handleDelete(params.row._id),
+                                setActionData(params.row._id);
+                              setConfirmOpen(true);
+                            }}
                             size="small"
                           >
                             <DeleteIcon fontSize="small" />
@@ -130,6 +141,17 @@ export default function QuickFilteringGrid({ rows, fetchTableData }) {
           }}
         />
       </Box>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        title="Admin Delete?"
+        text="Are you sure you want to delete this admin?"
+        open={confirmOpen}
+        setOpen={setConfirmOpen}
+        onSubmit={handleConfirmDialogSubmit}
+        actionData={actionData}
+        setActionData={setActionData}
+      />
     </Box>
   );
 }

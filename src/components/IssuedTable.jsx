@@ -6,9 +6,12 @@ import { Box, Typography, IconButton, Menu, MenuItem } from "@mui/material";
 import { IssuedColumns } from "../config/tableConfig";
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
 import { apiRequest } from "../utils/api";
+import ConfirmDialog from "./dialog/ConfirmDialog";
 
 const EditableStatusCell = ({ params, refreshData }) => {
   const [anchorEl, setAnchorEl] = useState(null);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [actionData, setActionData] = useState(null);
   const open = Boolean(anchorEl);
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -16,45 +19,62 @@ const EditableStatusCell = ({ params, refreshData }) => {
   const handleClose = async (status) => {
     setAnchorEl(null);
     if (status && status !== params.value) {
-      const confirmEdit = window.confirm(
-        `Do you want to update the status "${params.value}" to "${status}" ?`
+      setActionData(status);
+      setConfirmOpen(true);
+    }
+  };
+
+  const handleConfirmDialogSubmit = async (status) => {
+    try {
+      const response = await apiRequest.put(
+        `/user/update-status/${params.row._id}`,
+        { status }
       );
-      if (!confirmEdit) return;
-      try {
-        const response = await apiRequest.put(
-          `/user/update-status/${params.row._id}`,
-          { status }
+
+      if (response?.data?.success) {
+        showSuccessToast(
+          response?.data?.message || "Status updated successfully!"
         );
 
-        if (response?.data?.success) {
-          showSuccessToast(
-            response?.data?.message || "Status updated successfully!"
-          );
-
-          // refresh the table
-          refreshData();
-        }
-      } catch (error) {
-        console.error("Error updating status", error);
-        showErrorToast(`Failed to update status. Please try again.`);
+        // refresh the table
+        await refreshData();
       }
+    } catch (error) {
+      console.error("Error updating status", error);
+      showErrorToast(`Failed to update status. Please try again.`);
+    } finally {
+      setConfirmOpen(false);
+      setActionData(null);
     }
   };
 
   return (
-    <Box sx={{ display: "flex", alignItems: "center" }}>
-      <span>{params.value}</span>
-      <IconButton onClick={handleClick} size="small">
-        <ArrowDropDownIcon />
-      </IconButton>
-      <Menu anchorEl={anchorEl} open={open} onClose={() => handleClose(null)}>
-        {["Issued", "Returned", "Consumed"].map((option) => (
-          <MenuItem key={option} onClick={() => handleClose(option)}>
-            {option}
-          </MenuItem>
-        ))}
-      </Menu>
-    </Box>
+    <>
+      <Box sx={{ display: "flex", alignItems: "center" }}>
+        <span>{params.value}</span>
+        <IconButton onClick={handleClick} size="small">
+          <ArrowDropDownIcon />
+        </IconButton>
+        <Menu anchorEl={anchorEl} open={open} onClose={() => handleClose(null)}>
+          {["Issued", "Returned", "Consumed"].map((option) => (
+            <MenuItem key={option} onClick={() => handleClose(option)}>
+              {option}
+            </MenuItem>
+          ))}
+        </Menu>
+      </Box>
+
+      {/* Confirm Dialog */}
+      <ConfirmDialog
+        title="Confirm Status Change!"
+        text={`Please confirm: change status from "${params.value}" to "${actionData}"?`}
+        open={confirmOpen}
+        setOpen={setConfirmOpen}
+        onSubmit={handleConfirmDialogSubmit}
+        actionData={actionData}
+        setActionData={setActionData}
+      />
+    </>
   );
 };
 
@@ -112,7 +132,7 @@ export default function QuickFilteringGrid() {
 
       setRows(groupedData);
     } catch (error) {
-      console.log("Error fetching data", error);
+      console.error("Error fetching data", error);
     }
   };
 

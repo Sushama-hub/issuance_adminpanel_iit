@@ -6,7 +6,7 @@ import FileDownloadIcon from "@mui/icons-material/FileDownload";
 import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
 import { apiRequest } from "../utils/api";
 
-const CsvUploader = () => {
+const CsvUploader = ({ uploadEndpoint, sampleData, title }) => {
   const [csvData, setCsvData] = useState([]);
   const [isFileSelected, setIsFileSelected] = useState(false);
 
@@ -31,7 +31,7 @@ const CsvUploader = () => {
   const handleUploadFile = async () => {
     if (!csvData.length) return;
     try {
-      const response = await apiRequest.post("/inventory/csv", { csvData });
+      const response = await apiRequest.post(uploadEndpoint, { csvData });
 
       if (response?.data?.success) {
         showSuccessToast(
@@ -50,18 +50,13 @@ const CsvUploader = () => {
   };
 
   const handleDownloadSample = () => {
-    const sampleData = [
-      ["components", "specification", "quantity"],
-      ["Resistor", "10kΩ", "5"],
-      ["Capacitor", "100μF", "3"],
-    ];
     const csvContent =
       "data:text/csv;charset=utf-8," +
       sampleData.map((e) => e.join(",")).join("\n");
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement("a");
     link.setAttribute("href", encodedUri);
-    link.setAttribute("download", "sample_inventory_format.csv");
+    link.setAttribute("download", "sample_format.csv");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -82,7 +77,8 @@ const CsvUploader = () => {
           letterSpacing: "1px",
         }}
       >
-        📂 Bulk Upload via CSV
+        {/* 📂 Bulk Upload via CSV */}
+        {title}
       </Typography>
       <Typography variant="body2" color="textSecondary" mb={2} align="center">
         Note: Only <strong>CSV files</strong> are allowed. Download the sample

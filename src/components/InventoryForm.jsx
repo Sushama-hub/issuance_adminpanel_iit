@@ -14,6 +14,7 @@ import CsvUploader from "./CsvUploader";
 import moment from "moment";
 import { navigateToRoleBasedPath } from "../utils/roleNavigator";
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
+import { inventorySampleData } from "../config/sampleDataConfig";
 import { apiRequest } from "../utils/api";
 
 const ComponentForm = () => {
@@ -287,7 +288,11 @@ const ComponentForm = () => {
                 height: "auto",
               }}
             >
-              <CsvUploader />
+              <CsvUploader
+                uploadEndpoint="/inventory/csv"
+                sampleData={inventorySampleData}
+                title="📂 Upload Inventory via CSV"
+              />
             </Card>
           </Grid>
         </Grid>

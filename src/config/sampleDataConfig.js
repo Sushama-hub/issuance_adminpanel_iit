@@ -4,7 +4,7 @@ export const inventorySampleData = [
   ["Capacitor", "100μF", "3"],
 ];
 
-export const issueSampleData = [
+export const entrySampleData = [
   [
     "email",
     "name",
@@ -21,7 +21,7 @@ export const issueSampleData = [
     "CreatedAt",
   ],
   [
-    "sushama@iitbhilai.ac.in",
+    "abcd@iitbhilai.ac.in",
     "Sushama [NLN]",
     "2023",
     "123556",
@@ -29,32 +29,14 @@ export const issueSampleData = [
     "CSE",
     "8519093222",
     "104",
-    "resistor",
-    "10kΩ",
+    "adapter",
+    "12V/2A",
     "2",
     "Issued",
     "2025-05-16T09:24:33.790+00:00",
   ],
-];
-
-export const returnOrConsumedSampleData = [
   [
-    "email",
-    "name",
-    "batch",
-    "idNumber",
-    "category",
-    "branch",
-    "mobile",
-    "labNumber",
-    "componentName",
-    "specification",
-    "quantity",
-    "status",
-    "CreatedAt",
-  ],
-  [
-    "sushama@iitbhilai.ac.in",
+    "sample@iitbhilai.ac.in",
     "Sushama [NLN]",
     "2023",
     "123556",
@@ -62,14 +44,14 @@ export const returnOrConsumedSampleData = [
     "CSE",
     "8519093222",
     "104",
-    "resistor",
-    "10kΩ",
+    "jumper wire",
+    "M2F",
     "2",
     "Returned",
     "2025-05-16T09:24:33.790+00:00",
   ],
   [
-    "sushama@iitbhilai.ac.in",
+    "john.doe@iitbhilai.ac.in",
     "Sushama [NLN]",
     "2023",
     "123556",
@@ -77,8 +59,8 @@ export const returnOrConsumedSampleData = [
     "CSE",
     "8519093222",
     "104",
-    "harddisk",
-    "ssd",
+    "sd card",
+    "64GB",
     "2",
     "Consumed",
     "2025-05-16T09:24:33.790+00:00",

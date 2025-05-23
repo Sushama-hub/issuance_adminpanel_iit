@@ -1,17 +1,9 @@
 import React from "react";
 import CsvUploader from "./CsvUploader";
 import { Box, Card } from "@mui/material";
-import {
-  issueSampleData,
-  returnOrConsumedSampleData,
-} from "../config/sampleDataConfig";
-import { useLocation } from "react-router-dom";
+import { entrySampleData } from "../config/sampleDataConfig";
 
 const EntryForm = () => {
-  const location = useLocation();
-  const pathSegments = location?.pathname.split("/").filter(Boolean);
-  const lastSegment = pathSegments[pathSegments.length - 1];
-
   return (
     <>
       <Box
@@ -38,16 +30,8 @@ const EntryForm = () => {
         >
           <CsvUploader
             uploadEndpoint="/user/userForm-csv"
-            sampleData={
-              lastSegment === "issue"
-                ? issueSampleData
-                : returnOrConsumedSampleData
-            }
-            title={
-              lastSegment === "issue"
-                ? "📂 Upload Issue details via CSV"
-                : "📂 Upload Returned / Consumed details via CSV"
-            }
+            sampleData={entrySampleData}
+            title="📂 Upload Entry details via CSV"
           />
         </Card>
       </Box>

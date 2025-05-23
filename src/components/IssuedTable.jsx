@@ -7,6 +7,7 @@ import { IssuedColumns } from "../config/tableConfig";
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
 import { apiRequest } from "../utils/api";
 import ConfirmDialog from "./dialog/ConfirmDialog";
+import EntryFormButton from "./EntryFormButton";
 
 const EditableStatusCell = ({ params, refreshData }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -143,9 +144,12 @@ export default function QuickFilteringGrid() {
   return (
     <>
       <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
-        <Typography variant="h5" color="primary" fontWeight="bold" mb={2}>
-          Issued Table
-        </Typography>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }} mb={2}>
+          <Typography variant="h5" color="primary" fontWeight="bold">
+            Issued Table
+          </Typography>
+          <EntryFormButton actionType="issue" />
+        </Box>
         <Box sx={{ width: "100%" }}>
           <DataGrid
             rows={rows}

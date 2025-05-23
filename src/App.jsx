@@ -11,6 +11,7 @@ import MiniDrawer from "./layouts/Drawer";
 import NonConsumableForm from "./components/NonConsumableForm";
 import NonConsumableStock from "./components/NonConsumableStock";
 import AdminDetails from "./components/AdminDetails";
+import EntryForm from "./components/EntryForm";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
@@ -108,6 +109,7 @@ function App() {
           <Route path="inventory_records" element={<InventoryFormTable />} />
           <Route path="non_consumable_form" element={<NonConsumableForm />} />
           <Route path="non_Consumable_stock" element={<NonConsumableStock />} />
+          <Route path="entry_form/:actionType" element={<EntryForm />} />
           <Route path="admin_records" element={<AdminDetails />} />
         </Route>
 
@@ -130,6 +132,7 @@ function App() {
           <Route path="inventory_records" element={<InventoryFormTable />} />
           <Route path="non_consumable_form" element={<NonConsumableForm />} />
           <Route path="non_Consumable_stock" element={<NonConsumableStock />} />
+          <Route path="entry_form/:actionType" element={<EntryForm />} />
         </Route>
         {/* Catch All */}
         <Route path="*" element={<Navigate to="/login" replace />} />

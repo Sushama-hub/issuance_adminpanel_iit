@@ -8,6 +8,7 @@ import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
 import ReIssueLogDialog from "./dialog/ReIssueLogDialog";
 import { apiRequest } from "../utils/api";
 import ConfirmDialog from "./dialog/ConfirmDialog";
+import EntryFormButton from "./EntryFormButton";
 
 const EditableStatusCell = ({ params, refreshData }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -163,7 +164,10 @@ export default function QuickFilteringGrid() {
         <Typography variant="h5" color="primary" fontWeight="bold">
           Returned / Consumed Table
         </Typography>
-        <ReIssueLogDialog />
+        <Box sx={{ display: "flex", gap: 1 }}>
+          <EntryFormButton actionType="returnedConsumed" />
+          <ReIssueLogDialog />
+        </Box>
       </Box>
       <Box sx={{ width: "100%" }}>
         <DataGrid

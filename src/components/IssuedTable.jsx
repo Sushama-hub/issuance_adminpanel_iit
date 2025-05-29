@@ -2,12 +2,21 @@ import * as React from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import { Box, Typography, IconButton, Menu, MenuItem } from "@mui/material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import {
+  Box,
+  Typography,
+  IconButton,
+  Menu,
+  MenuItem,
+  Tooltip,
+} from "@mui/material";
 import { IssuedColumns } from "../config/tableConfig";
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
 import { apiRequest } from "../utils/api";
 import ConfirmDialog from "./dialog/ConfirmDialog";
 import EntryFormButton from "./EntryFormButton";
+import ViewDialog from "./dialog/ViewDialog";
 
 const EditableStatusCell = ({ params, refreshData }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -81,14 +90,35 @@ const EditableStatusCell = ({ params, refreshData }) => {
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([]);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState({});
+  const [allTableData, setAllTableData] = useState([]);
 
   const fetchTableData = async () => {
     try {
       const response = await apiRequest.get("/user/get-user");
 
-      const rawData = response?.data?.data?.filter(
-        (item) => item.status === "Issued"
-      );
+      // const rawData = response?.data?.data?.filter(
+      //   (item) => item.status === "Issued"
+      // );
+
+      const rawData = response?.data?.data
+        ?.map((item) => {
+          const issuedComponents = item.components.filter(
+            (comp) => comp.status === "Issued"
+          );
+          if (issuedComponents.length > 0) {
+            return {
+              ...item,
+              components: issuedComponents,
+            };
+          }
+          return null;
+        })
+        .filter(Boolean); // remove nulls
+
+      // console.log("Only issued components:", rawData);
+      setAllTableData(rawData);
 
       // Group data by user name
       const groupedData = rawData.reduce((acc, user, index) => {
@@ -103,11 +133,20 @@ export default function QuickFilteringGrid() {
         const quantities = user.components
           .map((comp) => comp.quantity)
           .join(", ");
+        // -- output --- Issued,Issued - show each component status
+        // const componentsStatus = user.components
+        //   .map((comp) => comp.status)
+        //   .join(", ");
+        // --- output --- "Issued, Issued" → "Issued" (no duplicates).
+        const componentsStatus = [
+          ...new Set(user.components.map((comp) => comp.status)),
+        ].join(", ");
 
         if (existingUser) {
-          existingUser.components += `, ${componentNames}`;
+          existingUser.componentName += `, ${componentNames}`;
           existingUser.specification += `, ${specifications}`;
           existingUser.quantity += `, ${quantities}`;
+          existingUser.status += `, ${componentsStatus}`;
         } else {
           acc.push({
             id: index + 1,
@@ -120,10 +159,11 @@ export default function QuickFilteringGrid() {
             branch: user.branch,
             mobile: user.mobile,
             labNumber: user.labNumber,
-            components: componentNames,
+            componentName: componentNames,
             specification: specifications,
             quantity: quantities,
-            status: user.status,
+            // status: user.status,
+            status: componentsStatus,
             createdAt: new Date(user.createdAt).toLocaleString(),
           });
         }
@@ -141,6 +181,11 @@ export default function QuickFilteringGrid() {
     fetchTableData();
   }, []);
 
+  const handleView = (row) => {
+    setSelectedRow(row);
+    setViewOpen(true);
+  };
+
   return (
     <>
       <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
@@ -154,18 +199,62 @@ export default function QuickFilteringGrid() {
           <DataGrid
             rows={rows}
             columns={IssuedColumns?.map((col) =>
-              col.field === "status"
+              col.field === "actions"
                 ? {
                     ...col,
                     renderCell: (params) => (
-                      <EditableStatusCell
-                        params={params}
-                        refreshData={fetchTableData}
-                      />
+                      <Box>
+                        <Tooltip title="View Details" placement="right">
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={() => handleView(params.row)}
+                          >
+                            <VisibilityIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
                     ),
                   }
                 : col
             )}
+            // columns={[
+            //   ...IssuedColumns,
+            //   {
+            //     field: "actions",
+            //     headerName: "Actions",
+            //     width: 150,
+            //     sortable: false,
+            //     filterable: false,
+            //     renderCell: (params) => (
+            //       <Box>
+            //         <Tooltip title="View Details" placement="right">
+            //           <IconButton
+            //             size="small"
+            //             color="primary"
+            //             onClick={() => handleView(params.row)}
+            //           >
+            //             <VisibilityIcon />
+            //           </IconButton>
+            //         </Tooltip>
+            //       </Box>
+            //     ),
+            //   },
+            // ]}
+            // ----------------------------
+            // columns={IssuedColumns?.map((col) =>
+            //   col.field === "status"
+            //     ? {
+            //         ...col,
+            //         renderCell: (params) => (
+            //           <EditableStatusCell
+            //             params={params}
+            //             refreshData={fetchTableData}
+            //           />
+            //         ),
+            //       }
+            //     : col
+            // )}
             pageSizeOptions={[10, 25, 50, 100]} // Optional: dropdown options
             initialState={{
               pagination: {
@@ -204,6 +293,16 @@ export default function QuickFilteringGrid() {
           />
         </Box>
       </Box>
+
+      {/* View Dialog */}
+      <ViewDialog
+        title="View Details"
+        open={viewOpen}
+        setOpen={setViewOpen}
+        selectedRow={selectedRow}
+        allTableData={allTableData}
+        fetchTableData={fetchTableData}
+      />
     </>
   );
 }

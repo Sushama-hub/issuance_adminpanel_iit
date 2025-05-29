@@ -44,8 +44,8 @@ export const IssuedColumns = [
     width: 105,
   },
   {
-    field: "components",
-    headerName: "Components",
+    field: "componentName",
+    headerName: "Component Name",
     flex: 0,
     editable: false,
     width: 170,
@@ -77,6 +77,13 @@ export const IssuedColumns = [
     flex: 0,
     editable: false,
     width: 120,
+  },
+  {
+    field: "actions",
+    headerName: "Actions",
+    flex: 0,
+    editable: false,
+    width: 100,
   },
 ];
 

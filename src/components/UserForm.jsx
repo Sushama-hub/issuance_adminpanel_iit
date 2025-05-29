@@ -42,7 +42,9 @@ export default function IssuanceForm() {
     name: "",
     branch: "",
     mobile: "",
-    components: [{ componentName: "", specification: "", quantity: "" }],
+    components: [
+      { componentName: "", specification: "", quantity: "", status: "Issued" },
+    ],
     status: "Issued",
     labNumber: "",
   });
@@ -84,7 +86,12 @@ export default function IssuanceForm() {
             branch: "",
             mobile: "",
             components: [
-              { componentName: "", specification: "", quantity: "" },
+              {
+                componentName: "",
+                specification: "",
+                quantity: "",
+                status: "Issued",
+              },
             ],
             status: "Issued",
           });
@@ -98,8 +105,6 @@ export default function IssuanceForm() {
 
   // Called by GoogleLoginButton on successful popup login
   const handleGoogleSuccess = async (loggedUser) => {
-    console.log("handleGoogleSuccess called...", loggedUser);
-
     if (!loggedUser.email.endsWith("@iitbhilai.ac.in")) {
       showErrorToast("Only IIT Bhilai emails allowed!");
       await firebaseSignOut();
@@ -132,11 +137,12 @@ export default function IssuanceForm() {
       showErrorToast("Something went wrong during login.");
     }
   };
+
   const handleLogout = async (e) => {
     if (e?.preventDefault) e.preventDefault();
     try {
       await firebaseSignOut();
-      console.log(" Successfully signed out");
+      // console.log(" Successfully signed out");
       // onAuthChange will reset formData & logged-in flags
     } catch (error) {
       console.error("Logout Error:", error);
@@ -154,6 +160,7 @@ export default function IssuanceForm() {
       console.error("Error fetching components:", error);
     }
   };
+
   useEffect(() => {
     fetchComponents();
   }, []);
@@ -197,7 +204,12 @@ export default function IssuanceForm() {
       ...formData,
       components: [
         ...formData.components,
-        { componentName: "", specification: "", quantity: "" },
+        {
+          componentName: "",
+          specification: "",
+          quantity: "",
+          status: "Issued",
+        },
       ],
     });
     setAvailableQuantities([...availableQuantities, []]);
@@ -276,6 +288,7 @@ export default function IssuanceForm() {
     updatedComponents[index].quantity = e.target.value;
     setFormData({ ...formData, components: updatedComponents });
   };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -333,7 +346,7 @@ export default function IssuanceForm() {
             "/inventory/update-quantity",
             inventoryUpdateData
           );
-          console.log("update inventory res,,,", response?.data);
+          // console.log("update inventory res,,,", response?.data);
         } catch (inventoryError) {
           console.error("Inventory update error:", inventoryError);
           showErrorToast("Error updating inventory! Please check logs.");
@@ -351,7 +364,12 @@ export default function IssuanceForm() {
             branch: "",
             mobile: "",
             components: [
-              { componentName: "", specification: "", quantity: "" },
+              {
+                componentName: "",
+                specification: "",
+                quantity: "",
+                status: "Issued",
+              },
             ],
             status: "Issued",
           });

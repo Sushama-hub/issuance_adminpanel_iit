@@ -104,7 +104,7 @@ export default function QuickFilteringGrid() {
 
       const rawData = response?.data?.data
         ?.map((item) => {
-          const issuedComponents = item.components.filter(
+          const issuedComponents = item?.components.filter(
             (comp) => comp.status === "Issued"
           );
           if (issuedComponents.length > 0) {

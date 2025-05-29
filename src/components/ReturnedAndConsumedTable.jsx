@@ -86,9 +86,26 @@ export default function QuickFilteringGrid() {
     try {
       const response = await apiRequest.get("/user/get-user");
 
-      const rawData = response?.data?.data?.filter(
-        (item) => item.status === "Returned" || item.status === "Consumed"
-      );
+      // const rawData = response?.data?.data?.filter(
+      //   (item) => item.status === "Returned" || item.status === "Consumed"
+      // );
+
+      const rawData = response?.data?.data
+        ?.map((item) => {
+          const returnedConsumedComponents = item?.components?.filter(
+            (comp) => comp.status === "Returned" || comp.status === "Consumed"
+          );
+
+          if (returnedConsumedComponents.length > 0) {
+            return {
+              ...item,
+              components: returnedConsumedComponents,
+            };
+          }
+          return null;
+        })
+        .filter(Boolean); // remove nulls
+      // console.log("Only returned/consumed components:", rawData);
 
       const groupedData = rawData.reduce((acc, user) => {
         const existingUser = acc.find((item) => item._id === user._id);
@@ -101,6 +118,9 @@ export default function QuickFilteringGrid() {
           .join(", ");
         const quantities = user.components
           .map((comp) => comp.quantity)
+          .join(", ");
+        const componentsStatus = user.components
+          .map((comp) => comp.status)
           .join(", ");
 
         const createdDate = new Date(user.createdAt);
@@ -118,6 +138,7 @@ export default function QuickFilteringGrid() {
           existingUser.components += `, ${componentNames}`;
           existingUser.specification += `, ${specifications}`;
           existingUser.quantity += `, ${quantities}`;
+          existingUser.status += `, ${componentsStatus}`;
         } else {
           acc.push({
             _id: user._id,
@@ -129,10 +150,11 @@ export default function QuickFilteringGrid() {
             branch: user.branch,
             mobile: user.mobile,
             labNumber: user.labNumber,
-            components: componentNames,
+            componentName: componentNames,
             specification: specifications,
             quantity: quantities,
-            status: user.status,
+            // status: user.status,
+            status: componentsStatus,
             createdAt: formattedCreatedAt,
             updatedAt: formattedUpdatedAt,
             updatedAtTimestamp: updatedDate.getTime(),
@@ -149,7 +171,7 @@ export default function QuickFilteringGrid() {
 
       setRows(sortedData);
     } catch (error) {
-      console.log("Error fetching data", error);
+      console.error("Error fetching data", error);
     }
   };
 
@@ -168,20 +190,20 @@ export default function QuickFilteringGrid() {
       <Box sx={{ width: "100%" }}>
         <DataGrid
           rows={rows}
-          // columns={ReturnedAndConsumedColumns}
-          columns={ReturnedAndConsumedColumns?.map((col) =>
-            col.field === "status"
-              ? {
-                  ...col,
-                  renderCell: (params) => (
-                    <EditableStatusCell
-                      params={params}
-                      refreshData={fetchTableData}
-                    />
-                  ),
-                }
-              : col
-          )}
+          columns={ReturnedAndConsumedColumns}
+          // columns={ReturnedAndConsumedColumns?.map((col) =>
+          //   col.field === "status"
+          //     ? {
+          //         ...col,
+          //         renderCell: (params) => (
+          //           <EditableStatusCell
+          //             params={params}
+          //             refreshData={fetchTableData}
+          //           />
+          //         ),
+          //       }
+          //     : col
+          // )}
           pageSizeOptions={[10, 25, 50, 100]} // Optional: dropdown options
           initialState={{
             pagination: {

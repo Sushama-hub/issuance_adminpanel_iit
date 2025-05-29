@@ -133,8 +133,8 @@ export const ReturnedAndConsumedColumns = [
     width: 105,
   },
   {
-    field: "components",
-    headerName: "Components",
+    field: "componentName",
+    headerName: "component Name",
     flex: 0,
     editable: false,
     width: 170,

@@ -101,22 +101,40 @@ const MonthWiseBarChart = ({ graphData }) => {
     }
 
     graphData.forEach((item) => {
-      if (item?.createdAt && item?.status) {
+      if (item?.createdAt && Array.isArray(item?.components)) {
         const date = new Date(item.createdAt);
         const year = date.getFullYear();
         const month = date.toLocaleString("default", { month: "short" });
 
         if (year === selectedYear && monthCounts[month]) {
-          const status = item.status.toLowerCase();
-          if (
-            status === "issued" ||
-            status === "returned" ||
-            status === "consumed"
-          ) {
-            monthCounts[month][status]++;
-          }
+          item.components.forEach((comp) => {
+            const status = comp.status?.toLowerCase();
+            if (
+              status === "issued" ||
+              status === "returned" ||
+              status === "consumed"
+            ) {
+              monthCounts[month][status]++;
+            }
+          });
         }
       }
+      // if (item?.createdAt && item?.status) {
+      //   const date = new Date(item.createdAt);
+      //   const year = date.getFullYear();
+      //   const month = date.toLocaleString("default", { month: "short" });
+
+      //   if (year === selectedYear && monthCounts[month]) {
+      //     const status = item.status.toLowerCase();
+      //     if (
+      //       status === "issued" ||
+      //       status === "returned" ||
+      //       status === "consumed"
+      //     ) {
+      //       monthCounts[month][status]++;
+      //     }
+      //   }
+      // }
     });
 
     // Convert to array and maintain month order

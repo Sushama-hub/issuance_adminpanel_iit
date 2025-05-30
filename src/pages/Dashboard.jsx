@@ -33,14 +33,31 @@ export default function DashboardMaster() {
       const allFetchedData = response?.data?.data || [];
       setAllIssuanceData(allFetchedData);
 
-      const totalIssuedCount = allFetchedData.length;
-      const currentlyIssuedCount = allFetchedData.filter(
-        (item) => item.status === "Issued"
-      ).length;
+      // const totalIssuedCount = allFetchedData.length;
+      // const currentlyIssuedCount = allFetchedData.filter(
+      //   (item) => item.status === "Issued"
+      // ).length;
 
-      const returnedOrConsumedCount = allFetchedData.filter(
-        (item) => item.status === "Returned" || item.status === "Consumed"
-      ).length;
+      // const returnedOrConsumedCount = allFetchedData.filter(
+      //   (item) => item.status === "Returned" || item.status === "Consumed"
+      // ).length;
+
+      const totalIssuedCount = allFetchedData
+        ?.flatMap((item) => item.components) // flatten all components into one array
+        .filter((comp) => comp.status).length; // filter all status // count
+
+      const currentlyIssuedCount = allFetchedData
+        ?.flatMap((item) => item.components) // flatten all components into one array
+        .filter((comp) => comp.status === "Issued").length; // filter only "Issued" // count
+
+      const returnedOrConsumedCount = allFetchedData
+        ?.flatMap((item) => item.components) // flatten all components into one array
+        .filter(
+          (comp) => comp.status === "Returned" || comp.status === "Consumed"
+        ).length; // filter only "Returned / Consumed" // count
+
+      console.log("currentlyIssuedCount....", currentlyIssuedCount);
+      console.log("returnedOrConsumedCount....", returnedOrConsumedCount);
 
       setData((prevData) => ({
         ...prevData,

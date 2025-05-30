@@ -62,8 +62,35 @@ const StatusPieChart = ({ graphData }) => {
     };
 
     // Count total items for each status
+    // graphData.forEach((item) => {
+    //   statusCounts[item.status.toLowerCase()]++;
+    // });
+
+    // new..-
     graphData.forEach((item) => {
-      statusCounts[item.status.toLowerCase()]++;
+      // Count top-level status (if needed)
+      const topStatus = item.status?.toLowerCase();
+      if (
+        topStatus === "issued" ||
+        topStatus === "returned" ||
+        topStatus === "consumed"
+      ) {
+        statusCounts[topStatus]++;
+      }
+
+      //new. - Count statuses inside components array (if exists)
+      if (Array.isArray(item.components)) {
+        item.components.forEach((comp) => {
+          const compStatus = comp.status?.toLowerCase();
+          if (
+            compStatus === "issued" ||
+            compStatus === "returned" ||
+            compStatus === "consumed"
+          ) {
+            statusCounts[compStatus]++;
+          }
+        });
+      }
     });
 
     // Calculate total count

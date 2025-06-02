@@ -17,28 +17,14 @@ import "react-toastify/dist/ReactToastify.css";
 
 const getUserFromStorage = () => {
   const user = localStorage.getItem("user");
-  const expiresAt = localStorage.getItem("expiresAt");
-  if (!user || !expiresAt) return null;
-
-  const isExpired = new Date().getTime() > parseInt(expiresAt, 10);
-  if (isExpired) {
-    localStorage.clear();
-    return null;
-  }
-
   return JSON.parse(user);
-};
-
-const hasTokenExpired = () => {
-  const expiresAt = localStorage.getItem("expiresAt");
-  return !expiresAt || new Date().getTime() > parseInt(expiresAt, 10);
 };
 
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const token = localStorage.getItem("token");
   const user = getUserFromStorage();
 
-  if (!token || !user || hasTokenExpired()) {
+  if (!token || !user) {
     localStorage.clear();
     return <Navigate to="/login" replace />;
   }
@@ -54,7 +40,7 @@ const AuthRedirect = ({ children }) => {
   const token = localStorage.getItem("token");
   const user = getUserFromStorage();
 
-  if (token && user && !hasTokenExpired()) {
+  if (token && user) {
     if (user.role === "master")
       return <Navigate to="/dashboard/master" replace />;
     if (user.role === "admin")

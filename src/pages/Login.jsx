@@ -20,6 +20,7 @@ import {
 } from "../utils/toastUtils";
 import Login2 from "../assets/images/login2.jpg";
 import { apiRequest } from "../utils/api";
+
 const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

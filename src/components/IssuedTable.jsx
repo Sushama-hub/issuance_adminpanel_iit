@@ -1,92 +1,12 @@
 import * as React from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import VisibilityIcon from "@mui/icons-material/Visibility";
-import {
-  Box,
-  Typography,
-  IconButton,
-  Menu,
-  MenuItem,
-  Tooltip,
-} from "@mui/material";
+import { Box, Typography, IconButton, Tooltip } from "@mui/material";
 import { IssuedColumns } from "../config/tableConfig";
-import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
 import { apiRequest } from "../utils/api";
-import ConfirmDialog from "./dialog/ConfirmDialog";
 import EntryFormButton from "./EntryFormButton";
 import ViewDialog from "./dialog/ViewDialog";
-
-const EditableStatusCell = ({ params, refreshData }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [actionData, setActionData] = useState(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = async (status) => {
-    setAnchorEl(null);
-    if (status && status !== params.value) {
-      setActionData(status);
-      setConfirmOpen(true);
-    }
-  };
-
-  const handleConfirmDialogSubmit = async (status) => {
-    try {
-      const response = await apiRequest.put(
-        `/user/update-status/${params.row._id}`,
-        { status }
-      );
-
-      if (response?.data?.success) {
-        showSuccessToast(
-          response?.data?.message || "Status updated successfully!"
-        );
-
-        // refresh the table
-        await refreshData();
-      }
-    } catch (error) {
-      console.error("Error updating status", error);
-      showErrorToast(`Failed to update status. Please try again.`);
-    } finally {
-      setConfirmOpen(false);
-      setActionData(null);
-    }
-  };
-
-  return (
-    <>
-      <Box sx={{ display: "flex", alignItems: "center" }}>
-        <span>{params.value}</span>
-        <IconButton onClick={handleClick} size="small">
-          <ArrowDropDownIcon />
-        </IconButton>
-        <Menu anchorEl={anchorEl} open={open} onClose={() => handleClose(null)}>
-          {["Issued", "Returned", "Consumed"].map((option) => (
-            <MenuItem key={option} onClick={() => handleClose(option)}>
-              {option}
-            </MenuItem>
-          ))}
-        </Menu>
-      </Box>
-
-      {/* Confirm Dialog */}
-      <ConfirmDialog
-        title="Confirm Status Change!"
-        text={`Please confirm: change status from "${params.value}" to "${actionData}"?`}
-        open={confirmOpen}
-        setOpen={setConfirmOpen}
-        onSubmit={handleConfirmDialogSubmit}
-        actionData={actionData}
-        setActionData={setActionData}
-      />
-    </>
-  );
-};
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([]);
@@ -133,10 +53,6 @@ export default function QuickFilteringGrid() {
         const quantities = user.components
           .map((comp) => comp.quantity)
           .join(", ");
-        // -- output --- Issued,Issued - show each component status
-        // const componentsStatus = user.components
-        //   .map((comp) => comp.status)
-        //   .join(", ");
         // --- output --- "Issued, Issued" → "Issued" (no duplicates).
         const componentsStatus = [
           ...new Set(user.components.map((comp) => comp.status)),
@@ -162,7 +78,6 @@ export default function QuickFilteringGrid() {
             componentName: componentNames,
             specification: specifications,
             quantity: quantities,
-            // status: user.status,
             status: componentsStatus,
             createdAt: new Date(user.createdAt).toLocaleString(),
           });
@@ -218,43 +133,6 @@ export default function QuickFilteringGrid() {
                   }
                 : col
             )}
-            // columns={[
-            //   ...IssuedColumns,
-            //   {
-            //     field: "actions",
-            //     headerName: "Actions",
-            //     width: 150,
-            //     sortable: false,
-            //     filterable: false,
-            //     renderCell: (params) => (
-            //       <Box>
-            //         <Tooltip title="View Details" placement="right">
-            //           <IconButton
-            //             size="small"
-            //             color="primary"
-            //             onClick={() => handleView(params.row)}
-            //           >
-            //             <VisibilityIcon />
-            //           </IconButton>
-            //         </Tooltip>
-            //       </Box>
-            //     ),
-            //   },
-            // ]}
-            // ----------------------------
-            // columns={IssuedColumns?.map((col) =>
-            //   col.field === "status"
-            //     ? {
-            //         ...col,
-            //         renderCell: (params) => (
-            //           <EditableStatusCell
-            //             params={params}
-            //             refreshData={fetchTableData}
-            //           />
-            //         ),
-            //       }
-            //     : col
-            // )}
             pageSizeOptions={[10, 25, 50, 100]} // Optional: dropdown options
             initialState={{
               pagination: {
@@ -272,11 +150,6 @@ export default function QuickFilteringGrid() {
             disableRowSelectionOnClick
             disableColumnMenu
             getRowHeight={() => "auto"}
-            // sx={{
-            //   "& .MuiDataGrid-cell:focus-within": {
-            //     outline: "none",
-            //   },
-            // }}
             sx={dataGridStyles}
             slots={{ toolbar: GridToolbar }}
             slotProps={{

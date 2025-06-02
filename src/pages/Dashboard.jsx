@@ -33,15 +33,6 @@ export default function DashboardMaster() {
       const allFetchedData = response?.data?.data || [];
       setAllIssuanceData(allFetchedData);
 
-      // const totalIssuedCount = allFetchedData.length;
-      // const currentlyIssuedCount = allFetchedData.filter(
-      //   (item) => item.status === "Issued"
-      // ).length;
-
-      // const returnedOrConsumedCount = allFetchedData.filter(
-      //   (item) => item.status === "Returned" || item.status === "Consumed"
-      // ).length;
-
       const totalIssuedCount = allFetchedData
         ?.flatMap((item) => item.components) // flatten all components into one array
         .filter((comp) => comp.status).length; // filter all status // count
@@ -55,9 +46,6 @@ export default function DashboardMaster() {
         .filter(
           (comp) => comp.status === "Returned" || comp.status === "Consumed"
         ).length; // filter only "Returned / Consumed" // count
-
-      console.log("currentlyIssuedCount....", currentlyIssuedCount);
-      console.log("returnedOrConsumedCount....", returnedOrConsumedCount);
 
       setData((prevData) => ({
         ...prevData,
@@ -153,41 +141,29 @@ export default function DashboardMaster() {
 
       <AdminApprovalButton pendingUsers={pendingUsers} />
 
-      {/* Inventory Summary Section */}
       <Grid container spacing={3} sx={{ mt: 2 }}>
-        {/* <Grid item xs={12} md={4}>
-          <Card>
-            <InventorySummary />
-          </Card>
-        </Grid> */}
-
         {/* Charts Section */}
         <Grid item xs={12} md={8}>
           <Card>
-            {/* <Card sx={{ padding: 4 }}> */}
             <MonthWiseBarChart graphData={allIssuanceData} />
           </Card>
         </Grid>
+        {/* Inventory Summary Section */}
         <Grid item xs={12} md={4}>
           <Card>
             <InventorySummary />
           </Card>
         </Grid>
       </Grid>
-      {/* Charts Section */}
+
       <Grid container spacing={3} sx={{ mt: 2 }}>
-        {/* <Grid item xs={12} md={8}>
-          <Card sx={{ padding: 4 }}>
-            <MonthWiseBarChart graphData={allIssuanceData} />
-          </Card>
-        </Grid> */}
-        <Grid item xs={12} md={8}>
+        {/* Charts Section */}
+        <Grid item xs={12} md={12}>
           <Card>
-            {/* <Card sx={{ padding: 4 }}> */}
             <StatusPieChart graphData={allIssuanceData} />
           </Card>
         </Grid>
-        <Grid item xs={12} md={4}>
+        {/* <Grid item xs={12} md={4}>
           <Card
             sx={{
               padding: 3,
@@ -208,7 +184,7 @@ export default function DashboardMaster() {
 
             <ReIssueLogDialog />
           </Card>
-        </Grid>
+        </Grid> */}
       </Grid>
     </Box>
   );

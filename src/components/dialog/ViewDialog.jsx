@@ -25,7 +25,6 @@ import { useState } from "react";
 import { showErrorToast, showSuccessToast } from "../../utils/toastUtils";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { apiRequest } from "../../utils/api";
-import { Login } from "@mui/icons-material";
 
 const EditableStatusCell = ({ params, refreshData, closeDialog }) => {
   const [anchorEl, setAnchorEl] = useState(null);
@@ -37,7 +36,6 @@ const EditableStatusCell = ({ params, refreshData, closeDialog }) => {
   };
   const handleClick = async (status) => {
     setAnchorEl(null);
-    // if (status && status !== params.value) {
     if (status && status !== params.component?.status) {
       setActionData({ status, component: params?.component });
       setConfirmOpen(true);
@@ -46,10 +44,11 @@ const EditableStatusCell = ({ params, refreshData, closeDialog }) => {
 
   const handleConfirmDialogSubmit = async (actionData) => {
     try {
-      const response = await apiRequest.put(
-        `/user/update-status/${params.id}`,
-        { status: actionData?.status, componentData: actionData?.component }
-      );
+      const response = await apiRequest.post(`/user/update-status`, {
+        userForm_id: params.id,
+        status: actionData?.status,
+        componentData: actionData?.component,
+      });
 
       if (response?.data?.success) {
         showSuccessToast(
@@ -72,7 +71,6 @@ const EditableStatusCell = ({ params, refreshData, closeDialog }) => {
   return (
     <>
       <Box sx={{ display: "flex", alignItems: "center" }}>
-        {/* <Typography color="primary.dark">{params?.value}</Typography> */}
         <Typography color="primary.dark">
           {params?.component?.status}
         </Typography>
@@ -256,7 +254,6 @@ export default function AlertDialog({
                     <TableCell>
                       <EditableStatusCell
                         params={{
-                          // value: selectedRow?.status,
                           id: selectedRow?._id,
                           component: comp,
                         }}

@@ -1,173 +1,39 @@
 import * as React from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
-import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
-import { Box, IconButton, Menu, MenuItem, Typography } from "@mui/material";
+import { Box, Typography } from "@mui/material";
 import { ReturnedAndConsumedColumns } from "../config/tableConfig";
-import { showErrorToast, showSuccessToast } from "../utils/toastUtils";
 import ReIssueLogDialog from "./dialog/ReIssueLogDialog";
 import { apiRequest } from "../utils/api";
-import ConfirmDialog from "./dialog/ConfirmDialog";
-
-const EditableStatusCell = ({ params, refreshData }) => {
-  const [anchorEl, setAnchorEl] = useState(null);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [actionData, setActionData] = useState(null);
-  const open = Boolean(anchorEl);
-  const handleClick = (event) => {
-    setAnchorEl(event.currentTarget);
-  };
-  const handleClose = async (status) => {
-    setAnchorEl(null);
-    if (status && status !== params.value) {
-      setActionData(status);
-      setConfirmOpen(true);
-    }
-  };
-
-  const handleConfirmDialogSubmit = async (status) => {
-    try {
-      const response = await apiRequest.put(
-        `/user/update-status/${params.row._id}`,
-        { status }
-      );
-
-      if (response?.data?.success) {
-        showSuccessToast(
-          response?.data?.message || "Status updated successfully!"
-        );
-
-        // refresh the table
-        await refreshData();
-      }
-    } catch (error) {
-      console.error("Error updating status", error);
-      showErrorToast(`Failed to update status. Please try again.`);
-    } finally {
-      setConfirmOpen(false);
-      setActionData(null);
-    }
-  };
-
-  return (
-    <>
-      <Box sx={{ display: "flex", alignItems: "center" }}>
-        <span>{params.value}</span>
-        <IconButton onClick={handleClick} size="small">
-          <ArrowDropDownIcon />
-        </IconButton>
-        <Menu anchorEl={anchorEl} open={open} onClose={() => handleClose(null)}>
-          {["Issued", "Returned", "Consumed"].map((option) => (
-            <MenuItem key={option} onClick={() => handleClose(option)}>
-              {option}
-            </MenuItem>
-          ))}
-        </Menu>
-      </Box>
-
-      {/* Confirm Dialog */}
-      <ConfirmDialog
-        title="Confirm Status Change!"
-        text={`Please confirm: change status from "${params.value}" to "${actionData}"?`}
-        open={confirmOpen}
-        setOpen={setConfirmOpen}
-        onSubmit={handleConfirmDialogSubmit}
-        actionData={actionData}
-        setActionData={setActionData}
-      />
-    </>
-  );
-};
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([]);
 
   const fetchTableData = async () => {
     try {
-      const response = await apiRequest.get("/user/get-user");
+      const response = await apiRequest.get("/user/return-component");
 
-      // const rawData = response?.data?.data?.filter(
-      //   (item) => item.status === "Returned" || item.status === "Consumed"
-      // );
-
-      const rawData = response?.data?.data
-        ?.map((item) => {
-          const returnedConsumedComponents = item?.components?.filter(
-            (comp) => comp.status === "Returned" || comp.status === "Consumed"
-          );
-
-          if (returnedConsumedComponents.length > 0) {
-            return {
-              ...item,
-              components: returnedConsumedComponents,
-            };
-          }
-          return null;
-        })
-        .filter(Boolean); // remove nulls
-      // console.log("Only returned/consumed components:", rawData);
-
-      const groupedData = rawData.reduce((acc, user) => {
-        const existingUser = acc.find((item) => item._id === user._id);
-
-        const componentNames = user.components
-          .map((comp) => comp.componentName)
-          .join(", ");
-        const specifications = user.components
-          .map((comp) => comp.specification)
-          .join(", ");
-        const quantities = user.components
-          .map((comp) => comp.quantity)
-          .join(", ");
-        const componentsStatus = user.components
-          .map((comp) => comp.status)
-          .join(", ");
-
-        const createdDate = new Date(user.createdAt);
-        const updatedDate = new Date(user.updatedAt);
-
-        const formattedCreatedAt = `${createdDate.getDate()}/${
-          createdDate.getMonth() + 1
-        }/${createdDate.getFullYear()}, ${createdDate.toLocaleTimeString()}`;
-
-        const formattedUpdatedAt = `${updatedDate.getDate()}/${
-          updatedDate.getMonth() + 1
-        }/${updatedDate.getFullYear()}, ${updatedDate.toLocaleTimeString()}`;
-
-        if (existingUser) {
-          existingUser.components += `, ${componentNames}`;
-          existingUser.specification += `, ${specifications}`;
-          existingUser.quantity += `, ${quantities}`;
-          existingUser.status += `, ${componentsStatus}`;
-        } else {
-          acc.push({
-            _id: user._id,
-            email: user.email,
-            batch: user.batch,
-            category: user.category,
-            idNumber: user.idNumber,
-            name: user.name,
-            branch: user.branch,
-            mobile: user.mobile,
-            labNumber: user.labNumber,
-            componentName: componentNames,
-            specification: specifications,
-            quantity: quantities,
-            // status: user.status,
-            status: componentsStatus,
-            createdAt: formattedCreatedAt,
-            updatedAt: formattedUpdatedAt,
-            updatedAtTimestamp: updatedDate.getTime(),
-          });
-        }
-
-        return acc;
-      }, []);
+      const rowsWithId = response?.data?.data?.map((user, index) => ({
+        ...user,
+        id: index + 1,
+        email: user.userForm_id.email,
+        name: user.userForm_id.name,
+        batch: user.userForm_id.batch,
+        idNumber: user.userForm_id.idNumber,
+        category: user.userForm_id.category,
+        branch: user.userForm_id.branch,
+        mobile: user.userForm_id.mobile,
+        labNumber: user.userForm_id.labNumber,
+        updatedAt: new Date(user.updatedAt).toLocaleString(),
+      }));
 
       // Sort data by latest updatedAt timestamp
-      const sortedData = groupedData
-        .sort((a, b) => b.updatedAtTimestamp - a.updatedAtTimestamp)
-        .map((item, index) => ({ ...item, id: index + 1 }));
+      const sortedData = rowsWithId
+        .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
+        .map((item, index) => ({
+          ...item,
+          id: index + 1,
+        }));
 
       setRows(sortedData);
     } catch (error) {
@@ -191,19 +57,6 @@ export default function QuickFilteringGrid() {
         <DataGrid
           rows={rows}
           columns={ReturnedAndConsumedColumns}
-          // columns={ReturnedAndConsumedColumns?.map((col) =>
-          //   col.field === "status"
-          //     ? {
-          //         ...col,
-          //         renderCell: (params) => (
-          //           <EditableStatusCell
-          //             params={params}
-          //             refreshData={fetchTableData}
-          //           />
-          //         ),
-          //       }
-          //     : col
-          // )}
           pageSizeOptions={[10, 25, 50, 100]} // Optional: dropdown options
           initialState={{
             pagination: {
@@ -221,11 +74,6 @@ export default function QuickFilteringGrid() {
           disableRowSelectionOnClick
           disableColumnMenu
           getRowHeight={() => "auto"}
-          // sx={{
-          //   "& .MuiDataGrid-cell:focus-within": {
-          //     outline: "none",
-          //   },
-          // }}
           sx={dataGridStyles}
           slots={{ toolbar: GridToolbar }}
           slotProps={{

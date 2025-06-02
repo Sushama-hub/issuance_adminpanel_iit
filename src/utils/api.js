@@ -33,7 +33,7 @@ api.interceptors.response.use(
       localStorage.removeItem("user");
 
       // Redirect to /login
-      window.location.href = "/login"; // 👈 you can use this outside React components
+      window.location.href = "/login"; // you can use this outside React components
     }
 
     return Promise.reject(error); // propagate the error

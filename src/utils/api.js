@@ -23,6 +23,23 @@ api.interceptors.request.use((config) => {
   return config;
 });
 
+// Response interceptor
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Clear local storage token (optional)
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      // Redirect to /login
+      window.location.href = "/login"; // 👈 you can use this outside React components
+    }
+
+    return Promise.reject(error); // propagate the error
+  }
+);
+
 // Step 5: Export reusable methods for GET, POST, PUT, PATCH, DELETE
 export const apiRequest = {
   get: (url, config = {}) => api.get(url, config),

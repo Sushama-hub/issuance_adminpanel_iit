@@ -44,56 +44,27 @@ const LoginPage = () => {
       if (data?.success) {
         const token = data?.token;
         const user = data?.user;
-        const expiresIn = 3600 * 1000; // 1 hour
-        // const expiresIn = 10 * 1000 // 10 seconds
-        const expiresAt = new Date().getTime() + expiresIn;
 
         localStorage.setItem("token", token);
         localStorage.setItem("user", JSON.stringify(user));
-        localStorage.setItem("expiresAt", expiresAt.toString());
 
         const userRole = data?.user?.role;
 
         // Redirect based on role
-        // setTimeout(() => {
-        //   if (userRole === "master") {
-        //     navigate("/dashboard/master")
-        //   } else if (userRole === "admin") {
-        //     navigate("/dashboard/admin")
-        //   } else {
-        //     navigate("/dashboard/user")
-        //   }
-        // }, 1500)
-        if (userRole === "master") {
+        if (userRole === "master" || userRole === "admin") {
           showSuccessToast(data?.message || "Login successful! Redirecting...");
           setTimeout(() => {
-            navigate("/dashboard/master");
-          }, 1500);
-        } else if (userRole === "admin") {
-          showSuccessToast(data?.message || "Login successful! Redirecting...");
-          setTimeout(() => {
-            navigate("/dashboard/admin");
+            navigate(`/dashboard/${userRole}`);
           }, 1500);
         } else {
-          // Handle case for "user" role - show error
+          // Handle case for "user" or any other role
           showWarningToast(
             data?.message ||
               "Access denied. Only admins and masters are allowed."
           );
           localStorage.removeItem("token");
           localStorage.removeItem("user");
-          localStorage.removeItem("expiresAt");
         }
-
-        // Auto logout after token expiry
-        setTimeout(() => {
-          localStorage.removeItem("token");
-          localStorage.removeItem("user");
-          localStorage.removeItem("expiresAt");
-
-          showWarningToast("Session expired. Please log in again.");
-          navigate("/login");
-        }, expiresIn);
       }
     } catch (error) {
       console.error("Error:", error?.response?.data?.message);

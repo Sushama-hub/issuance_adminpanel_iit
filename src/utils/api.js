@@ -8,7 +8,7 @@ const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
 // Step 3: Create an axios instance
 const api = axios.create({
   baseURL, // your API base URL
-  withCredentials: true, // 👈 this makes it default for all
+  withCredentials: true, // this makes it default for all
   headers: {
     "Content-Type": "application/json",
   },

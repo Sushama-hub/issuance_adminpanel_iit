@@ -15,6 +15,7 @@ import {
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import { showSuccessToast, showErrorToast } from "../utils/toastUtils";
+import Register2 from "../assets/images/register2.jpg";
 import { apiRequest } from "../utils/api";
 
 const AdminRegisterPage = () => {
@@ -122,7 +123,8 @@ const AdminRegisterPage = () => {
               }}
             >
               <img
-                src="/src/assets/images/register2.jpg"
+                // src="/src/assets/images/register2.jpg"
+                src={Register2}
                 alt="login"
                 style={{
                   width: "100%",

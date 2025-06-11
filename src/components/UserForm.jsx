@@ -28,6 +28,7 @@ import {
   STAFFS,
 } from "../config/userformConfig";
 import { showErrorToast, showWarningToast } from "../utils/toastUtils";
+import BannerImg from "../assets/images/banner.jpg";
 import { apiRequest } from "../utils/api";
 
 export default function IssuanceForm() {
@@ -446,7 +447,8 @@ export default function IssuanceForm() {
                 fontWeight="bold"
                 mb={2}
                 sx={{
-                  backgroundImage: "url('/src/assets/images/banner.jpg')",
+                  // backgroundImage: "url('/src/assets/images/banner.jpg')",
+                  backgroundImage: `url(${BannerImg})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   color: "white",

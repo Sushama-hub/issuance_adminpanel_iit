@@ -114,23 +114,17 @@ export default function IssuanceForm() {
 
     try {
       const token = await loggedUser.getIdToken();
-      const res = await fetch(
-        "http://localhost:5000/api/v1/firebase/firebase-login",
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token }),
-        }
-      );
-      const data = await res.json();
+      const response = await apiRequest.post("/firebase/firebase-login", {
+        token,
+      });
 
-      if (data.success) {
+      if (response?.data?.success) {
         setUser(loggedUser);
         setIsLoggedIn(true);
-        setUserEmail(loggedUser.email);
-        setUserName(loggedUser.displayName);
+        setUserEmail(loggedUser?.email);
+        setUserName(loggedUser?.displayName);
       } else {
-        showErrorToast("Login failed: " + data.message);
+        showErrorToast("Login failed: " + response?.data?.message);
         await firebaseSignOut();
       }
     } catch (err) {

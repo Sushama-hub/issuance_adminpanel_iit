@@ -2,6 +2,7 @@ import React from "react";
 import { auth, provider } from "../firebase";
 import { signInWithPopup } from "firebase/auth";
 import { Box, Button } from "@mui/material";
+import { showErrorToast } from "../utils/toastUtils";
 
 export default function GoogleLoginButton({ onSuccess }) {
   const handleGoogleLogin = async () => {
@@ -12,7 +13,7 @@ export default function GoogleLoginButton({ onSuccess }) {
       if (onSuccess) onSuccess(user);
     } catch (error) {
       console.error("Google Login Error:", error);
-      alert("Google Sign-in failed. Please try again.");
+      showErrorToast("Google Sign-in failed. Please try again.");
     }
   };
 

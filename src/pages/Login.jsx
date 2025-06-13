@@ -10,6 +10,7 @@ import {
   IconButton,
   Link,
   Grid,
+  CircularProgress,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -25,6 +26,7 @@ const LoginPage = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
 
   const handleClickShowPassword = () => setShowPassword(!showPassword);
@@ -35,6 +37,7 @@ const LoginPage = () => {
 
   const handleLogin = async (event) => {
     event.preventDefault();
+    setIsLoading(true);
 
     try {
       const { data } = await apiRequest.post("/admin/login", {
@@ -68,19 +71,24 @@ const LoginPage = () => {
         }
       }
     } catch (error) {
-      console.error("Error:", error?.response?.data?.message);
-      showErrorToast("Login failed. Please try again.");
+      console.error("Error:", error?.response?.data || error?.message);
+      showErrorToast(
+        error?.response?.data?.message || "Login failed. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
   return (
     <Box
       sx={{
-        height: "100vh",
+        minHeight: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         width: "100%",
         background: "linear-gradient(135deg, #075985 0%, #043c5a 100%)",
+        py: { xs: 4, md: 0 }, // vertical padding on mobile to prevent overflow
       }}
     >
       <Container maxWidth="md" sx={{ p: 1 }}>
@@ -185,8 +193,13 @@ const LoginPage = () => {
                     },
                     color: "#082f49",
                   }}
+                  disabled={isLoading}
                 >
-                  Login
+                  {isLoading ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : (
+                    "Login"
+                  )}
                 </Button>
 
                 {/* Register link */}

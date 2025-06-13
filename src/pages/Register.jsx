@@ -11,6 +11,7 @@ import {
   MenuItem,
   Link,
   Grid,
+  CircularProgress,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
@@ -42,45 +43,137 @@ const AdminRegisterPage = () => {
     confirmPassword: false,
   });
   const [passwordError, setPasswordError] = useState("");
+  const [confirmPasswordError, setConfirmPasswordError] = useState("");
   const [mobileError, setMobileError] = useState("");
+  const [emailError, setEmailError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const navigate = useNavigate();
+
+  // Validate mobile number
+  const isValidMobileNumber = (mobNumber) => {
+    const mobilePattern = /^[6-9]\d{9}$/;
+    // Validate Indian number format
+    if (!mobilePattern.test(mobNumber)) {
+      setMobileError("Enter a valid 10-digit Indian mobile number");
+      return false;
+    } else {
+      setMobileError("");
+      return true;
+    }
+    // ---OR----
+    // if (!mobilePattern.test(mobNumber)) {
+    //   return {
+    //     mobileValid: false,
+    //     errorMessage: "Enter a valid 10-digit Indian mobile number",
+    //   };
+    // } else {
+    //   return { mobileValid: true, errorMessage: "" };
+    // }
+  };
+
+  const isValidPassword = (password) => {
+    // const passwordPattern = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{6,}$/;
+    const passwordPattern = /^\d{6}$/; // Only 6 digits
+
+    // (?=.*[a-z]) → at least one lowercase
+    // (?=.*[A-Z]) → at least one uppercase
+    // (?=.*\d) → at least one digit
+    // (?=.*[\W_]) → at least one special character (non-word character)
+    // .{6,} → at least 6 characters total
+
+    if (password.length > 10) return;
+    // if (!passwordPattern.test(password)) {
+    if (password.length < 8) {
+      // setPasswordError(
+      //   "Password must be at least 8 characters long and include uppercase, lowercase, number, and special character"
+      // );
+      setPasswordError("Password must be exactly 8 digits");
+      return false;
+    } else {
+      setPasswordError("");
+      return true;
+    }
+  };
+
+  const isValidEmail = (email) => {
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    if (!emailPattern.test(email)) {
+      setEmailError("Enter a valid email address");
+      return false;
+    } else {
+      setEmailError("");
+      return true;
+    }
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
 
     // Mobile number validation (10 digits, Indian format)
     if (name === "mobile") {
-      const mobilePattern = /^[6-9]\d{9}$/;
-      if (!mobilePattern.test(value)) {
-        setMobileError("Enter a valid 10-digit Indian mobile number");
+      // Only allow digits
+      if (!/^\d*$/.test(value)) return;
+
+      // Max 10 digits
+      if (value.length > 10) return;
+      // 1.-------------------
+      if (value.length < 10) {
+        setMobileError("Enter a valid 10-digit mobile number");
       } else {
-        setMobileError("");
+        isValidMobileNumber(value);
+        // ---OR----
+        // const { mobileValid, errorMessage } = isValidMobileNumber(value);
+        // setMobileError(errorMessage);
       }
     }
+
+    if (name === "password") {
+      isValidPassword(value);
+    }
+
+    if (name === "email") {
+      isValidEmail(value);
+    }
+
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
-    const mobilePattern = /^[6-9]\d{9}$/;
     let isValid = true;
 
-    if (!mobilePattern.test(formData.mobile)) {
-      setMobileError("Please Enter a valid 10-digit Indian mobile number");
+    // Mobile Validation
+    if (!isValidMobileNumber(formData.mobile)) {
       isValid = false;
-    } else {
-      setMobileError("");
+    }
+    // const { mobileValid, errorMessage } = isValidMobileNumber(formData.mobile);
+    // if (!mobileValid) {
+    //   setMobileError(errorMessage);
+    //   isValid = false;
+    // } else {
+    //   setMobileError("");
+    // }
+
+    // Password Validation
+    if (!isValidPassword(formData.password)) {
+      isValid = false;
     }
 
-    if (formData.password !== formData.confirmPassword) {
-      setPasswordError("Passwords do not match");
+    if (!isValidEmail(formData.email)) {
       isValid = false;
-    } else {
-      setPasswordError("");
+    }
+
+    // Confirm Password Check
+    if (formData.password !== formData.confirmPassword) {
+      setConfirmPasswordError("Passwords do not match");
+      isValid = false;
     }
 
     if (!isValid) {
+      setIsLoading(false);
       return; // stop form submission
     }
 
@@ -95,19 +188,26 @@ const AdminRegisterPage = () => {
       }
     } catch (error) {
       console.error("Error:", error.response?.data || error.message);
-      showErrorToast("Registration failed. Please try again.");
+
+      showErrorToast(
+        error.response?.data?.message ||
+          "Registration failed. Please try again."
+      );
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <Box
       sx={{
-        height: "100vh",
+        minHeight: "100vh",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
         width: "100%",
         background: "linear-gradient(135deg, #075985 0%, #043c5a 100%)",
+        py: { xs: 4, md: 0 }, // vertical padding on mobile to prevent overflow
       }}
     >
       <Container maxWidth="md" sx={{ p: 1 }}>
@@ -141,7 +241,7 @@ const AdminRegisterPage = () => {
             <Paper
               elevation={12}
               sx={{
-                p: 3,
+                p: 4,
                 height: "100%",
                 textAlign: "center",
                 borderRadius: { xs: "20px", md: "0 20px 20px 0" },
@@ -181,6 +281,8 @@ const AdminRegisterPage = () => {
                   margin="normal"
                   size="small"
                   sx={textFieldStyles}
+                  error={!!emailError}
+                  helperText={emailError}
                 />
                 <TextField
                   label="Password"
@@ -207,11 +309,17 @@ const AdminRegisterPage = () => {
                           edge="end"
                           sx={{ color: "#fff" }}
                         >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                          {showPassword?.password ? (
+                            <Visibility />
+                          ) : (
+                            <VisibilityOff />
+                          )}
                         </IconButton>
                       </InputAdornment>
                     ),
                   }}
+                  error={!!passwordError}
+                  helperText={passwordError}
                 />
                 <TextField
                   label="Confirm Password"
@@ -238,13 +346,17 @@ const AdminRegisterPage = () => {
                           edge="end"
                           sx={{ color: "#fff" }}
                         >
-                          {showPassword ? <VisibilityOff /> : <Visibility />}
+                          {showPassword?.confirmPassword ? (
+                            <Visibility />
+                          ) : (
+                            <VisibilityOff />
+                          )}
                         </IconButton>
                       </InputAdornment>
                     ),
                   }}
-                  error={!!passwordError}
-                  helperText={passwordError}
+                  error={!!confirmPasswordError}
+                  helperText={confirmPasswordError}
                 />
                 <TextField
                   label="Mobile Number"
@@ -258,6 +370,17 @@ const AdminRegisterPage = () => {
                   sx={textFieldStyles}
                   error={!!mobileError}
                   helperText={mobileError}
+                  // slotProps={{
+                  //   formHelperText: {
+                  //     sx: {
+                  //       backgroundColor: "#fdecea", // light red background
+                  //       color: "#b71c1c", // dark red text
+                  //       px: 1,
+                  //       borderRadius: "4px",
+                  //       mt: 0.5,
+                  //     },
+                  //   },
+                  // }}
                 />
 
                 <TextField
@@ -308,8 +431,13 @@ const AdminRegisterPage = () => {
                     },
                     color: "#082f49",
                   }}
+                  disabled={isLoading}
                 >
-                  Register
+                  {isLoading ? (
+                    <CircularProgress size={24} color="inherit" />
+                  ) : (
+                    "Register"
+                  )}
                 </Button>
 
                 {/* login link */}

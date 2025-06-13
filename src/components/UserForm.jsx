@@ -577,7 +577,7 @@ export default function IssuanceForm() {
                     </Grid>
                   ))}
 
-                  <Grid item xs={6} sm={6}>
+                  <Grid item xs={12} sm={6}>
                     <Autocomplete
                       disablePortal
                       options={

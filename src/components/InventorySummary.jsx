@@ -8,17 +8,15 @@ import {
   ListItemText,
   Box,
 } from "@mui/material";
-import axios from "axios";
+import { apiRequest } from "../utils/api";
 
 const InventoryComponentCard = () => {
   const [componentsList, setComponentsList] = useState([]);
   const [selectedType, setSelectedType] = useState(null);
 
-  const baseURL = import.meta.env.VITE_BACKEND_BASE_URL;
-
   const fetchComponentData = async () => {
     try {
-      const response = await axios.get(`${baseURL}/inventory/components`);
+      const response = await apiRequest.get("/inventory/components");
 
       if (response?.data?.success) {
         setComponentsList(response.data.components || []);

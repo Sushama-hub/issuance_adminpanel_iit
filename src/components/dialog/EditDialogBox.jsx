@@ -128,7 +128,7 @@ export default function EditDialogBox({
               value={
                 field.type === "date"
                   ? formatDateToYYYYMMDD(formData?.[field.name])
-                  : formData?.[field.name] || "0"
+                  : formData?.[field.name] || " "
               }
               onChange={handleInputChange}
               fullWidth

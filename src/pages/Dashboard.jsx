@@ -158,12 +158,12 @@ export default function DashboardMaster() {
 
       <Grid container spacing={3} sx={{ mt: 2 }}>
         {/* Charts Section */}
-        <Grid item xs={12} md={12}>
+        <Grid item xs={12} md={8}>
           <Card>
             <StatusPieChart graphData={allIssuanceData} />
           </Card>
         </Grid>
-        {/* <Grid item xs={12} md={4}>
+        <Grid item xs={12} md={4}>
           <Card
             sx={{
               padding: 3,
@@ -184,7 +184,7 @@ export default function DashboardMaster() {
 
             <ReIssueLogDialog />
           </Card>
-        </Grid> */}
+        </Grid>
       </Grid>
     </Box>
   );

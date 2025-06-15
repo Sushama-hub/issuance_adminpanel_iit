@@ -1,13 +1,17 @@
 import * as React from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import { useEffect, useState } from "react";
-import { Box, Typography } from "@mui/material";
+import VisibilityIcon from "@mui/icons-material/Visibility";
+import { Box, Typography, IconButton, Tooltip } from "@mui/material";
 import { ReturnedAndConsumedColumns } from "../config/tableConfig";
 import ReIssueLogDialog from "./dialog/ReIssueLogDialog";
+import ViewDialog from "./dialog/ViewDialog";
 import { apiRequest } from "../utils/api";
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([]);
+  const [viewOpen, setViewOpen] = useState(false);
+  const [selectedRow, setSelectedRow] = useState({});
 
   const fetchTableData = async () => {
     try {
@@ -41,55 +45,91 @@ export default function QuickFilteringGrid() {
     }
   };
 
+  const handleView = (row) => {
+    setSelectedRow(row);
+    setViewOpen(true);
+  };
   useEffect(() => {
     fetchTableData();
   }, []);
 
   return (
-    <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
-      <Box sx={{ display: "flex", justifyContent: "space-between" }} mb={2}>
-        <Typography variant="h5" color="primary" fontWeight="bold">
-          Returned / Consumed Table
-        </Typography>
-        <ReIssueLogDialog />
-      </Box>
-      <Box sx={{ width: "100%" }}>
-        <DataGrid
-          rows={rows}
-          columns={ReturnedAndConsumedColumns}
-          pageSizeOptions={[10, 25, 50, 100]} // Optional: dropdown options
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 10,
-                page: 0,
+    <>
+      <Box sx={{ width: "100%", p: 1, mt: 1.5 }}>
+        <Box sx={{ display: "flex", justifyContent: "space-between" }} mb={2}>
+          <Typography variant="h5" color="primary" fontWeight="bold">
+            Returned / Consumed Table
+          </Typography>
+          <ReIssueLogDialog />
+        </Box>
+        <Box sx={{ width: "100%" }}>
+          <DataGrid
+            rows={rows}
+            // columns={ReturnedAndConsumedColumns}
+            columns={ReturnedAndConsumedColumns?.map((col) =>
+              col.field === "actions"
+                ? {
+                    ...col,
+                    renderCell: (params) => (
+                      <Box>
+                        <Tooltip title="View Details" placement="right">
+                          <IconButton
+                            size="small"
+                            color="primary"
+                            onClick={() => handleView(params.row)}
+                          >
+                            <VisibilityIcon />
+                          </IconButton>
+                        </Tooltip>
+                      </Box>
+                    ),
+                  }
+                : col
+            )}
+            pageSizeOptions={[10, 25, 50, 100]} // Optional: dropdown options
+            initialState={{
+              pagination: {
+                paginationModel: {
+                  pageSize: 10,
+                  page: 0,
+                },
               },
-            },
-          }}
-          pagination
-          disableColumnFilter
-          disableColumnSelector
-          disableDensitySelector
-          autoHeight
-          disableRowSelectionOnClick
-          disableColumnMenu
-          getRowHeight={() => "auto"}
-          sx={dataGridStyles}
-          slots={{ toolbar: GridToolbar }}
-          slotProps={{
-            toolbar: {
-              csvOptions: {
-                disableToolbarButton: false,
-                fileName: "Return Inventory Record", //custom file name here
+            }}
+            pagination
+            disableColumnFilter
+            disableColumnSelector
+            disableDensitySelector
+            autoHeight
+            disableRowSelectionOnClick
+            disableColumnMenu
+            getRowHeight={() => "auto"}
+            sx={dataGridStyles}
+            slots={{ toolbar: GridToolbar }}
+            slotProps={{
+              toolbar: {
+                csvOptions: {
+                  disableToolbarButton: false,
+                  fileName: "Return Inventory Record", //custom file name here
+                },
+                printOptions: { disableToolbarButton: true },
+                showQuickFilter: true,
+                quickFilterProps: { debounceMs: 500 },
               },
-              printOptions: { disableToolbarButton: true },
-              showQuickFilter: true,
-              quickFilterProps: { debounceMs: 500 },
-            },
-          }}
-        />
+            }}
+          />
+        </Box>
       </Box>
-    </Box>
+
+      {/* View Dialog */}
+      <ViewDialog
+        title="View Details"
+        useFor="returnedConsumed"
+        open={viewOpen}
+        setOpen={setViewOpen}
+        selectedRow={selectedRow}
+        fetchTableData={fetchTableData}
+      />
+    </>
   );
 }
 

@@ -4,9 +4,9 @@ import { useEffect, useState } from "react";
 import VisibilityIcon from "@mui/icons-material/Visibility";
 import { Box, Typography, IconButton, Tooltip } from "@mui/material";
 import { IssuedColumns } from "../config/tableConfig";
-import { apiRequest } from "../utils/api";
 import EntryFormButton from "./EntryFormButton";
 import ViewDialog from "./dialog/ViewDialog";
+import { apiRequest } from "../utils/api";
 
 export default function QuickFilteringGrid() {
   const [rows, setRows] = useState([]);
@@ -92,14 +92,14 @@ export default function QuickFilteringGrid() {
     }
   };
 
-  useEffect(() => {
-    fetchTableData();
-  }, []);
-
   const handleView = (row) => {
     setSelectedRow(row);
     setViewOpen(true);
   };
+
+  useEffect(() => {
+    fetchTableData();
+  }, []);
 
   return (
     <>
@@ -170,6 +170,7 @@ export default function QuickFilteringGrid() {
       {/* View Dialog */}
       <ViewDialog
         title="View Details"
+        useFor="issued"
         open={viewOpen}
         setOpen={setViewOpen}
         selectedRow={selectedRow}

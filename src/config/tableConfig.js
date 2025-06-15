@@ -166,6 +166,13 @@ export const ReturnedAndConsumedColumns = [
     editable: false,
     width: 120,
   },
+  {
+    field: "actions",
+    headerName: "Actions",
+    flex: 0,
+    editable: false,
+    width: 100,
+  },
 ];
 
 export const InventoryColumns = [
@@ -461,28 +468,42 @@ export const ReIssueLogColumns = [
     headerName: "Changed By (Name)",
     flex: 0,
     editable: false,
-    width: 200,
+    width: 120,
   },
   {
     field: "changed_by_email",
     headerName: "Changed By (Email)",
     flex: 0,
     editable: false,
-    width: 250,
+    width: 230,
   },
   {
     field: "changed_by_role",
     headerName: "Role of User",
     flex: 0,
     editable: false,
-    width: 150,
+    width: 80,
+  },
+  {
+    field: "component_name",
+    headerName: "Component Name",
+    flex: 0,
+    editable: false,
+    width: 200,
+  },
+  {
+    field: "specification",
+    headerName: "specification",
+    flex: 0,
+    editable: false,
+    width: 200,
   },
   {
     field: "previous_status",
     headerName: "Previous Status",
     flex: 0,
     editable: false,
-    width: 180,
+    width: 100,
   },
   {
     field: "new_status",
@@ -490,7 +511,7 @@ export const ReIssueLogColumns = [
     flex: 0,
     sortable: false,
     filterable: false,
-    width: 180,
+    width: 100,
   },
   {
     field: "createdAt",

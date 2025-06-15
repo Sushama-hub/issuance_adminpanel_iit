@@ -26,7 +26,7 @@ import { showErrorToast, showSuccessToast } from "../../utils/toastUtils";
 import ArrowDropDownIcon from "@mui/icons-material/ArrowDropDown";
 import { apiRequest } from "../../utils/api";
 
-const EditableStatusCell = ({ params, refreshData, closeDialog }) => {
+const EditableStatusCell = ({ params, refreshData, closeDialog, useFor }) => {
   const [anchorEl, setAnchorEl] = useState(null);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [actionData, setActionData] = useState(null);
@@ -44,11 +44,17 @@ const EditableStatusCell = ({ params, refreshData, closeDialog }) => {
 
   const handleConfirmDialogSubmit = async (actionData) => {
     try {
-      const response = await apiRequest.post(`/user/update-status`, {
-        userForm_id: params.id,
-        status: actionData?.status,
-        componentData: actionData?.component,
-      });
+      const response =
+        useFor === "issued"
+          ? await apiRequest.post(`/user/update-status`, {
+              userFormId: params.id,
+              status: actionData?.status,
+              componentData: actionData?.component,
+            })
+          : await apiRequest.post(`/user/update-return-status`, {
+              returnTableId: params.id,
+              newStatus: actionData?.status,
+            });
 
       if (response?.data?.success) {
         showSuccessToast(
@@ -128,6 +134,7 @@ export default function AlertDialog({
   selectedRow,
   allTableData,
   fetchTableData,
+  useFor,
 }) {
   const handleClose = () => {
     setOpen(false);
@@ -245,24 +252,49 @@ export default function AlertDialog({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {getComponentArr[0]?.components.map((comp) => (
-                  <TableRow key={comp._id}>
-                    <TableCell>{comp.componentName}</TableCell>
-                    <TableCell>{comp.specification}</TableCell>
-                    <TableCell>{comp.quantity}</TableCell>
-                    {/* <TableCell>{comp?.status}</TableCell> */}
-                    <TableCell>
-                      <EditableStatusCell
-                        params={{
-                          id: selectedRow?._id,
-                          component: comp,
-                        }}
-                        refreshData={fetchTableData}
-                        closeDialog={handleClose}
-                      />
-                    </TableCell>
-                  </TableRow>
-                ))}
+                {useFor === "issued" ? (
+                  <>
+                    {getComponentArr[0]?.components.map((comp) => (
+                      <TableRow key={comp._id}>
+                        <TableCell>{comp.componentName}</TableCell>
+                        <TableCell>{comp.specification}</TableCell>
+                        <TableCell>{comp.quantity}</TableCell>
+                        {/* <TableCell>{comp?.status}</TableCell> */}
+                        <TableCell>
+                          <EditableStatusCell
+                            params={{
+                              id: selectedRow?._id,
+                              component: comp,
+                            }}
+                            refreshData={fetchTableData}
+                            closeDialog={handleClose}
+                            useFor={useFor}
+                          />
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </>
+                ) : (
+                  <>
+                    <TableRow key={selectedRow._id}>
+                      <TableCell>{selectedRow.componentName}</TableCell>
+                      <TableCell>{selectedRow.specification}</TableCell>
+                      <TableCell>{selectedRow.quantity}</TableCell>
+                      {/* <TableCell>{comp?.status}</TableCell> */}
+                      <TableCell>
+                        <EditableStatusCell
+                          params={{
+                            id: selectedRow?._id,
+                            component: selectedRow,
+                          }}
+                          refreshData={fetchTableData}
+                          closeDialog={handleClose}
+                          useFor={useFor}
+                        />
+                      </TableCell>
+                    </TableRow>
+                  </>
+                )}
               </TableBody>
             </Table>
           </TableContainer>
